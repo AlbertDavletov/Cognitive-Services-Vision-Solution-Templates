@@ -2,7 +2,10 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/IoTVisualAlerts/bin/x64/Debug
+/IoTVisualAlerts/bin
 /IoTVisualAlerts/obj
 /.vs
-/IoTVisualAlerts/.vs/IoTVisualAlerts/v15
+/IoTVisualAlerts/.vs
+/ObjectCountingExplorer/.vs
+/ObjectCountingExplorer/bin
+/ObjectCountingExplorer/obj
