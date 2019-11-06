@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -54,6 +55,16 @@ namespace ObjectCountingExplorer
                 {
                     //TODO: Load state from previously suspended application
                 }
+
+                // Set the TitleBar to Dark Theme
+                var appView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
+                var titleBar = appView.TitleBar;
+                titleBar.BackgroundColor = Windows.UI.Colors.Black;
+                titleBar.ForegroundColor = Windows.UI.Colors.Black;
+                titleBar.ButtonBackgroundColor = Windows.UI.Colors.Black;
+                titleBar.ButtonForegroundColor = Windows.UI.Colors.White;
+
+                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
 
                 // Place the frame in the current Window
                 Window.Current.Content = rootFrame;
