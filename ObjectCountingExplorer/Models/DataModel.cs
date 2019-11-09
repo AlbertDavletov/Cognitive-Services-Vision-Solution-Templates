@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Windows.Foundation;
 using Windows.UI;
+using Windows.UI.Xaml.Media;
 
 namespace ObjectCountingExplorer.Models
 {
@@ -33,7 +35,8 @@ namespace ObjectCountingExplorer.Models
         Summary,
         LowConfidence,
         MediumConfidence,
-        HighConfidence
+        HighConfidence,
+        SelectedItems
     }
 
     public class RecognitionGroupViewModel
@@ -56,7 +59,21 @@ namespace ObjectCountingExplorer.Models
 
     public class ProductItemViewModel
     {
+        public Guid Id { get; private set; }
+        public PredictionModel Model { get; private set; }
+
+
         public string Name { get; set; }
-        public PredictionModel Model { get; set; }
+        public ImageSource Image { get; set; }
+        public Rect Rect { get; set; }
+
+        public ProductItemViewModel(PredictionModel model)
+        {
+            Id = Guid.NewGuid();
+            Model = model;
+
+            Name = model.TagName;
+            Rect = new Rect(model.BoundingBox.Left, model.BoundingBox.Top, model.BoundingBox.Width, model.BoundingBox.Height);
+        }
     }
 }

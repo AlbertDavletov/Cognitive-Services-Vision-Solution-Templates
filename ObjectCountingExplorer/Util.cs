@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Graphics.Display;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace ObjectCountingExplorer
 {
@@ -111,6 +114,26 @@ namespace ObjectCountingExplorer
             }
         }
 
+        public static Color ColorFromString(string str)
+        {
+            if (string.IsNullOrEmpty(str) || str.Length != 8)
+            {
+                return Colors.Gray;
+            }
+
+            try
+            {
+                return Color.FromArgb(byte.Parse(str.Substring(0, 2), System.Globalization.NumberStyles.HexNumber),
+                                    byte.Parse(str.Substring(2, 2), System.Globalization.NumberStyles.HexNumber),
+                                    byte.Parse(str.Substring(4, 2), System.Globalization.NumberStyles.HexNumber),
+                                    byte.Parse(str.Substring(6, 2), System.Globalization.NumberStyles.HexNumber));
+            }
+            catch (Exception)
+            {
+                return Colors.Gray;
+            }
+        }
+
         private static async Task<Tuple<byte[], BitmapTransform>> GetPixelsAsync(IRandomAccessStream stream)
         {
             // Create a decoder from the stream. With the decoder, we can get the properties of the image.
@@ -132,6 +155,45 @@ namespace ObjectCountingExplorer
                 ColorManagementMode.ColorManageToSRgb);
 
             return new Tuple<byte[], BitmapTransform>(pix.DetachPixelData(), transform);
+        }
+
+        public static async Task<ImageSource> GetCroppedBitmapAsync(IRandomAccessStream stream, Rect rectangle)
+        {
+            var pixels = await GetCroppedPixelsAsync(stream, rectangle);
+
+            // Stream the bytes into a WriteableBitmap 
+            WriteableBitmap cropBmp = new WriteableBitmap((int)pixels.Item2.Width, (int)pixels.Item2.Height);
+            cropBmp.FromByteArray(pixels.Item1);
+
+            return cropBmp;
+        }
+
+        private static async Task<Tuple<byte[], BitmapBounds>> GetCroppedPixelsAsync(IRandomAccessStream stream, Rect rectangle)
+        {
+            // Create a decoder from the stream. With the decoder, we can get  
+            // the properties of the image. 
+            BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
+
+            // Create cropping BitmapTransform and define the bounds. 
+            BitmapTransform transform = new BitmapTransform();
+            BitmapBounds bounds = new BitmapBounds
+            {
+                X = Math.Max(0, (uint)rectangle.Left),
+                Y = Math.Max(0, (uint)rectangle.Top)
+            };
+            bounds.Height = bounds.Y + rectangle.Height <= decoder.PixelHeight ? (uint)rectangle.Height : decoder.PixelHeight - bounds.Y;
+            bounds.Width = bounds.X + rectangle.Width <= decoder.PixelWidth ? (uint)rectangle.Width : decoder.PixelWidth - bounds.X;
+            transform.Bounds = bounds;
+
+            // Get the cropped pixels within the bounds of transform. 
+            PixelDataProvider pix = await decoder.GetPixelDataAsync(
+                BitmapPixelFormat.Bgra8,
+                BitmapAlphaMode.Straight,
+                transform,
+                ExifOrientationMode.IgnoreExifOrientation,
+                ColorManagementMode.ColorManageToSRgb);
+
+            return new Tuple<byte[], BitmapBounds>(pix.DetachPixelData(), transform.Bounds);
         }
     }
 }

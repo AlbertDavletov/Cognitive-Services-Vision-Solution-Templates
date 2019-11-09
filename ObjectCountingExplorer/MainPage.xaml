@@ -13,10 +13,8 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
-        <SolidColorBrush x:Key="CropImageMask" Color="#1F1F1F" Opacity="0.7"/>
-
+        <ctl:ReverseEnumMatchToVisibilityConverter x:Key="reverseEnumMatchToVisibilityConverter"/>
         <ctl:EnumMatchToVisibilityConverter x:Key="enumMatchToVisibilityConverter"/>
-        <ctl:BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
         <ctl:ReverseBooleanToVisibilityConverter x:Key="reverseBooleanToVisibilityConverter"/>
         <ctl:ReverseVisibilityConverter x:Key="reverseVisibilityConverter"/>
         <ctl:CollectionCountToVisibilityConverter x:Key="collectionCountToVisibilityConverter"/>
@@ -57,71 +55,124 @@
                     <ctl:CameraControl x:Name="cameraControl" FlowDirection="LeftToRight" ImageCaptured="CameraControl_ImageCaptured"/>
                 </Grid>
 
-                <Grid x:Name="imageGrid" Visibility="Collapsed">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition />
-                    </Grid.RowDefinitions>
-
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button Background="Transparent" Padding="6" Width="100">
-                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8A3;"/>
-                                <TextBlock Text="Zoom"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Background="Transparent" Padding="6" Width="100" Click="OnCropImageButtonClicked">
-                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7A8;"/>
-                                <TextBlock Text="Crop"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Background="Transparent" Padding="6" Width="100" IsEnabled="False">
-                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7AD;"/>
-                                <TextBlock Text="Rotate"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                    
-                    <Grid Grid.Row="1" HorizontalAlignment="Center" Visibility="{Binding EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
-                        <Image x:Name="image" Stretch="Uniform" PointerReleased="OnPointerReleasedOverImage"/>
-                        <Canvas x:Name="objectDetectionVisualizationCanvas" SizeChanged="OnObjectDetectionVisualizationCanvasSizeChanged"/>
-                        <Canvas x:Name="imageRegionsCanvas" Visibility="Collapsed"/>
-                    </Grid>
-
-                    <Grid Grid.Row="1" Visibility="{Binding EnableCropFeature, Converter={StaticResource booleanToVisibilityConverter}}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <controls:ImageCropper x:Name="imageCropper" Mask="{StaticResource CropImageMask}" Background="#1F1F1F"/>
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Padding="12" HorizontalAlignment="Center">
-                            <Button Content="Cancel" Click="OnCancelCropImageButtonClicked" Width="120" />
-                            <Button Content="Save" Click="OnSaveImageButtonClicked" Width="120" />
-                        </StackPanel>
-                    </Grid>
+                <Grid x:Name="imageGrid" Visibility="Collapsed" HorizontalAlignment="Stretch">
+                    <ctl:ImageWithRegionEditorsControl x:Name="image" HorizontalAlignment="Stretch" RegionSelected="OnImageRegionSelected"/>
                 </Grid>
 
                 <Button Background="Black" Width="40" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" Click="OnCloseImageViewButtonClicked"
-                        Visibility="{Binding EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
+                        Visibility="{Binding ElementName=image, Path=EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
                     <SymbolIcon Symbol="Cancel"/>
                 </Button>
             </Grid>
 
             <Grid Grid.Row="1" Background="#171717">
-                <Grid x:Name="summaryGrid" ColumnSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal" BorderBrush="Orange" BorderThickness="0" HorizontalAlignment="Right">
+                    <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEF20;"/>
+                            <TextBlock Text="Add label"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="editRegionButton" Background="Transparent" IsEnabled="False" Style="{StaticResource ControlButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE70F;"/>
+                            <TextBlock Text="Edit label"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="clearSelectionButton" Background="Transparent" IsEnabled="False" Style="{StaticResource ControlButtonStyle}" Click="OnClearSelectionButtonClick">
+                        <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8E6;"/>
+                            <TextBlock Text="Clear selection"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="removeRegionButton" Background="Transparent" IsEnabled="False" Style="{StaticResource ControlButtonStyle}" Click="OnRemoveRegionButtonClick">
+                        <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74D;"/>
+                            <TextBlock Text="Remove"/>
+                        </StackPanel>
+                    </Button>
+                    <Rectangle VerticalAlignment="Stretch" Width="1" Fill="White" Opacity="0.2" Margin="4,6"/>
+                    <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE895;"/>
+                            <TextBlock Text="Sync report"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                
+                <Grid Grid.Row="1" x:Name="selectedProductsGrid" RowSpacing="24" Margin="24,0"
+                      Visibility="{Binding RecognitionGroup, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='SelectedItems'}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Style="{StaticResource TitleTextBlockStyle}" Foreground="White" Opacity="0.8">
+                        <Run Text="{Binding SelectedProductItemCollection.Count}"/>
+                        <Run Text="item selected"/>
+                    </TextBlock>
+
+                    <ScrollViewer Grid.Row="1" HorizontalScrollMode="Disabled">
+                        <GridView ItemsSource="{Binding SelectedProductItemCollection}">
+                            <GridView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <ItemsWrapGrid Orientation="Vertical" MaximumRowsOrColumns="1"/>
+                                </ItemsPanelTemplate>
+                            </GridView.ItemsPanel>
+                            <GridView.ItemContainerStyle>
+                                <Style TargetType="GridViewItem">
+                                    <Setter Property="Margin" Value="0,0,8,8"/>
+                                </Style>
+                            </GridView.ItemContainerStyle>
+                            
+                            <GridView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Background="#2B2B2B" CornerRadius="2" Height="200">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <StackPanel Spacing="12" VerticalAlignment="Stretch" Margin="7,12,7,9">
+                                            <Viewbox Height="100" Stretch="Uniform">
+                                                <Image Source="{Binding Image}" />
+                                            </Viewbox>
+
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="8,0" Opacity="0.8"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <Button Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Click="OnCancelProductSelectionButtonClick">
+                                            <SymbolIcon Symbol="Cancel"/>
+                                        </Button>
+
+                                        <Rectangle Grid.Row="1" Fill="#248FFF" Height="8" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </GridView.ItemTemplate>
+                        </GridView>
+                    </ScrollViewer>
+                </Grid>
+
+                <Grid Grid.Row="1" x:Name="summaryGrid" ColumnSpacing="12"
+                      Visibility="{Binding RecognitionGroup, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='SelectedItems'}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.2*"/>
                         <ColumnDefinition Width="0.8*"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel BorderBrush="Red" BorderThickness="1">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Products recognized" Style="{StaticResource TitleTextBlockStyle}" Opacity="0.8" HorizontalAlignment="Center"/>
                         <ListView x:Name="recognitionGroupListView" ItemsSource="{Binding RecognitionGroupCollection}" DisplayMemberPath="Name" SelectedValuePath="Group" SelectedValue="{Binding RecognitionGroup, Mode=TwoWay}"/>
                     </StackPanel>
 
-                    <Grid Grid.Column="1" BorderBrush="Blue" BorderThickness="1">
+                    <Grid Grid.Column="1">
 
                         <!-- Summary View -->
                         <Grid ColumnSpacing="30" Visibility="{Binding RecognitionGroup, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Summary'}">
@@ -130,10 +181,14 @@
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Spacing="12">
+                            <Grid RowSpacing="12">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
                                 <TextBlock Text="Items detected by brand" Foreground="White" Opacity="0.8" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                                <ctl:AnalyticsChartControl x:Name="chartControl" />
-                            </StackPanel>
+                                <ctl:AnalyticsChartControl Grid.Row="1" x:Name="chartControl" />
+                            </Grid>
 
                             <ScrollViewer Grid.Column="1" HorizontalScrollMode="Disabled">
                                 <StackPanel Spacing="20">

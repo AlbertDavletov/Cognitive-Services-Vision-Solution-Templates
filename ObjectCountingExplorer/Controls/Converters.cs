@@ -94,4 +94,30 @@ namespace ObjectCountingExplorer.Controls
             return value;
         }
     }
+
+    public class ReverseEnumMatchToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value == null || parameter == null || !(value is Enum))
+            {
+                return Visibility.Collapsed;
+            }
+
+            var currentState = value.ToString();
+            var stateStrings = parameter.ToString();
+
+            if (!string.Equals(currentState, stateStrings, StringComparison.OrdinalIgnoreCase))
+            {
+                return Visibility.Visible;
+            }
+
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            return value;
+        }
+    }
 }

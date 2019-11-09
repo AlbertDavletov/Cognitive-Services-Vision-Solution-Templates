@@ -126,8 +126,14 @@
       <DependentUpon>CameraControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Converters.cs" />
+    <Compile Include="Controls\ImageWithRegionEditorsControl.xaml.cs">
+      <DependentUpon>ImageWithRegionEditorsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\InitialView.xaml.cs">
       <DependentUpon>InitialView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ObjectRegionControl.xaml.cs">
+      <DependentUpon>ObjectRegionControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\ProductCollectionControl.xaml.cs">
       <DependentUpon>ProductCollectionControl.xaml</DependentUpon>
@@ -173,7 +179,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\ImageWithRegionEditorsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\InitialView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ObjectRegionControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -21,7 +21,7 @@ namespace ObjectCountingExplorer.Controls
             this.InitializeComponent();
         }
 
-        public void UpdateChart(List<ProductItemViewModel> productCollection)
+        public void UpdateChart(IEnumerable<ProductItemViewModel> productCollection)
         {
             Dictionary<string, List<PredictionModel>> productDict = productCollection.GroupBy(x => x.Name).ToDictionary(x => x.Key, x => x.Select(y => y.Model).ToList());
             int maxProductCount = productDict.Any(x => x.Value.Any()) ? productDict.Max(x => x.Value.Count) : 0;

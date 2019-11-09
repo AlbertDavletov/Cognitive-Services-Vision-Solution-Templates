@@ -1,7 +1,6 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training;
-using Microsoft.Toolkit.Uwp.UI.Controls;
 using ObjectCountingExplorer.Controls;
 using ObjectCountingExplorer.Helpers;
 using ObjectCountingExplorer.Models;
@@ -12,15 +11,12 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.Pickers;
-using Windows.UI;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace ObjectCountingExplorer
@@ -34,8 +30,7 @@ namespace ObjectCountingExplorer
         private static readonly ProjectViewModel currentProject = new ProjectViewModel(Guid.Empty, "<MODEL NAME>");
 
         private bool enableEditMode = false;
-        private IEnumerable<PredictionModel> currentDetectedObjects;
-        private StorageFile currentImageFile;
+        private List<ProductItemViewModel> currentDetectedObjects;
         private CustomVisionTrainingClient trainingApi;
         private CustomVisionPredictionClient predictionApi;
 
@@ -54,20 +49,9 @@ namespace ObjectCountingExplorer
 
         public ObservableCollection<ProductItemViewModel> HighConfidenceCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
+        public ObservableCollection<ProductItemViewModel> SelectedProductItemCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
+
         public ObservableCollection<DetectedObjectsViewModel> DetectedObjectCollection { get; set; } = new ObservableCollection<DetectedObjectsViewModel>();
-
-        public bool enableCropFeature = false;
-        public bool EnableCropFeature
-        {
-            get { return enableCropFeature; }
-            set
-            {
-                enableCropFeature = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("EnableCropFeature"));
-
-                ImageViewChanged();
-            }
-        }
 
         private RecognitionGroup recognitionGroup;
         public RecognitionGroup RecognitionGroup
@@ -77,6 +61,7 @@ namespace ObjectCountingExplorer
             {
                 recognitionGroup = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("RecognitionGroup"));
+                RecognitionGroupChanged();
             }
         }
 
@@ -148,41 +133,30 @@ namespace ObjectCountingExplorer
             this.webCamHostGrid.Width = this.webCamHostGrid.ActualHeight * (this.cameraControl.CameraAspectRatio != 0 ? this.cameraControl.CameraAspectRatio : 1.777777777777);
         }
 
-        private async void ImageViewChanged()
+        private void RecognitionGroupChanged()
         {
-            if (EnableCropFeature)
-            {
-                await this.imageCropper.LoadImageFromFile(currentImageFile);
-            }
-            else
-            {
-                if (currentImageFile != null)
-                {
-                    BitmapImage bitmapImage = new BitmapImage();
-                    await bitmapImage.SetSourceAsync((await currentImageFile.OpenStreamForReadAsync()).AsRandomAccessStream());
-                    this.image.Source = bitmapImage;
-                }
-            }
+            bool isAnySelectedProduct = SelectedProductItemCollection.Any();
+            this.editRegionButton.IsEnabled = isAnySelectedProduct;
+            this.clearSelectionButton.IsEnabled = isAnySelectedProduct;
+            this.removeRegionButton.IsEnabled = isAnySelectedProduct;
         }
 
         private async void CameraControl_ImageCaptured(object sender, ImageAnalyzer img)
         {
             ResetImageData();
 
-            currentImageFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("Image.jpg", CreationCollisionOption.ReplaceExisting);
+            StorageFile imageFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("Image.jpg", CreationCollisionOption.ReplaceExisting);
 
             if (img.ImageUrl != null)
             {
-                await Util.DownloadAndSaveBitmapAsync(img.ImageUrl, currentImageFile);
+                await Util.DownloadAndSaveBitmapAsync(img.ImageUrl, imageFile);
             }
             else if (img.GetImageStreamCallback != null)
             {
-                await Util.SaveBitmapToStorageFileAsync(await img.GetImageStreamCallback(), currentImageFile);
+                await Util.SaveBitmapToStorageFileAsync(await img.GetImageStreamCallback(), imageFile);
             }
 
-            BitmapImage bitmapImage = new BitmapImage();
-            await bitmapImage.SetSourceAsync((await currentImageFile.OpenStreamForReadAsync()).AsRandomAccessStream());
-            this.image.Source = bitmapImage;
+            await this.image.SetSourceFromFileAsync(imageFile);
 
             this.UpdateActivePhoto();
         }
@@ -201,11 +175,9 @@ namespace ObjectCountingExplorer
                 if (selectedFile != null)
                 {
                     ResetImageData();
-                    currentImageFile = await selectedFile.CopyAsync(ApplicationData.Current.LocalFolder, "Image.jpg", NameCollisionOption.ReplaceExisting);
+                    StorageFile imageFile = await selectedFile.CopyAsync(ApplicationData.Current.LocalFolder, "Image.jpg", NameCollisionOption.ReplaceExisting);
 
-                    BitmapImage bitmapImage = new BitmapImage();
-                    await bitmapImage.SetSourceAsync((await currentImageFile.OpenStreamForReadAsync()).AsRandomAccessStream());
-                    this.image.Source = bitmapImage;
+                    await this.image.SetSourceFromFileAsync(imageFile);
 
                     this.UpdateActivePhoto();
                 }
@@ -219,14 +191,14 @@ namespace ObjectCountingExplorer
         private async void ResetImageData()
         {
             this.enableEditMode = false;
-            this.image.Source = null;
+            this.image.ClearSource();
             this.currentDetectedObjects = null;
-            this.objectDetectionVisualizationCanvas.Children.Clear();
 
             DetectedObjectCollection.Clear();
             LowConfidenceCollection.Clear();
             MediumConfidenceCollection.Clear();
             HighConfidenceCollection.Clear();
+            SelectedProductItemCollection.Clear();
 
             this.recognitionGroupListView.SelectedIndex = -1;
             this.chartControl.Visibility = Visibility.Collapsed;
@@ -252,99 +224,115 @@ namespace ObjectCountingExplorer
             {
                 await StopWebCameraAsync();
             }
-            this.imageCropper.Source = null;
+            this.image.ClearSource();
             this.initialView.Visibility = Visibility.Visible;
             this.analyzeButton.Visibility = Visibility.Collapsed;
-        }
-
-        private void OnCancelCropImageButtonClicked(object sender, RoutedEventArgs e)
-        {
-            this.imageCropper.Reset();
-            EnableCropFeature = false;
-        }
-
-        private async void OnSaveImageButtonClicked(object sender, RoutedEventArgs e)
-        {
-            await SaveImageToFileAsync(currentImageFile);
-            EnableCropFeature = false;
         }
 
         private async void OnAnalyzeImageButtonClicked(object sender, RoutedEventArgs e)
         {
             if (currentProject != null)
             {
-                var productItemCollection = new List<ProductItemViewModel>()
+                double imageW = this.image.PixelWidth;
+                double imageH = this.image.PixelHeight;
+
+                double tempW = imageW != 0 ? 60 / imageW : 60;
+                double tempH = imageH != 0 ? 60 / imageH : 60;
+                double marginX = imageW != 0 ? 5 / imageW : 5;
+                double marginY = imageH != 0 ? 5 / imageH : 5;
+
+                currentDetectedObjects = new List<ProductItemViewModel>()
                 {
-                    new ProductItemViewModel() { Name = "General Mills", Model = new PredictionModel(probability: 0.99,  tagName: "General Mills") },
-                    new ProductItemViewModel() { Name = "General Mills", Model = new PredictionModel(probability: 0.98,  tagName: "General Mills") },
-                    new ProductItemViewModel() { Name = "General Mills", Model = new PredictionModel(probability: 0.97,  tagName: "General Mills") },
-                    new ProductItemViewModel() { Name = "General Mills", Model = new PredictionModel(probability: 0.96,  tagName: "General Mills") },
-                    new ProductItemViewModel() { Name = "General Mills", Model = new PredictionModel(probability: 0.95,  tagName: "General Mills") },
-                    new ProductItemViewModel() { Name = "General Mills", Model = new PredictionModel(probability: 0.94,  tagName: "General Mills") },
-                    new ProductItemViewModel() { Name = "General Mills", Model = new PredictionModel(probability: 0.6,   tagName: "General Mills") },
-                    new ProductItemViewModel() { Name = "General Mills", Model = new PredictionModel(probability: 0.59,  tagName: "General Mills") },
-                    new ProductItemViewModel() { Name = "General Mills", Model = new PredictionModel(probability: 0.58,  tagName: "General Mills") },
-                    new ProductItemViewModel() { Name = "General Mills", Model = new PredictionModel(probability: 0.3,  tagName: "General Mills") },
-                    new ProductItemViewModel() { Name = "General Mills", Model = new PredictionModel(probability: 0.2,  tagName: "General Mills") },
+                    new ProductItemViewModel(new PredictionModel(probability: 0.99,  tagName: "General Mills", boundingBox: new BoundingBox(marginX, marginY, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.98,  tagName: "General Mills", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, marginY, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.97,  tagName: "General Mills", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, marginY, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.96,  tagName: "General Mills", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, marginY, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.95,  tagName: "General Mills", boundingBox: new BoundingBox(5 * marginX + 4 * tempW, marginY, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.94,  tagName: "General Mills", boundingBox: new BoundingBox(6 * marginX + 5 * tempW, marginY, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.6,   tagName: "General Mills", boundingBox: new BoundingBox(7 * marginX + 6 * tempW, marginY, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.59,  tagName: "General Mills", boundingBox: new BoundingBox(8 * marginX + 7 * tempW, marginY, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.25,  tagName: "General Mills", boundingBox: new BoundingBox(9 * marginX + 8 * tempW, marginY, tempW, tempH))),
 
 
-                    new ProductItemViewModel() { Name = "Great Value", Model = new PredictionModel(probability: 0.81,  tagName: "Great Value") },
-                    new ProductItemViewModel() { Name = "Great Value", Model = new PredictionModel(probability: 0.79,  tagName: "Great Value") },
-                    new ProductItemViewModel() { Name = "Great Value", Model = new PredictionModel(probability: 0.78,  tagName: "Great Value") },
-                    new ProductItemViewModel() { Name = "Great Value", Model = new PredictionModel(probability: 0.59,  tagName: "Great Value") },
-                    new ProductItemViewModel() { Name = "Great Value", Model = new PredictionModel(probability: 0.58,  tagName: "Great Value") },
+                    new ProductItemViewModel(new PredictionModel(probability: 0.81,  tagName: "Great Value", boundingBox: new BoundingBox(marginX, 2 * marginY + tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.79,  tagName: "Great Value", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 2 * marginY + tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.78,  tagName: "Great Value", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 2 * marginY + tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.59,  tagName: "Great Value", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, 2 * marginY + tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.58,  tagName: "Great Value", boundingBox: new BoundingBox(5 * marginX + 4 * tempW, 2 * marginY + tempH, tempW, tempH))),
 
 
-                    new ProductItemViewModel() { Name = "Quaker", Model = new PredictionModel(probability: 0.99, tagName: "Quaker") },
-                    new ProductItemViewModel() { Name = "Quaker", Model = new PredictionModel(probability: 0.98, tagName: "Quaker") },
-                    new ProductItemViewModel() { Name = "Quaker", Model = new PredictionModel(probability: 0.97, tagName: "Quaker") },
-                    new ProductItemViewModel() { Name = "Quaker", Model = new PredictionModel(probability: 0.96, tagName: "Quaker") },
+                    new ProductItemViewModel(new PredictionModel(probability: 0.99, tagName: "Quaker", boundingBox: new BoundingBox(marginX, 3 * marginY + 2 * tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.98, tagName: "Quaker", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 3 * marginY + 2 * tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.97, tagName: "Quaker", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 3 * marginY + 2 * tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.96, tagName: "Quaker", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, 3 * marginY + 2 * tempH, tempW, tempH))),
 
 
-                    new ProductItemViewModel() { Name = "Kellog", Model = new PredictionModel(probability: 0.8,  tagName: "Kellog") },
-                    new ProductItemViewModel() { Name = "Kellog", Model = new PredictionModel(probability: 0.81, tagName: "Kellog") },
-                    new ProductItemViewModel() { Name = "Kellog", Model = new PredictionModel(probability: 0.82, tagName: "Kellog") },
-                    new ProductItemViewModel() { Name = "Kellog", Model = new PredictionModel(probability: 0.7,  tagName: "Kellog") },
+                    new ProductItemViewModel(new PredictionModel(probability: 0.8,  tagName: "Kellog", boundingBox: new BoundingBox(marginX, 4 * marginY + 3 * tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.81, tagName: "Kellog", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 4 * marginY + 3 * tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.82, tagName: "Kellog", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 4 * marginY + 3 * tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.7,  tagName: "Kellog", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, 4 * marginY + 3 * tempH, tempW, tempH))),
 
 
-                    new ProductItemViewModel() { Name = "None", Model = new PredictionModel(probability: 0.8,  tagName: "None") },
-                    new ProductItemViewModel() { Name = "None", Model = new PredictionModel(probability: 0.81, tagName: "None") },
-                    new ProductItemViewModel() { Name = "None", Model = new PredictionModel(probability: 0.82, tagName: "None") }
+                    new ProductItemViewModel(new PredictionModel(probability: 0.8,  tagName: "None", boundingBox: new BoundingBox(marginX, 5 * marginY + 4 * tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.81, tagName: "None", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 5 * marginY + 4 * tempH, tempW, tempH))),
+                    new ProductItemViewModel(new PredictionModel(probability: 0.82, tagName: "None", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 5 * marginY + 4 * tempH, tempW, tempH)))
                 };
 
-                LowConfidenceCollection.Clear();
-                LowConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability <= 0.3));
+                if (this.image.ImageFile is StorageFile currentImageFile)
+                {
+                    using (var stream = (await currentImageFile.OpenStreamForReadAsync()).AsRandomAccessStream())
+                    {
+                        foreach (var product in currentDetectedObjects)
+                        {
+                            double imageWidth = this.image.PixelWidth;
+                            double imageHeight = this.image.PixelHeight;
 
-                MediumConfidenceCollection.Clear();
-                MediumConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability > 0.3 && x.Model.Probability <= 0.6));
+                            var rect = new Rect(imageWidth * product.Rect.Left, imageHeight * product.Rect.Top, imageWidth * product.Rect.Width, imageHeight * product.Rect.Height);
+                            product.Image = await Util.GetCroppedBitmapAsync(stream, rect);
+                        }
+                    }
+                }
 
-                HighConfidenceCollection.Clear();
-                HighConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability > 0.6));
-
-                this.recognitionGroupListView.SelectedIndex = 0;
-                this.chartControl.Visibility = Visibility.Visible;
-                this.chartControl.UpdateChart(productItemCollection);
-
-                //DetectedObjectCollection.Clear();
-
-                //ImagePrediction result = await AnalyzeImageAsync(currentProject, currentImageFile);
-                //
-                //currentDetectedObjects = result?.Predictions?.Where(p => p.Probability >= MinProbability).ToList() ?? new List<PredictionModel>();
-
-                //Dictionary<Guid, IEnumerable<PredictionModel>> objectsGroupedByTag = currentDetectedObjects.GroupBy(d => d.TagId).ToDictionary(d => d.Key, d => d.Select(x => x));
-                //foreach (var tag in objectsGroupedByTag)
-                //{
-                //    DetectedObjectCollection.Add(new DetectedObjectsViewModel()
-                //    {
-                //        ObjectId = tag.Key,
-                //        ObjectName = tag.Value.FirstOrDefault().TagName,
-                //        ObjectCount = tag.Value.Count(),
-                //        ObjectColor = Colors.Lime
-                //    });
-                //}
-
-                //ShowObjectDetectionBoxes(currentDetectedObjects);
+                UpdateResult(currentDetectedObjects);
             }
+        }
+
+        private void UpdateResult(IEnumerable<ProductItemViewModel> productItemCollection)
+        {
+
+            LowConfidenceCollection.Clear();
+            LowConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability <= 0.3));
+
+            MediumConfidenceCollection.Clear();
+            MediumConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability > 0.3 && x.Model.Probability <= 0.6));
+
+            HighConfidenceCollection.Clear();
+            HighConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability > 0.6));
+
+            this.recognitionGroupListView.SelectedIndex = 0;
+            this.chartControl.Visibility = Visibility.Visible;
+            this.chartControl.UpdateChart(productItemCollection);
+
+            //DetectedObjectCollection.Clear();
+
+            //ImagePrediction result = await AnalyzeImageAsync(currentProject, currentImageFile);
+            //
+            //currentDetectedObjects = result?.Predictions?.Where(p => p.Probability >= 0.6).ToList() ?? new List<PredictionModel>();
+
+            //Dictionary<Guid, IEnumerable<PredictionModel>> objectsGroupedByTag = currentDetectedObjects.GroupBy(d => d.TagId).ToDictionary(d => d.Key, d => d.Select(x => x));
+            //foreach (var tag in objectsGroupedByTag)
+            //{
+            //    DetectedObjectCollection.Add(new DetectedObjectsViewModel()
+            //    {
+            //        ObjectId = tag.Key,
+            //        ObjectName = tag.Value.FirstOrDefault().TagName,
+            //        ObjectCount = tag.Value.Count(),
+            //        ObjectColor = Colors.Lime
+            //    });
+            //}
+
+
+            this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
         }
 
         private async Task<ImagePrediction> AnalyzeImageAsync(ProjectViewModel project, StorageFile file)
@@ -379,37 +367,6 @@ namespace ObjectCountingExplorer
             return result;
         }
 
-
-        private void OnObjectDetectionVisualizationCanvasSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (this.currentDetectedObjects != null && this.objectDetectionVisualizationCanvas.Children.Any())
-            {
-                this.ShowObjectDetectionBoxes(currentDetectedObjects);
-            }
-        }
-
-        private void ShowObjectDetectionBoxes(IEnumerable<PredictionModel> detectedObjects)
-        {
-            this.objectDetectionVisualizationCanvas.Children.Clear();
-
-            double canvasWidth = objectDetectionVisualizationCanvas.ActualWidth;
-            double canvasHeight = objectDetectionVisualizationCanvas.ActualHeight;
-
-            foreach (PredictionModel prediction in detectedObjects)
-            {
-                objectDetectionVisualizationCanvas.Children.Add(
-                    new Border
-                    {
-                        BorderBrush = new SolidColorBrush(Colors.Lime),
-                        BorderThickness = new Thickness(2),
-                        Margin = new Thickness(prediction.BoundingBox.Left * canvasWidth,
-                                               prediction.BoundingBox.Top * canvasHeight, 0, 0),
-                        Width = prediction.BoundingBox.Width * canvasWidth,
-                        Height = prediction.BoundingBox.Height * canvasHeight,
-                    });
-            }
-        }
-
         private async Task LoadTagColorAsync()
         {
             try
@@ -423,92 +380,84 @@ namespace ObjectCountingExplorer
             }
         }
 
-        private async Task SaveImageToFileAsync(StorageFile file)
-        {
-            using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.None))
-            {
-                await imageCropper.SaveAsync(fileStream, BitmapFileFormat.Jpeg);
-            }
-        }
 
-        private void OnCropImageButtonClicked(object sender, RoutedEventArgs e)
-        {
-            EnableCropFeature = !EnableCropFeature;
-        }
+
+
 
 
         private void OnAddEditButtonClicked(object sender, RoutedEventArgs e)
         {
             enableEditMode = !enableEditMode;
             this.analyzeButton.IsEnabled = !enableEditMode;
-            this.objectDetectionVisualizationCanvas.Visibility = enableEditMode ? Visibility.Collapsed : Visibility.Visible;
-            this.imageRegionsCanvas.Visibility = enableEditMode ? Visibility.Visible : Visibility.Collapsed;
-
-            this.imageRegionsCanvas.Children.Clear();
 
             if (enableEditMode)
             {
-                foreach (PredictionModel obj in currentDetectedObjects)
+                //foreach (PredictionModel obj in currentDetectedObjects)
+                //{
+                //    // AddRegionToUI(obj);
+                //}
+            }
+        }
+
+        private void OnImageRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> item)
+        {
+            if (item.Item1 == RegionState.Selected)
+            {
+                SelectedProductItemCollection.Add(item.Item2);
+            }
+            else
+            {
+                SelectedProductItemCollection.Remove(item.Item2);
+            }
+
+            RecognitionGroup = SelectedProductItemCollection.Any() ? RecognitionGroup.SelectedItems : RecognitionGroup.Summary;
+        }
+
+        private void OnClearSelectionButtonClick(object sender, RoutedEventArgs e)
+        {
+            this.image.ClearSelectedRegions();
+            SelectedProductItemCollection.Clear();
+            RecognitionGroup = RecognitionGroup.Summary;
+        }
+
+        private void OnCancelProductSelectionButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (((Button)sender).DataContext is ProductItemViewModel productItem)
+            {
+                this.image.UnSelectRegion(productItem);
+                SelectedProductItemCollection.Remove(productItem);
+
+                if (!SelectedProductItemCollection.Any())
                 {
-                    AddRegionToUI(obj);
+                    RecognitionGroup = RecognitionGroup.Summary;
                 }
             }
         }
 
-        private void AddRegionToUI(PredictionModel obj)
+        private async void OnRemoveRegionButtonClick(object sender, RoutedEventArgs e)
         {
-            var editor = new RegionEditorControl
+            if (SelectedProductItemCollection.Any())
             {
-                Width = image.ActualWidth * obj.BoundingBox.Width,
-                Height = image.ActualHeight * obj.BoundingBox.Height,
-                Margin = new Thickness(obj.BoundingBox.Left * image.ActualWidth, obj.BoundingBox.Top * image.ActualHeight, 0, 0),
-                DataContext = new RegionEditorViewModel
+                ContentDialog dialog = new ContentDialog
                 {
-                    Region = obj,
-                    AvailableTags = currentProject.Tags,
-                    Color = Colors.Lime
+                    Title = "Delete selected product(s) permanently?",
+                    Content = "This operation will delete product(s) permanently.\nAre you sure you want to continue?",
+                    PrimaryButtonText = "Delete",
+                    SecondaryButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Secondary
+                };
+
+                ContentDialogResult result = await dialog.ShowAsync();
+                if (result == ContentDialogResult.Primary)
+                {
+                    foreach (ProductItemViewModel product in SelectedProductItemCollection)
+                    {
+                        currentDetectedObjects.Remove(product);
+                    }
+
+                    SelectedProductItemCollection.Clear();
+                    UpdateResult(currentDetectedObjects);
                 }
-            };
-
-            editor.RegionChanged += OnRegionChanged;
-            editor.RegionDeleted += OnRegionDeleted;
-
-            this.imageRegionsCanvas.Children.Add(editor);
-        }
-
-        private void OnRegionChanged(object sender, Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models.Tag tag)
-        {
-            RegionEditorControl regionControl = (RegionEditorControl)sender;
-
-            RegionEditorViewModel regionEditorViewModel = (RegionEditorViewModel)regionControl.DataContext;
-        }
-
-        private void OnRegionDeleted(object sender, EventArgs e)
-        {
-            RegionEditorControl regionControl = (RegionEditorControl)sender;
-            this.imageRegionsCanvas.Children.Remove(regionControl);
-        }
-
-        private void OnPointerReleasedOverImage(object sender, PointerRoutedEventArgs e)
-        {
-            if (enableEditMode)
-            {
-                var clickPosition = e.GetCurrentPoint(this.imageRegionsCanvas);
-
-                double normalizedPosX = clickPosition.Position.X / imageRegionsCanvas.ActualWidth;
-                double normalizedPosY = clickPosition.Position.Y / imageRegionsCanvas.ActualHeight;
-                double normalizedWidth = 50 / imageRegionsCanvas.ActualWidth;
-                double normalizedHeight = 50 / imageRegionsCanvas.ActualHeight;
-
-                //ImageViewModel imageViewModel = (ImageViewModel)this.DataContext;
-                //imageViewModel.AddedImageRegions.Add(newRegion);
-
-                PredictionModel obj = new PredictionModel(
-                    boundingBox: new BoundingBox(normalizedPosX, normalizedPosY,
-                                        normalizedWidth + normalizedPosX > 1 ? 1 - normalizedPosX : normalizedWidth,
-                                        normalizedHeight + normalizedPosY > 1 ? 1 - normalizedPosY : normalizedHeight));
-
-                this.AddRegionToUI(obj);
             }
         }
     }
