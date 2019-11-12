@@ -126,11 +126,17 @@
       <DependentUpon>CameraControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\Converters.cs" />
+    <Compile Include="Controls\ImagePickerControl.xaml.cs">
+      <DependentUpon>ImagePickerControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ImageWithRegionEditorsControl.xaml.cs">
       <DependentUpon>ImageWithRegionEditorsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\InitialView.xaml.cs">
       <DependentUpon>InitialView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\LeftRightScrollViewer.xaml.cs">
+      <DependentUpon>LeftRightScrollViewer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\ObjectRegionControl.xaml.cs">
       <DependentUpon>ObjectRegionControl.xaml</DependentUpon>
@@ -179,11 +185,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\ImagePickerControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\ImageWithRegionEditorsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\InitialView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\LeftRightScrollViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

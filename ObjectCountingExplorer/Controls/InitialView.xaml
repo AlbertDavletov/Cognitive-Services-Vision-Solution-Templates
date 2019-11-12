@@ -9,17 +9,71 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+        <local:ReverseEnumMatchToVisibilityConverter x:Key="reverseEnumMatchToVisibilityConverter"/>
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="0.1*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Object Counting Explorer Demo" Margin="6" HorizontalAlignment="Center" Style="{ThemeResource HeaderTextBlockStyle}"/>
+        <TextBlock Grid.Row="1" Text="Select a shelf photo" HorizontalAlignment="Center" Style="{ThemeResource HeaderTextBlockStyle}"
+                   Visibility="{Binding ElementName=imagePicker, Path=CurrentState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='CameraStream'}"/>
 
-        <Grid Grid.Row="1">
-            <TextBlock x:Name="landingMessage" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" Text="Select a photo to score it against the target project" Style="{StaticResource HeaderTextBlockStyle}"/>
-        </Grid>
+        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" Margin="0,24,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <ComboBox Grid.Row="0" ItemsSource="{Binding Projects}" SelectedIndex="0" x:Name="projectsComboBox" 
+                          MinWidth="300" MaxWidth="600" HorizontalAlignment="Center" Margin="0,0,0,50"
+                          Visibility="{Binding ElementName=imagePicker, Path=CurrentState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='CameraStream'}">
+
+                    <ComboBox.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="Product vision model" />
+                        </DataTemplate>
+                    </ComboBox.HeaderTemplate>
+
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Text="{Binding Model.Name}"/>
+                                    <TextBlock Text="(Object Detection)" Foreground="LightGray" Style="{ThemeResource BodyTextBlockStyle}" FontStyle="Italic" Margin="2,0,0,0" />
+                                </StackPanel>
+                                <GridView IsHitTestVisible="False" ItemsSource="{Binding TagSamples}" SelectionMode="None" MaxWidth="600" >
+                                    <GridView.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Vertical">
+                                                <Image Source="{Binding TagSampleImage}" Width="60" Height="40" Stretch="UniformToFill"/>
+                                                <TextBlock Text="{Binding TagName}" Foreground="LightGray" Style="{StaticResource CaptionTextBlockStyle}" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GridView.ItemTemplate>
+
+                                    <GridView.ItemContainerStyle>
+                                        <Style TargetType="GridViewItem">
+                                            <Setter Property="Width" Value="80"/>
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="Margin" Value="4" />
+                                        </Style>
+                                    </GridView.ItemContainerStyle>
+                                </GridView>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <local:ImagePickerControl Grid.Row="1" x:Name="imagePicker" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" OnImageSearchCompleted="OnImageSearchCompleted" />
+            </Grid>
+        </ScrollViewer>
 
     </Grid>
 </UserControl>

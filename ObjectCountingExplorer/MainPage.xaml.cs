@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training;
+using Microsoft.Rest;
 using ObjectCountingExplorer.Controls;
 using ObjectCountingExplorer.Helpers;
 using ObjectCountingExplorer.Models;
@@ -17,6 +18,8 @@ using Windows.Storage.Pickers;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace ObjectCountingExplorer
@@ -41,6 +44,11 @@ namespace ObjectCountingExplorer
             new RecognitionGroupViewModel { Name = "Low Confidence", Group = RecognitionGroup.LowConfidence },
             new RecognitionGroupViewModel { Name = "Medium Confidence", Group = RecognitionGroup.MediumConfidence },
             new RecognitionGroupViewModel { Name = "High Confidence", Group = RecognitionGroup.HighConfidence }
+        };
+
+        public ObservableCollection<ProjectViewModel> Projects { get; set; } = new ObservableCollection<ProjectViewModel>()
+        {
+            new ProjectViewModel(new Guid("eb3ba8ab-b716-44d4-950e-d9de7d5c92e7"), "GroceryItems")
         };
 
         public ObservableCollection<ProductItemViewModel> LowConfidenceCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
@@ -80,7 +88,7 @@ namespace ObjectCountingExplorer
                 trainingApi = new CustomVisionTrainingClient { Endpoint = TrainingApiKeyEndpoint, ApiKey = TrainingApiKey };
                 predictionApi = new CustomVisionPredictionClient { Endpoint = PredictionApiKeyEndpoint, ApiKey = PredictionApiKey };
 
-                await LoadTagColorAsync();
+                await LoadProjectsFromService();
             }
             else
             {
@@ -89,6 +97,62 @@ namespace ObjectCountingExplorer
             }
 
             base.OnNavigatedTo(e);
+        }
+
+        private async Task LoadProjectsFromService()
+        {
+            try
+            {
+                // Trigger loading of the tags associated with each project
+                foreach (var project in this.Projects)
+                {
+                    project.TagSamples = new ObservableCollection<TagSampleViewModel>();
+                    this.PopulateTagSamplesAsync(project.Id, this.trainingApi, project.TagSamples);
+                }
+            }
+            catch (Exception ex)
+            {
+                await Util.GenericApiCallExceptionHandler(ex, "Failure loading projects");
+            }
+        }
+
+        private async void PopulateTagSamplesAsync(Guid projectId, CustomVisionTrainingClient trainingEndPoint, ObservableCollection<TagSampleViewModel> collection)
+        {
+            var tags = (await trainingEndPoint.GetTagsAsync(projectId)).Take(5);
+            foreach (var tag in tags.OrderBy(t => t.Name))
+            {
+                try
+                {
+                    if (tag.ImageCount > 0)
+                    {
+                        var imageModelSample = (await trainingEndPoint.GetTaggedImagesAsync(projectId, null, new List<Guid>() { tag.Id }, null, 1)).First();
+
+                        var tagRegion = imageModelSample.Regions?.FirstOrDefault(r => r.TagId == tag.Id);
+                        if (tagRegion == null || (tagRegion.Width == 0 && tagRegion.Height == 0))
+                        {
+                            collection.Add(new TagSampleViewModel { TagName = tag.Name, TagSampleImage = new BitmapImage(new Uri(imageModelSample.ThumbnailUri)) });
+                        }
+                        else
+                        {
+                            // Crop a region from the image that is associated with the tag, so we show something more 
+                            // relevant than the whole image. 
+                            ImageSource croppedImage = await Util.DownloadAndCropBitmapAsync(
+                                imageModelSample.OriginalImageUri,
+                                new Rect(
+                                    tagRegion.Left * imageModelSample.Width, 
+                                    tagRegion.Top * imageModelSample.Height,
+                                    tagRegion.Width * imageModelSample.Width,
+                                    tagRegion.Height * imageModelSample.Height));
+
+                            collection.Add(new TagSampleViewModel { TagName = tag.Name, TagSampleImage = croppedImage });
+                        }
+                    }
+                }
+                catch (HttpOperationException exception) when (exception.Response.StatusCode == (System.Net.HttpStatusCode)429)
+                {
+                    continue;
+                }
+            }
         }
 
         private async void OnWebCamButtonClicked(object sender, RoutedEventArgs e)
@@ -184,7 +248,7 @@ namespace ObjectCountingExplorer
             }
             catch (Exception ex)
             {
-                await new MessageDialog(ex.Message, "Open file error").ShowAsync();
+                await Util.GenericApiCallExceptionHandler(ex, "Open file error");
             }
         }
 
@@ -357,7 +421,7 @@ namespace ObjectCountingExplorer
             }
             catch (Exception ex)
             {
-                await new MessageDialog(ex.Message, "Analyze image error").ShowAsync();
+                await Util.GenericApiCallExceptionHandler(ex, "Analyze image error");
             }
             finally
             {
@@ -366,24 +430,6 @@ namespace ObjectCountingExplorer
 
             return result;
         }
-
-        private async Task LoadTagColorAsync()
-        {
-            try
-            {
-                var tags = await trainingApi.GetTagsAsync(currentProject.Id);
-                currentProject.Tags = tags;
-            }
-            catch (Exception ex)
-            {
-                await new MessageDialog(ex.Message, "Tag loading error").ShowAsync();
-            }
-        }
-
-
-
-
-
 
         private void OnAddEditButtonClicked(object sender, RoutedEventArgs e)
         {
@@ -459,6 +505,14 @@ namespace ObjectCountingExplorer
                     UpdateResult(currentDetectedObjects);
                 }
             }
+        }
+
+        private async void OnInputImageSelected(object sender, Tuple<ProjectViewModel, StorageFile> item)
+        {
+            // currentProject = item.Item1;
+            await this.image.SetSourceFromFileAsync(item.Item2);
+
+            this.UpdateActivePhoto();
         }
     }
 }

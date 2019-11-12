@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Rest;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -9,6 +10,7 @@ using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Popups;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -16,6 +18,32 @@ namespace ObjectCountingExplorer
 {
     internal static class Util
     {
+        internal static async Task GenericApiCallExceptionHandler(Exception ex, string errorTitle)
+        {
+            string errorDetails = GetMessageFromException(ex);
+
+            await new MessageDialog(errorDetails, errorTitle).ShowAsync();
+        }
+
+        internal static string GetMessageFromException(Exception ex)
+        {
+            string errorDetails = ex.Message;
+
+            HttpOperationException httpException = ex as HttpOperationException;
+            if (httpException?.Response?.ReasonPhrase != null)
+            {
+                string errorReason = $"\"{httpException.Response.ReasonPhrase}\".";
+                if (httpException?.Response?.Content != null)
+                {
+                    errorReason += $" Some more details: {httpException.Response.Content}";
+                }
+
+                errorDetails = $"{ex.Message}. The error was {errorReason}.";
+            }
+
+            return errorDetails;
+        }
+
         internal static async Task<byte[]> GetPixelBytesFromSoftwareBitmapAsync(SoftwareBitmap softwareBitmap)
         {
             using (InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream())
@@ -157,6 +185,15 @@ namespace ObjectCountingExplorer
             return new Tuple<byte[], BitmapTransform>(pix.DetachPixelData(), transform);
         }
 
+        public static async Task<ImageSource> DownloadAndCropBitmapAsync(string imageUrl, Rect rectangle)
+        {
+            byte[] imgBytes = await new System.Net.Http.HttpClient().GetByteArrayAsync(imageUrl);
+            using (Stream stream = new MemoryStream(imgBytes))
+            {
+                return await GetCroppedBitmapAsync(stream.AsRandomAccessStream(), rectangle);
+            }
+        }
+
         public static async Task<ImageSource> GetCroppedBitmapAsync(IRandomAccessStream stream, Rect rectangle)
         {
             var pixels = await GetCroppedPixelsAsync(stream, rectangle);
@@ -195,5 +232,6 @@ namespace ObjectCountingExplorer
 
             return new Tuple<byte[], BitmapBounds>(pix.DetachPixelData(), transform.Bounds);
         }
+
     }
 }

@@ -2,6 +2,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Controls/LeftRightScrollViewer.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
     <SolidColorBrush x:Key="CustomButtonForegroundDisabled" Color="White" Opacity="0.4"/>
 
     <Style x:Key="PageTitleCommandBarStyle" TargetType="CommandBar" BasedOn="{StaticResource CommandBarRevealStyle}">

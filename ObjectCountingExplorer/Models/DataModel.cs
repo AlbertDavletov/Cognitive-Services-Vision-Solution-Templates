@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Windows.Foundation;
 using Windows.UI;
@@ -49,12 +50,20 @@ namespace ObjectCountingExplorer.Models
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public IList<Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models.Tag> Tags { get; set; }
+
+        public ObservableCollection<TagSampleViewModel> TagSamples { get; set; }
+
         public ProjectViewModel(Guid id, string name)
         {
             Id = id;
             Name = name;
         }
+    }
+
+    public class TagSampleViewModel
+    {
+        public string TagName { get; set; }
+        public ImageSource TagSampleImage { get; set; }
     }
 
     public class ProductItemViewModel

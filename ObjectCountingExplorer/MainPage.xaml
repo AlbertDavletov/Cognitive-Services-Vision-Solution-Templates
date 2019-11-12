@@ -42,7 +42,7 @@
             </AppBarButton>
         </CommandBar>
 
-        <ctl:InitialView x:Name="initialView" Grid.Row="1"/>
+        <ctl:InitialView x:Name="initialView" Grid.Row="1" Projects="{Binding Projects}" ImageSelected="OnInputImageSelected"/>
 
         <Grid Grid.Row="1" RowSpacing="12" ColumnSpacing="12" Margin="24,12,24,36" Visibility="{Binding ElementName=initialView, Path=Visibility, Converter={StaticResource reverseVisibilityConverter}}">
             <Grid.RowDefinitions>
