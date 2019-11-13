@@ -64,10 +64,10 @@ namespace ObjectCountingExplorer.Controls
             this.InitializeComponent();
 
             inputSourcesGridView.ItemsSource = new[]
-                {
-                    new { Gliph = "\uF12B", Label = "From local file", Tag = ImagePickerState.LocalFile, IsWide = true },
-                    new { Gliph = "\uE722", Label = "From camera", Tag = ImagePickerState.CameraStream, IsWide = true }
-                };
+            {
+                new { Gliph = "\uF12B", Label = "From local file", Tag = ImagePickerState.LocalFile, IsWide = true },
+                new { Gliph = "\uE722", Label = "From camera", Tag = ImagePickerState.CameraStream, IsWide = true }
+            };
 
             DataContext = this;
         }
@@ -85,9 +85,9 @@ namespace ObjectCountingExplorer.Controls
                 var singleFile = await fileOpenPicker.PickSingleFileAsync();
                 if (singleFile != null)
                 {
-                    StorageFile imageFIle = await singleFile.CopyAsync(ApplicationData.Current.LocalFolder, "Image.jpg", NameCollisionOption.ReplaceExisting);
+                    StorageFile imageFile = await singleFile.CopyAsync(ApplicationData.Current.LocalFolder, "Image.jpg", NameCollisionOption.ReplaceExisting);
 
-                    ProcessImageSelection(singleFile);
+                    ProcessImageSelection(imageFile);
                 }
             }
             catch (Exception ex)

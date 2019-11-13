@@ -77,17 +77,19 @@ namespace ObjectCountingExplorer.Controls
             this.image.Source = null;
             this.imageCropper.Source = null;
             currentDetectedObjects = null;
+            EnableCropFeature = false;
+            this.cropImageButton.IsEnabled = true;
         }
 
         private async void ImageViewChanged()
         {
-            if (EnableCropFeature)
+            if (ImageFile != null)
             {
-                await this.imageCropper.LoadImageFromFile(ImageFile);
-            }
-            else
-            {
-                if (ImageFile != null)
+                if (EnableCropFeature)
+                {
+                    await this.imageCropper.LoadImageFromFile(ImageFile);
+                }
+                else
                 {
                     await SetSourceFromFileAsync(ImageFile);
                 }
@@ -104,13 +106,12 @@ namespace ObjectCountingExplorer.Controls
 
         public void ShowObjectDetectionBoxes(IEnumerable<ProductItemViewModel> detectedObjects)
         {
+            this.cropImageButton.IsEnabled = false;
             currentDetectedObjects = detectedObjects;
             this.objectDetectionVisualizationCanvas.Children.Clear();
 
             double canvasWidth = objectDetectionVisualizationCanvas.ActualWidth;
             double canvasHeight = objectDetectionVisualizationCanvas.ActualHeight;
-
-            var tmp = this.ScrollViewerMain.ZoomFactor;
 
             foreach (var obj in detectedObjects)
             {
@@ -273,6 +274,19 @@ namespace ObjectCountingExplorer.Controls
         {
             RegionEditorControl regionControl = (RegionEditorControl)sender;
             this.imageRegionsCanvas.Children.Remove(regionControl);
+        }
+
+        private void ZoomFlyoutOpened(object sender, object e)
+        {
+            this.zoomSlider.Value = this.scrollViewerMain.ZoomFactor;
+        }
+
+        private void ZoomSliderValueChanged(object sender, Windows.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+        {
+            if (this.scrollViewerMain != null)
+            {
+                this.scrollViewerMain.ChangeView(null, null, (float)this.zoomSlider.Value, true);
+            }
         }
     }
 }

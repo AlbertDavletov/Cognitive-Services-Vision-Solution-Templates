@@ -14,7 +14,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.Storage.Pickers;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -30,10 +29,10 @@ namespace ObjectCountingExplorer
         private static readonly string TrainingApiKeyEndpoint = "<CUSTOM VISION TRANING API ENDPOINT>";
         private static readonly string PredictionApiKey = "<CUSTOM VISION PREDICTION API KEY>";
         private static readonly string PredictionApiKeyEndpoint = "<CUSTOM VISION PREDICTION API ENDPOINT>";
-        private static readonly ProjectViewModel currentProject = new ProjectViewModel(Guid.Empty, "<MODEL NAME>");
 
-        private bool enableEditMode = false;
+        private ProjectViewModel currentProject;
         private List<ProductItemViewModel> currentDetectedObjects;
+
         private CustomVisionTrainingClient trainingApi;
         private CustomVisionPredictionClient predictionApi;
 
@@ -59,7 +58,17 @@ namespace ObjectCountingExplorer
 
         public ObservableCollection<ProductItemViewModel> SelectedProductItemCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
-        public ObservableCollection<DetectedObjectsViewModel> DetectedObjectCollection { get; set; } = new ObservableCollection<DetectedObjectsViewModel>();
+        private AppViewState appViewState = AppViewState.ImageSelection;
+        public AppViewState AppViewState
+        {
+            get { return appViewState; }
+            set
+            {
+                appViewState = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("AppViewState"));
+                AppViewStateChanged();
+            }
+        }
 
         private RecognitionGroup recognitionGroup;
         public RecognitionGroup RecognitionGroup
@@ -155,48 +164,6 @@ namespace ObjectCountingExplorer
             }
         }
 
-        private async void OnWebCamButtonClicked(object sender, RoutedEventArgs e)
-        {
-            if (this.cameraControl.CameraStreamState == Windows.Media.Devices.CameraStreamState.Streaming)
-            {
-                await StopWebCameraAsync();
-            }
-            else
-            {
-                await StartWebCameraAsync();
-            }
-        }
-
-        private async Task StartWebCameraAsync()
-        {
-            this.initialView.Visibility = Visibility.Collapsed;
-
-            this.imageGrid.Visibility = Visibility.Collapsed;
-            this.webCamHostGrid.Visibility = Visibility.Visible;
-
-            await this.cameraControl.StartStreamAsync();
-            await Task.Delay(250);
-
-            UpdateWebCamHostGridSize();
-        }
-
-        private async Task StopWebCameraAsync()
-        {
-            this.initialView.Visibility = Visibility.Visible;
-
-            await this.cameraControl.StopStreamAsync();
-        }
-
-        private void OnPageSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            UpdateWebCamHostGridSize();
-        }
-
-        private void UpdateWebCamHostGridSize()
-        {
-            this.webCamHostGrid.Width = this.webCamHostGrid.ActualHeight * (this.cameraControl.CameraAspectRatio != 0 ? this.cameraControl.CameraAspectRatio : 1.777777777777);
-        }
-
         private void RecognitionGroupChanged()
         {
             bool isAnySelectedProduct = SelectedProductItemCollection.Any();
@@ -205,60 +172,28 @@ namespace ObjectCountingExplorer
             this.removeRegionButton.IsEnabled = isAnySelectedProduct;
         }
 
-        private async void CameraControl_ImageCaptured(object sender, ImageAnalyzer img)
+        private void AppViewStateChanged()
         {
-            ResetImageData();
-
-            StorageFile imageFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("Image.jpg", CreationCollisionOption.ReplaceExisting);
-
-            if (img.ImageUrl != null)
+            switch (AppViewState)
             {
-                await Util.DownloadAndSaveBitmapAsync(img.ImageUrl, imageFile);
-            }
-            else if (img.GetImageStreamCallback != null)
-            {
-                await Util.SaveBitmapToStorageFileAsync(await img.GetImageStreamCallback(), imageFile);
-            }
+                case AppViewState.ImageSelected:
+                    this.resultRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
+                    break;
 
-            await this.image.SetSourceFromFileAsync(imageFile);
+                case AppViewState.ImageAnalyzed:
+                    this.resultRowDefinition.Height = new GridLength(0.4, GridUnitType.Star);
+                    break;
 
-            this.UpdateActivePhoto();
-        }
-
-        private async void OnBrowseImageButtonClicked(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                FileOpenPicker fileOpenPicker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.PicturesLibrary, ViewMode = PickerViewMode.Thumbnail };
-                fileOpenPicker.FileTypeFilter.Add(".jpg");
-                fileOpenPicker.FileTypeFilter.Add(".jpeg");
-                fileOpenPicker.FileTypeFilter.Add(".png");
-                fileOpenPicker.FileTypeFilter.Add(".bmp");
-                StorageFile selectedFile = await fileOpenPicker.PickSingleFileAsync();
-
-                if (selectedFile != null)
-                {
-                    ResetImageData();
-                    StorageFile imageFile = await selectedFile.CopyAsync(ApplicationData.Current.LocalFolder, "Image.jpg", NameCollisionOption.ReplaceExisting);
-
-                    await this.image.SetSourceFromFileAsync(imageFile);
-
-                    this.UpdateActivePhoto();
-                }
-            }
-            catch (Exception ex)
-            {
-                await Util.GenericApiCallExceptionHandler(ex, "Open file error");
+                default:
+                    break;
             }
         }
 
-        private async void ResetImageData()
+        private void ResetImageData()
         {
-            this.enableEditMode = false;
             this.image.ClearSource();
             this.currentDetectedObjects = null;
 
-            DetectedObjectCollection.Clear();
             LowConfidenceCollection.Clear();
             MediumConfidenceCollection.Clear();
             HighConfidenceCollection.Clear();
@@ -266,37 +201,26 @@ namespace ObjectCountingExplorer
 
             this.recognitionGroupListView.SelectedIndex = -1;
             this.chartControl.Visibility = Visibility.Collapsed;
-
-            if (this.cameraControl.CameraStreamState == Windows.Media.Devices.CameraStreamState.Streaming)
-            {
-                await StopWebCameraAsync();
-            }
         }
 
-        private void UpdateActivePhoto()
+        private void OnCloseImageViewButtonClicked(object sender, RoutedEventArgs e)
         {
-            this.imageGrid.Visibility = Visibility.Visible;
-            this.analyzeButton.Visibility = Visibility.Visible;
-
-            this.webCamHostGrid.Visibility = Visibility.Collapsed;
-            this.initialView.Visibility = Visibility.Collapsed;
-        }
-
-        private async void OnCloseImageViewButtonClicked(object sender, RoutedEventArgs e)
-        {
-            if (this.cameraControl.CameraStreamState == Windows.Media.Devices.CameraStreamState.Streaming)
-            {
-                await StopWebCameraAsync();
-            }
             this.image.ClearSource();
-            this.initialView.Visibility = Visibility.Visible;
-            this.analyzeButton.Visibility = Visibility.Collapsed;
+            AppViewState = AppViewState.ImageSelection;
         }
 
         private async void OnAnalyzeImageButtonClicked(object sender, RoutedEventArgs e)
         {
-            if (currentProject != null)
+            if (currentProject == null)
             {
+                return;
+            }
+
+            try
+            {
+                this.progressRing.IsActive = true;
+                this.analyzeButton.IsEnabled = false;
+
                 double imageW = this.image.PixelWidth;
                 double imageH = this.image.PixelHeight;
 
@@ -305,45 +229,13 @@ namespace ObjectCountingExplorer
                 double marginX = imageW != 0 ? 5 / imageW : 5;
                 double marginY = imageH != 0 ? 5 / imageH : 5;
 
-                currentDetectedObjects = new List<ProductItemViewModel>()
-                {
-                    new ProductItemViewModel(new PredictionModel(probability: 0.99,  tagName: "General Mills", boundingBox: new BoundingBox(marginX, marginY, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.98,  tagName: "General Mills", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, marginY, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.97,  tagName: "General Mills", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, marginY, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.96,  tagName: "General Mills", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, marginY, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.95,  tagName: "General Mills", boundingBox: new BoundingBox(5 * marginX + 4 * tempW, marginY, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.94,  tagName: "General Mills", boundingBox: new BoundingBox(6 * marginX + 5 * tempW, marginY, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.6,   tagName: "General Mills", boundingBox: new BoundingBox(7 * marginX + 6 * tempW, marginY, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.59,  tagName: "General Mills", boundingBox: new BoundingBox(8 * marginX + 7 * tempW, marginY, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.25,  tagName: "General Mills", boundingBox: new BoundingBox(9 * marginX + 8 * tempW, marginY, tempW, tempH))),
-
-
-                    new ProductItemViewModel(new PredictionModel(probability: 0.81,  tagName: "Great Value", boundingBox: new BoundingBox(marginX, 2 * marginY + tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.79,  tagName: "Great Value", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 2 * marginY + tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.78,  tagName: "Great Value", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 2 * marginY + tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.59,  tagName: "Great Value", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, 2 * marginY + tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.58,  tagName: "Great Value", boundingBox: new BoundingBox(5 * marginX + 4 * tempW, 2 * marginY + tempH, tempW, tempH))),
-
-
-                    new ProductItemViewModel(new PredictionModel(probability: 0.99, tagName: "Quaker", boundingBox: new BoundingBox(marginX, 3 * marginY + 2 * tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.98, tagName: "Quaker", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 3 * marginY + 2 * tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.97, tagName: "Quaker", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 3 * marginY + 2 * tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.96, tagName: "Quaker", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, 3 * marginY + 2 * tempH, tempW, tempH))),
-
-
-                    new ProductItemViewModel(new PredictionModel(probability: 0.8,  tagName: "Kellog", boundingBox: new BoundingBox(marginX, 4 * marginY + 3 * tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.81, tagName: "Kellog", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 4 * marginY + 3 * tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.82, tagName: "Kellog", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 4 * marginY + 3 * tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.7,  tagName: "Kellog", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, 4 * marginY + 3 * tempH, tempW, tempH))),
-
-
-                    new ProductItemViewModel(new PredictionModel(probability: 0.8,  tagName: "None", boundingBox: new BoundingBox(marginX, 5 * marginY + 4 * tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.81, tagName: "None", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 5 * marginY + 4 * tempH, tempW, tempH))),
-                    new ProductItemViewModel(new PredictionModel(probability: 0.82, tagName: "None", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 5 * marginY + 4 * tempH, tempW, tempH)))
-                };
-
                 if (this.image.ImageFile is StorageFile currentImageFile)
                 {
+                    // ImagePrediction result = await AnalyzeImageAsync(currentProject, currentImageFile);
+                    //currentDetectedObjects = result?.Predictions?.ToList() ?? new List<PredictionModel>();
+
+                    currentDetectedObjects = CustomVisionServiceHelper.GetFakeTestData(tempW, tempH, marginX, marginY).Select(x => new ProductItemViewModel(x)).ToList();
+
                     using (var stream = (await currentImageFile.OpenStreamForReadAsync()).AsRandomAccessStream())
                     {
                         foreach (var product in currentDetectedObjects)
@@ -357,13 +249,23 @@ namespace ObjectCountingExplorer
                     }
                 }
 
+                await Task.Delay(2000);
+
                 UpdateResult(currentDetectedObjects);
+            }
+            catch (Exception ex)
+            {
+                await Util.GenericApiCallExceptionHandler(ex, "Analyze image error");
+            }
+            finally
+            {
+                this.progressRing.IsActive = false;
+                this.analyzeButton.IsEnabled = true;
             }
         }
 
         private void UpdateResult(IEnumerable<ProductItemViewModel> productItemCollection)
         {
-
             LowConfidenceCollection.Clear();
             LowConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability <= 0.3));
 
@@ -377,26 +279,9 @@ namespace ObjectCountingExplorer
             this.chartControl.Visibility = Visibility.Visible;
             this.chartControl.UpdateChart(productItemCollection);
 
-            //DetectedObjectCollection.Clear();
-
-            //ImagePrediction result = await AnalyzeImageAsync(currentProject, currentImageFile);
-            //
-            //currentDetectedObjects = result?.Predictions?.Where(p => p.Probability >= 0.6).ToList() ?? new List<PredictionModel>();
-
-            //Dictionary<Guid, IEnumerable<PredictionModel>> objectsGroupedByTag = currentDetectedObjects.GroupBy(d => d.TagId).ToDictionary(d => d.Key, d => d.Select(x => x));
-            //foreach (var tag in objectsGroupedByTag)
-            //{
-            //    DetectedObjectCollection.Add(new DetectedObjectsViewModel()
-            //    {
-            //        ObjectId = tag.Key,
-            //        ObjectName = tag.Value.FirstOrDefault().TagName,
-            //        ObjectCount = tag.Value.Count(),
-            //        ObjectColor = Colors.Lime
-            //    });
-            //}
-
-
             this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
+
+            AppViewState = AppViewState.ImageAnalyzed;
         }
 
         private async Task<ImagePrediction> AnalyzeImageAsync(ProjectViewModel project, StorageFile file)
@@ -405,8 +290,6 @@ namespace ObjectCountingExplorer
 
             try
             {
-                this.progressRing.IsActive = true;
-
                 var iteractions = await trainingApi.GetIterationsAsync(project.Id);
                 var latestTrainedIteraction = iteractions.Where(i => i.Status == "Completed").OrderByDescending(i => i.TrainedAt.Value).FirstOrDefault();
                 if (latestTrainedIteraction == null || string.IsNullOrEmpty(latestTrainedIteraction?.PublishName))
@@ -421,28 +304,10 @@ namespace ObjectCountingExplorer
             }
             catch (Exception ex)
             {
-                await Util.GenericApiCallExceptionHandler(ex, "Analyze image error");
-            }
-            finally
-            {
-                this.progressRing.IsActive = false;
+                await Util.GenericApiCallExceptionHandler(ex, "Custom Vision service error");
             }
 
             return result;
-        }
-
-        private void OnAddEditButtonClicked(object sender, RoutedEventArgs e)
-        {
-            enableEditMode = !enableEditMode;
-            this.analyzeButton.IsEnabled = !enableEditMode;
-
-            if (enableEditMode)
-            {
-                //foreach (PredictionModel obj in currentDetectedObjects)
-                //{
-                //    // AddRegionToUI(obj);
-                //}
-            }
         }
 
         private void OnImageRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> item)
@@ -509,10 +374,12 @@ namespace ObjectCountingExplorer
 
         private async void OnInputImageSelected(object sender, Tuple<ProjectViewModel, StorageFile> item)
         {
-            // currentProject = item.Item1;
+            ResetImageData();
+
+            currentProject = item.Item1;
             await this.image.SetSourceFromFileAsync(item.Item2);
 
-            this.UpdateActivePhoto();
+            AppViewState = AppViewState.ImageSelected;
         }
     }
 }

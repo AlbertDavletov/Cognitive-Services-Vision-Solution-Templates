@@ -18,55 +18,74 @@
     </UserControl.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <!-- Image Control Buttons: Zoom, Crop and Rotate -->
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Background="Transparent" Padding="6" Width="100">
-                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8A3;"/>
-                    <TextBlock Text="Zoom"/>
-                </StackPanel>
-            </Button>
-            <Button Background="Transparent" Padding="6" Width="100" Click="OnCropImageButtonClicked">
-                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7A8;"/>
-                    <TextBlock Text="Crop"/>
-                </StackPanel>
-            </Button>
-            <Button Background="Transparent" Padding="6" Width="100" IsEnabled="False">
-                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7AD;"/>
-                    <TextBlock Text="Rotate"/>
-                </StackPanel>
-            </Button>
-        </StackPanel>
 
         <!-- Image with Canvas -->
-        <ScrollViewer Grid.Row="1" Name="ScrollViewerMain" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinZoomFactor="1" ZoomMode="Enabled"
-                      Visibility="{Binding EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
-            <Grid MaxWidth="{Binding Path=ViewportWidth, ElementName=ScrollViewerMain}" MaxHeight="{Binding Path=ViewportHeight, ElementName=ScrollViewerMain}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Image x:Name="image" Stretch="Uniform" PointerReleased="OnPointerReleasedOverImage"/>
+        <Grid Visibility="{Binding EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                <Canvas x:Name="objectDetectionVisualizationCanvas" SizeChanged="OnObjectDetectionVisualizationCanvasSizeChanged"/>
-                <Canvas x:Name="imageRegionsCanvas" Visibility="Collapsed"/>
-            </Grid>
-        </ScrollViewer>
+            <!-- Zoom, Crop and Rotate -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Background="Transparent" Padding="6" Width="100">
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8A3;"/>
+                        <TextBlock Text="Zoom"/>
+                    </StackPanel>
+                    <Button.Flyout>
+                        <Flyout Opened="ZoomFlyoutOpened">
+                            <Slider x:Name="zoomSlider" Maximum="10" Width="300" Minimum="1" ValueChanged="ZoomSliderValueChanged" />
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+                <Button x:Name="cropImageButton" Background="Transparent" Padding="6" Width="100" Click="OnCropImageButtonClicked" Style="{StaticResource ControlButtonStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7A8;"/>
+                        <TextBlock Text="Crop"/>
+                    </StackPanel>
+                </Button>
+                <Button Background="Transparent" Padding="6" Width="100" IsEnabled="False" Style="{StaticResource ControlButtonStyle}">
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7AD;"/>
+                        <TextBlock Text="Rotate"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1" Name="scrollViewerMain" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinZoomFactor="1" ZoomMode="Enabled">
+                <Grid MaxWidth="{Binding Path=ViewportWidth, ElementName=scrollViewerMain}" MaxHeight="{Binding Path=ViewportHeight, ElementName=scrollViewerMain}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Image x:Name="image" Stretch="Uniform" PointerReleased="OnPointerReleasedOverImage"/>
+
+                    <Canvas x:Name="objectDetectionVisualizationCanvas" SizeChanged="OnObjectDetectionVisualizationCanvasSizeChanged"/>
+                    <Canvas x:Name="imageRegionsCanvas" Visibility="Collapsed"/>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
 
         <!-- ImageCropper -->
         <Grid Grid.Row="1" Visibility="{Binding EnableCropFeature, Converter={StaticResource booleanToVisibilityConverter}}">
             <Grid.RowDefinitions>
-                <RowDefinition />
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <controls:ImageCropper x:Name="imageCropper" Mask="{StaticResource CropImageMask}" Background="#1F1F1F"/>
-            <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Padding="12" HorizontalAlignment="Center">
-                <Button Content="Cancel" Click="OnCancelCropImageButtonClicked" Width="120" />
-                <Button Content="Save" Click="OnSaveImageButtonClicked" Width="120" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Background="Transparent" Padding="6" Width="100" Click="OnCancelCropImageButtonClicked">
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE711;"/>
+                        <TextBlock Text="Reset"/>
+                    </StackPanel>
+                </Button>
+                <Button Background="Transparent" Padding="6" Width="100" Click="OnSaveImageButtonClicked">
+                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74E;"/>
+                        <TextBlock Text="Update"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
+
+            <controls:ImageCropper Grid.Row="1" x:Name="imageCropper" Mask="{StaticResource CropImageMask}" Background="#1F1F1F"/>
         </Grid>
     </Grid>
     

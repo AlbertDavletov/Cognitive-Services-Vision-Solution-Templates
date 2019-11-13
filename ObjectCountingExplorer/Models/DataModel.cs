@@ -9,6 +9,13 @@ using Windows.UI.Xaml.Media;
 
 namespace ObjectCountingExplorer.Models
 {
+    public enum AppViewState
+    {
+        ImageSelection,
+        ImageSelected,
+        ImageAnalyzed
+    }
+
     public class DetectedObjectsViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
