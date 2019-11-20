@@ -13,6 +13,41 @@
         <Setter Property="DefaultLabelPosition" Value="Right"/>
     </Style>
     
+    <Style x:Key="CustomThumbStyle" TargetType="Thumb">
+        <Setter Property="Background" Value="{ThemeResource ThumbBackground}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource ThumbBorderBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="PointerOver">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="BackgroundPointerOver" Storyboard.TargetProperty="Opacity" To="1"/>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="Background" Storyboard.TargetProperty="Opacity" To="0"/>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="BackgroundPressed" Storyboard.TargetProperty="Opacity" To="1"/>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="Background" Storyboard.TargetProperty="Opacity" To="0"/>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled"/>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border x:Name="Background" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" CornerRadius="{TemplateBinding CornerRadius}"/>
+                        <Border x:Name="BackgroundPointerOver" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="LightGray" CornerRadius="{TemplateBinding CornerRadius}" Opacity="0"/>
+                        <Border x:Name="BackgroundPressed" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="LightGray" CornerRadius="{TemplateBinding CornerRadius}" Opacity="0"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <Style x:Key="ControlButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="{ThemeResource ButtonBackground}"/>
         <Setter Property="BackgroundSizing" Value="OuterBorderEdge"/>

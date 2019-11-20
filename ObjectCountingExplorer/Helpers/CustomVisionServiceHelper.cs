@@ -1,10 +1,18 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction;
+using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Rest;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Windows.Storage;
+using System.Linq;
+using System.Collections.ObjectModel;
+using ObjectCountingExplorer.Models;
+using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Media;
+using Windows.Foundation;
 
 namespace ObjectCountingExplorer.Helpers
 {
@@ -18,6 +26,81 @@ namespace ObjectCountingExplorer.Helpers
         };
         public static int RetryCountOnQuotaLimitError = 6;
         public static int RetryDelayOnQuotaLimitError = 500;
+
+        public static async Task<ImagePrediction> AnalyzeImageAsync(ICustomVisionTrainingClient trainingApi, ICustomVisionPredictionClient predictionApi, Guid projectId, StorageFile file)
+        {
+            ImagePrediction result = null;
+
+            try
+            {
+                var iteractions = await trainingApi.GetIterationsAsync(projectId);
+                var latestTrainedIteraction = iteractions.Where(i => i.Status == "Completed").OrderByDescending(i => i.TrainedAt.Value).FirstOrDefault();
+                if (latestTrainedIteraction == null || string.IsNullOrEmpty(latestTrainedIteraction?.PublishName))
+                {
+                    throw new Exception("This project doesn't have any trained models or published iteration yet. Please train and publish it, or wait until training completes if one is in progress.");
+                }
+
+                using (Stream stream = (await file.OpenReadAsync()).AsStream())
+                {
+                    result = await PredictImageWithRetryAsync(predictionApi, projectId, latestTrainedIteraction.PublishName, stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                await Util.GenericApiCallExceptionHandler(ex, "Custom Vision service error");
+            }
+
+            return result;
+        }
+
+        public static async void PopulateTagSamplesAsync(ICustomVisionTrainingClient trainingApi, Guid projectId, ObservableCollection<TagSampleViewModel> collection)
+        {
+            var tags = (await trainingApi.GetTagsAsync(projectId)).Take(5);
+            foreach (var tag in tags.OrderBy(t => t.Name))
+            {
+                try
+                {
+                    if (tag.ImageCount > 0)
+                    {
+                        var imageModelSample = (await trainingApi.GetTaggedImagesAsync(projectId, null, new List<Guid>() { tag.Id }, null, 1)).First();
+
+                        var tagRegion = imageModelSample.Regions?.FirstOrDefault(r => r.TagId == tag.Id);
+                        if (tagRegion == null || (tagRegion.Width == 0 && tagRegion.Height == 0))
+                        {
+                            collection.Add(new TagSampleViewModel { TagName = tag.Name, TagSampleImage = new BitmapImage(new Uri(imageModelSample.ThumbnailUri)) });
+                        }
+                        else
+                        {
+                            // Crop a region from the image that is associated with the tag, so we show something more 
+                            // relevant than the whole image. 
+                            ImageSource croppedImage = await Util.DownloadAndCropBitmapAsync(
+                                imageModelSample.OriginalImageUri,
+                                new Rect(
+                                    tagRegion.Left * imageModelSample.Width,
+                                    tagRegion.Top * imageModelSample.Height,
+                                    tagRegion.Width * imageModelSample.Width,
+                                    tagRegion.Height * imageModelSample.Height));
+
+                            collection.Add(new TagSampleViewModel { TagName = tag.Name, TagSampleImage = croppedImage });
+                        }
+                    }
+                }
+                catch (HttpOperationException exception) when (exception.Response.StatusCode == (System.Net.HttpStatusCode)429)
+                {
+                    continue;
+                }
+            }
+        }
+
+        public static async Task<ImagePrediction> PredictImageUrlWithRetryAsync(this ICustomVisionPredictionClient predictionApi, Guid projectId, string publishedName, ImageUrl imageUrl)
+        {
+            return await RunTaskWithAutoRetryOnQuotaLimitExceededError(async () => await predictionApi.DetectImageUrlAsync(projectId, publishedName, imageUrl));
+        }
+
+        public static async Task<ImagePrediction> PredictImageWithRetryAsync(this ICustomVisionPredictionClient predictionApi, Guid projectId, string publishedName, Stream imageStream)
+        {
+            return await RunTaskWithAutoRetryOnQuotaLimitExceededError(async () => await predictionApi.DetectImageAsync(projectId, publishedName, imageStream));
+        }
 
         private static async Task<TResponse> RunTaskWithAutoRetryOnQuotaLimitExceededError<TResponse>(Func<Task<TResponse>> action)
         {
@@ -43,16 +126,6 @@ namespace ObjectCountingExplorer.Helpers
             }
 
             return response;
-        }
-
-        public static async Task<ImagePrediction> PredictImageUrlWithRetryAsync(this ICustomVisionPredictionClient predictionApi, Guid projectId, string publishedName, ImageUrl imageUrl)
-        {
-            return await RunTaskWithAutoRetryOnQuotaLimitExceededError(async () => await predictionApi.DetectImageUrlAsync(projectId, publishedName, imageUrl));
-        }
-
-        public static async Task<ImagePrediction> PredictImageWithRetryAsync(this ICustomVisionPredictionClient predictionApi, Guid projectId, string publishedName, Stream imageStream)
-        {
-            return await RunTaskWithAutoRetryOnQuotaLimitExceededError(async () => await predictionApi.DetectImageAsync(projectId, publishedName, imageStream));
         }
 
         public static List<PredictionModel> GetFakeTestData(double tempW, double tempH, double marginX, double marginY)

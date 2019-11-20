@@ -9,53 +9,52 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+        <local:BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
     <Grid>
-        <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Height="35" Margin="0, -35, 0, 0" >
-            <Grid Background="#aa003300" Margin="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="auto"/>
-                </Grid.ColumnDefinitions>
-
-                <ComboBox x:Name="tagComboBox" VerticalAlignment="Center" 
-                          ItemsSource="{Binding AvailableTags}" 
-                          SelectedValuePath="Id" 
-                          SelectedValue="{Binding Region.TagId, Mode=TwoWay}" 
-                          DisplayMemberPath="Name" 
-                          SelectionChanged="OnTagComboBoxSelectionChanged"/>
-
-                <Button VerticalAlignment="Center" Click="DeleteRegionClicked" Background="Transparent" Grid.Column="1">
-                    <Viewbox Width="12" Height="12">
-                        <SymbolIcon Symbol="Delete" />
-                    </Viewbox>
+        <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-42,0,0">
+            <StackPanel x:Name="labelPanel" Orientation="Horizontal" CornerRadius="1" Spacing="4">
+                <StackPanel.Resources>
+                    <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="Black" Opacity="0.7"/>
+                    <SolidColorBrush x:Key="ButtonForegroundPressed" Color="Black" Opacity="0.5"/>
+                </StackPanel.Resources>
+                <StackPanel.Background>
+                    <SolidColorBrush Color="{Binding Color}"/>
+                </StackPanel.Background>
+                <TextBlock Text="{Binding Title}" FontSize="12" VerticalAlignment="Center" Foreground="Black" Margin="4" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Title}"/>
+                <Button Height="32" Click="OnRegionRemoveButtonClick" Foreground="Black" Style="{StaticResource ControlButtonStyle}" Visibility="{Binding EnableRemove, Converter={StaticResource booleanToVisibilityConverter}}">
+                    <SymbolIcon Symbol="Delete"/>
                 </Button>
-            </Grid>
+            </StackPanel>
         </Canvas>
+
         <Grid>
-            <Rectangle StrokeThickness="2">
+            <Rectangle StrokeEndLineCap="Round" StrokeDashArray="8,4" StrokeDashOffset="1.5" StrokeThickness="2">
                 <Rectangle.Stroke>
                     <SolidColorBrush Color="{Binding Color}"/>
                 </Rectangle.Stroke>
             </Rectangle>
-            <Thumb Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-4" DragDelta="OnTopLeftDragDelta" PointerReleased="OnThumbReleased">
-                <Thumb.Background>
+            <Thumb Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-7" BorderThickness="2" CornerRadius="1" DragDelta="OnTopLeftDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+                <Thumb.BorderBrush>
                     <SolidColorBrush Color="{Binding Color}"/>
-                </Thumb.Background>
+                </Thumb.BorderBrush>
             </Thumb>
-            <Thumb Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-4" DragDelta="OnBottomLeftDragDelta" PointerReleased="OnThumbReleased">
-                <Thumb.Background>
+            <Thumb Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-7" BorderThickness="2" CornerRadius="1" DragDelta="OnBottomLeftDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+                <Thumb.BorderBrush>
                     <SolidColorBrush Color="{Binding Color}"/>
-                </Thumb.Background>
+                </Thumb.BorderBrush>
             </Thumb>
-            <Thumb Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-4" DragDelta="OnTopRightDragDelta" PointerReleased="OnThumbReleased">
-                <Thumb.Background>
+            <Thumb Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-7" BorderThickness="2" CornerRadius="1" DragDelta="OnTopRightDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+                <Thumb.BorderBrush>
                     <SolidColorBrush Color="{Binding Color}"/>
-                </Thumb.Background>
+                </Thumb.BorderBrush>
             </Thumb>
-            <Thumb Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="-4" DragDelta="OnBottomRightDragDelta" PointerReleased="OnThumbReleased">
-                <Thumb.Background>
+            <Thumb Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="-7" BorderThickness="2" CornerRadius="1" DragDelta="OnBottomRightDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+                <Thumb.BorderBrush>
                     <SolidColorBrush Color="{Binding Color}"/>
-                </Thumb.Background>
+                </Thumb.BorderBrush>
             </Thumb>
         </Grid>
     </Grid>

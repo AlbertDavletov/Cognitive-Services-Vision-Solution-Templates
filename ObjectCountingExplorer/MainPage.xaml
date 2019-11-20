@@ -21,6 +21,45 @@
         <ctl:ReverseBooleanConverter x:Key="reverseBooleanConverter"/>
         <ctl:CollectionCountToVisibilityConverter x:Key="collectionCountToVisibilityConverter"/>
         <ctl:ReverseCollectionCountToVisibilityConverter x:Key="reverseCollectionCountToVisibilityConverter"/>
+
+        <Style x:Key="SelectedProductGridViewItemContainerStyle" TargetType="FrameworkElement">
+            <Setter Property="Margin" Value="0,0,8,8"/>
+        </Style>
+
+        <Style x:Key="SelectedProductGridViewStyle" TargetType="GridView">
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Vertical" MaximumRowsOrColumns="1"/>
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:Key="SelectedProductGridView">
+            <Grid Background="#2B2B2B" CornerRadius="2" Height="200">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Spacing="12" VerticalAlignment="Stretch" Margin="7,12,7,9">
+                    <Viewbox Height="100" Stretch="Uniform">
+                        <Image Source="{Binding Image}" />
+                    </Viewbox>
+
+                    <StackPanel>
+                        <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" Margin="8,0" Opacity="0.8"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Button Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Click="OnCancelProductSelectionButtonClick">
+                    <SymbolIcon Symbol="Cancel"/>
+                </Button>
+
+                <Rectangle Grid.Row="1" Fill="#248FFF" Height="8" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+            </Grid>
+        </DataTemplate>
     </Page.Resources>
 
     <Grid EntranceNavigationTransitionInfo.IsTargetElement="True">
@@ -43,11 +82,15 @@
 
         <ctl:InitialView Grid.Row="1" Projects="{Binding Projects}" ImageSelected="OnInputImageSelected" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}"/>
 
-        <Grid Grid.Row="1" RowSpacing="12" ColumnSpacing="12" Margin="24,12,24,36" Visibility="{Binding AppViewState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}">
+        <Grid Grid.Row="1" RowSpacing="12" Margin="24,12,24,36" Visibility="{Binding AppViewState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}">
             <Grid.RowDefinitions>
                 <RowDefinition x:Name="imageRowDefinition" Height="0.6*"/>
                 <RowDefinition x:Name="resultRowDefinition" Height="Auto" />
             </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="imageColumnDefinition" Width="0.7*"/>
+                <ColumnDefinition x:Name="resultColumnDefinition" Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
             <Grid Background="#1F1F1F">
                 <ctl:ImageWithRegionEditorsControl x:Name="image" HorizontalAlignment="Stretch" RegionSelected="OnImageRegionSelected"/>
@@ -59,11 +102,11 @@
                 </Button>
             </Grid>
 
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="1" Grid.ColumnSpan="2">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelected'}">
                     <Button Content="Cancel" Background="{StaticResource GrayColorButton}" Width="120" Click="OnCloseImageViewButtonClicked"/>
                     <Button x:Name="analyzeButton" Content="Identify items" Background="#0078D7" Width="120" Click="OnAnalyzeImageButtonClicked" 
-                            IsEnabled="{Binding ElementName=image, Path=EnableCropFeature, Converter={StaticResource reverseBooleanConverter}}"/>
+                            IsEnabled="{Binding ElementName=image, Path=EnableCropFeature, Mode=OneWay, Converter={StaticResource reverseBooleanConverter}}"/>
                 </StackPanel>
 
                 <Grid Background="#171717" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalyzed'}">
@@ -73,13 +116,13 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}">
+                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Tag="Add" Click="OnAddOrEditProductButtonClick">
                             <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEF20;"/>
                                 <TextBlock Text="Add label"/>
                             </StackPanel>
                         </Button>
-                        <Button x:Name="editRegionButton" Background="Transparent" IsEnabled="False" Style="{StaticResource ControlButtonStyle}">
+                        <Button x:Name="editRegionButton" Background="Transparent" IsEnabled="False" Style="{StaticResource ControlButtonStyle}" Tag="Edit" Click="OnAddOrEditProductButtonClick">
                             <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE70F;"/>
                                 <TextBlock Text="Edit label"/>
@@ -106,8 +149,7 @@
                         </Button>
                     </StackPanel>
                 
-                    <Grid Grid.Row="1" x:Name="selectedProductsGrid" RowSpacing="24" Margin="24,0"
-                          Visibility="{Binding RecognitionGroup, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='SelectedItems'}">
+                    <Grid Grid.Row="1" x:Name="selectedProductsGrid" RowSpacing="24" Margin="24,0" Visibility="{Binding RecognitionGroup, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='SelectedItems'}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition />
@@ -119,50 +161,14 @@
                         </TextBlock>
 
                         <ScrollViewer Grid.Row="1" HorizontalScrollMode="Disabled">
-                            <GridView ItemsSource="{Binding SelectedProductItemCollection}">
-                                <GridView.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <ItemsWrapGrid Orientation="Vertical" MaximumRowsOrColumns="1"/>
-                                    </ItemsPanelTemplate>
-                                </GridView.ItemsPanel>
-                                <GridView.ItemContainerStyle>
-                                    <Style TargetType="GridViewItem">
-                                        <Setter Property="Margin" Value="0,0,8,8"/>
-                                    </Style>
-                                </GridView.ItemContainerStyle>
-                            
-                                <GridView.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Background="#2B2B2B" CornerRadius="2" Height="200">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition />
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-
-                                            <StackPanel Spacing="12" VerticalAlignment="Stretch" Margin="7,12,7,9">
-                                                <Viewbox Height="100" Stretch="Uniform">
-                                                    <Image Source="{Binding Image}" />
-                                                </Viewbox>
-
-                                                <StackPanel>
-                                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="8,0" Opacity="0.8"/>
-                                                </StackPanel>
-                                            </StackPanel>
-
-                                            <Button Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top" Click="OnCancelProductSelectionButtonClick">
-                                                <SymbolIcon Symbol="Cancel"/>
-                                            </Button>
-
-                                            <Rectangle Grid.Row="1" Fill="#248FFF" Height="8" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </GridView.ItemTemplate>
-                            </GridView>
+                            <GridView ItemsSource="{Binding SelectedProductItemCollection}"
+                                      ItemTemplate="{StaticResource SelectedProductGridView}"
+                                      ItemContainerStyle="{StaticResource SelectedProductGridViewItemContainerStyle}"
+                                      Style="{StaticResource SelectedProductGridViewStyle}" />
                         </ScrollViewer>
                     </Grid>
 
-                    <Grid Grid.Row="1" x:Name="summaryGrid" ColumnSpacing="12"
-                          Visibility="{Binding RecognitionGroup, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='SelectedItems'}">
+                    <Grid Grid.Row="1" x:Name="summaryGrid" ColumnSpacing="12" Visibility="{Binding RecognitionGroup, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='SelectedItems'}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="0.2*"/>
                             <ColumnDefinition Width="0.8*"/>
@@ -226,7 +232,11 @@
 
                 </Grid>
             </Grid>
-            
+
+            <!-- Product Add/Edit panel -->
+            <Grid Grid.Column="1" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAddOrUpdateProduct'}">
+                <ctl:ProductEditorControl x:Name="productEditorControl" ProductCollection="{Binding UniqueProductItemCollection}" ProductUpdated="OnProductEditorControlProductUpdated"  EditorClosed="OnProductEditorControlClosed"/>
+            </Grid>
             
         </Grid>
 

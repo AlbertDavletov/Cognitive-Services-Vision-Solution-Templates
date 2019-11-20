@@ -23,7 +23,7 @@ namespace ObjectCountingExplorer.Controls
 
         public void UpdateChart(IEnumerable<ProductItemViewModel> productCollection)
         {
-            Dictionary<string, List<PredictionModel>> productDict = productCollection.GroupBy(x => x.Name).ToDictionary(x => x.Key, x => x.Select(y => y.Model).ToList());
+            Dictionary<string, List<PredictionModel>> productDict = productCollection.GroupBy(x => x.DisplayName).ToDictionary(x => x.Key, x => x.Select(y => y.Model).ToList());
             int maxProductCount = productDict.Any(x => x.Value.Any()) ? productDict.Max(x => x.Value.Count) : 0;
             int maxBarCharValue = maxProductCount > 12 ? maxProductCount : 12;
             SetAxisLabels(maxBarCharValue);

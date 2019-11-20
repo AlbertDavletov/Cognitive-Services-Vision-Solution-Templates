@@ -1,9 +1,6 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
-using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -16,10 +13,13 @@ namespace ObjectCountingExplorer.Controls
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public IEnumerable<Tag> AvailableTags { get; set; }
-        public PredictionModel Region { get; set; }
+        public Guid ProductId { get; set; }
+        public string Title { get; set; }
+        public PredictionModel Model { get; set; }
 
-        private Color color = Colors.Lime;
+        public bool EnableRemove { get; set; } = false;
+
+        private Color color = Colors.White;
         public Color Color
         {
             get { return this.color; }
@@ -31,10 +31,10 @@ namespace ObjectCountingExplorer.Controls
         }
     }
 
-    public sealed partial class RegionEditorControl : UserControl   
+    public sealed partial class RegionEditorControl : UserControl
     {
-        public event EventHandler<Tag> RegionChanged;
-        public event EventHandler RegionDeleted;
+        public event EventHandler<Guid> RegionChanged;
+        public event EventHandler<Guid> RegionDeleted;
 
         public RegionEditorControl()
         {
@@ -81,22 +81,14 @@ namespace ObjectCountingExplorer.Controls
 
         private void OnThumbReleased(object sender, PointerRoutedEventArgs e)
         {
-            var selectedTag = this.tagComboBox.SelectedItem as Tag;
-            this.RegionChanged?.Invoke(this, selectedTag);
+            var dataContext = ((Thumb)sender).DataContext as RegionEditorViewModel;
+            this.RegionChanged?.Invoke(this, dataContext.ProductId);
         }
 
-        private void DeleteRegionClicked(object sender, RoutedEventArgs e)
+        private void OnRegionRemoveButtonClick(object sender, RoutedEventArgs e)
         {
-            this.RegionDeleted?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void OnTagComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.RemovedItems.Any())
-            {
-                var selectedTag = this.tagComboBox.SelectedItem as Tag;
-                this.RegionChanged?.Invoke(this, selectedTag);
-            }
+            var dataContext = ((Button)sender).DataContext as RegionEditorViewModel;
+            this.RegionDeleted?.Invoke(this, dataContext.ProductId);
         }
     }
 }

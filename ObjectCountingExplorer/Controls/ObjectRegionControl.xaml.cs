@@ -1,24 +1,13 @@
-﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
-using ObjectCountingExplorer.Models;
+﻿using ObjectCountingExplorer.Models;
 using System;
 using System.ComponentModel;
 using Windows.UI;
-using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 
 namespace ObjectCountingExplorer.Controls
 {
-    public enum RegionState
-    {
-        Disabled,
-        Active,
-        Selected,
-        Edit
-    }
-
     public sealed partial class ObjectRegionControl : UserControl, INotifyPropertyChanged
     {
         public event EventHandler<Tuple<RegionState, ProductItemViewModel>> RegionSelected;
@@ -115,14 +104,6 @@ namespace ObjectCountingExplorer.Controls
             {
                 State = State == RegionState.Selected ? RegionState.Active : RegionState.Selected;
                 this.RegionSelected?.Invoke(this, new Tuple<RegionState, ProductItemViewModel>(State, ProductItemViewModel));
-            }
-        }
-
-        private void SelectedRegionGridSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (State == RegionState.Selected)
-            {
-                this.labelPanel.Margin = new Thickness(0, -1 * this.labelPanel.ActualHeight, 0, 4);
             }
         }
     }

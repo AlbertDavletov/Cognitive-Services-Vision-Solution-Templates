@@ -11,6 +11,7 @@
     d:DesignWidth="400">
 
     <UserControl.Resources>
+        <SolidColorBrush x:Key="CanvasDarkBackground" Color="Black" Opacity="0.6"/>
         <SolidColorBrush x:Key="CropImageMask" Color="#1F1F1F" Opacity="0.7"/>
         
         <local:BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
@@ -55,10 +56,14 @@
 
             <ScrollViewer Grid.Row="1" Name="scrollViewerMain" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinZoomFactor="1" ZoomMode="Enabled">
                 <Grid MaxWidth="{Binding Path=ViewportWidth, ElementName=scrollViewerMain}" MaxHeight="{Binding Path=ViewportHeight, ElementName=scrollViewerMain}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Image x:Name="image" Stretch="Uniform" PointerReleased="OnPointerReleasedOverImage"/>
+                    <Image x:Name="image" Stretch="Uniform"/>
 
                     <Canvas x:Name="objectDetectionVisualizationCanvas" SizeChanged="OnObjectDetectionVisualizationCanvasSizeChanged"/>
-                    <Canvas x:Name="imageRegionsCanvas" Visibility="Collapsed"/>
+
+                    <Grid>
+                        <Canvas x:Name="overlayCanvas" Background="{StaticResource CanvasDarkBackground}" Visibility="Collapsed" PointerReleased="OnPointerReleasedOverImage"/>
+                        <Canvas x:Name="editObjectVisualizationCanvas" Visibility="Collapsed" SizeChanged="OnEditObjectVisualizationCanvasSizeChanged" />
+                    </Grid>
                 </Grid>
             </ScrollViewer>
         </Grid>

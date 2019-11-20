@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -18,6 +19,16 @@ namespace ObjectCountingExplorer
 {
     internal static class Util
     {
+        public static double EnsureValidNormalizedValue(double value)
+        {
+            // ensure [0,1]
+            return Math.Min(1, Math.Max(0, value));
+        }
+        public static double Min(params double[] values)
+        {
+            return Enumerable.Min(values);
+        }
+
         internal static async Task GenericApiCallExceptionHandler(Exception ex, string errorTitle)
         {
             string errorDetails = GetMessageFromException(ex);

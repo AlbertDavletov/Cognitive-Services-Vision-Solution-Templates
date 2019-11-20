@@ -144,6 +144,9 @@
     <Compile Include="Controls\ProductCollectionControl.xaml.cs">
       <DependentUpon>ProductCollectionControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ProductEditorControl.xaml.cs">
+      <DependentUpon>ProductEditorControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\RegionEditorControl.xaml.cs">
       <DependentUpon>RegionEditorControl.xaml</DependentUpon>
     </Compile>
@@ -206,6 +209,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ProductCollectionControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ProductEditorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

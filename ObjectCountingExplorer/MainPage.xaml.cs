@@ -1,7 +1,6 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training;
-using Microsoft.Rest;
 using ObjectCountingExplorer.Controls;
 using ObjectCountingExplorer.Helpers;
 using ObjectCountingExplorer.Models;
@@ -17,8 +16,6 @@ using Windows.Storage;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 namespace ObjectCountingExplorer
@@ -57,6 +54,12 @@ namespace ObjectCountingExplorer
         public ObservableCollection<ProductItemViewModel> HighConfidenceCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
         public ObservableCollection<ProductItemViewModel> SelectedProductItemCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
+
+        public ObservableCollection<ProductItemViewModel> UniqueProductItemCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
+
+        public ObservableCollection<ProductItemViewModel> AddedProductItems { get; set; } = new ObservableCollection<ProductItemViewModel>();
+
+        public ObservableCollection<ProductItemViewModel> DeletedProductItems { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
         private AppViewState appViewState = AppViewState.ImageSelection;
         public AppViewState AppViewState
@@ -116,51 +119,12 @@ namespace ObjectCountingExplorer
                 foreach (var project in this.Projects)
                 {
                     project.TagSamples = new ObservableCollection<TagSampleViewModel>();
-                    this.PopulateTagSamplesAsync(project.Id, this.trainingApi, project.TagSamples);
+                    CustomVisionServiceHelper.PopulateTagSamplesAsync(this.trainingApi, project.Id, project.TagSamples);
                 }
             }
             catch (Exception ex)
             {
                 await Util.GenericApiCallExceptionHandler(ex, "Failure loading projects");
-            }
-        }
-
-        private async void PopulateTagSamplesAsync(Guid projectId, CustomVisionTrainingClient trainingEndPoint, ObservableCollection<TagSampleViewModel> collection)
-        {
-            var tags = (await trainingEndPoint.GetTagsAsync(projectId)).Take(5);
-            foreach (var tag in tags.OrderBy(t => t.Name))
-            {
-                try
-                {
-                    if (tag.ImageCount > 0)
-                    {
-                        var imageModelSample = (await trainingEndPoint.GetTaggedImagesAsync(projectId, null, new List<Guid>() { tag.Id }, null, 1)).First();
-
-                        var tagRegion = imageModelSample.Regions?.FirstOrDefault(r => r.TagId == tag.Id);
-                        if (tagRegion == null || (tagRegion.Width == 0 && tagRegion.Height == 0))
-                        {
-                            collection.Add(new TagSampleViewModel { TagName = tag.Name, TagSampleImage = new BitmapImage(new Uri(imageModelSample.ThumbnailUri)) });
-                        }
-                        else
-                        {
-                            // Crop a region from the image that is associated with the tag, so we show something more 
-                            // relevant than the whole image. 
-                            ImageSource croppedImage = await Util.DownloadAndCropBitmapAsync(
-                                imageModelSample.OriginalImageUri,
-                                new Rect(
-                                    tagRegion.Left * imageModelSample.Width, 
-                                    tagRegion.Top * imageModelSample.Height,
-                                    tagRegion.Width * imageModelSample.Width,
-                                    tagRegion.Height * imageModelSample.Height));
-
-                            collection.Add(new TagSampleViewModel { TagName = tag.Name, TagSampleImage = croppedImage });
-                        }
-                    }
-                }
-                catch (HttpOperationException exception) when (exception.Response.StatusCode == (System.Net.HttpStatusCode)429)
-                {
-                    continue;
-                }
             }
         }
 
@@ -170,10 +134,33 @@ namespace ObjectCountingExplorer
             this.editRegionButton.IsEnabled = isAnySelectedProduct;
             this.clearSelectionButton.IsEnabled = isAnySelectedProduct;
             this.removeRegionButton.IsEnabled = isAnySelectedProduct;
+
+            switch (RecognitionGroup)
+            {
+                case RecognitionGroup.Summary:
+                    this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
+                    break;
+
+                case RecognitionGroup.HighConfidence:
+                    this.image.ShowObjectDetectionBoxes(HighConfidenceCollection);
+                    break;
+
+                case RecognitionGroup.MediumConfidence:
+                    this.image.ShowObjectDetectionBoxes(MediumConfidenceCollection);
+                    break;
+
+                case RecognitionGroup.LowConfidence:
+                    this.image.ShowObjectDetectionBoxes(LowConfidenceCollection);
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void AppViewStateChanged()
         {
+            this.resultColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
+
             switch (AppViewState)
             {
                 case AppViewState.ImageSelected:
@@ -182,6 +169,11 @@ namespace ObjectCountingExplorer
 
                 case AppViewState.ImageAnalyzed:
                     this.resultRowDefinition.Height = new GridLength(0.4, GridUnitType.Star);
+                    break;
+
+                case AppViewState.ImageAddOrUpdateProduct:
+                    this.resultRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
+                    this.resultColumnDefinition.Width = new GridLength(0.3, GridUnitType.Star);
                     break;
 
                 default:
@@ -198,6 +190,9 @@ namespace ObjectCountingExplorer
             MediumConfidenceCollection.Clear();
             HighConfidenceCollection.Clear();
             SelectedProductItemCollection.Clear();
+            UniqueProductItemCollection.Clear();
+            AddedProductItems.Clear();
+            DeletedProductItems.Clear();
 
             this.recognitionGroupListView.SelectedIndex = -1;
             this.chartControl.Visibility = Visibility.Collapsed;
@@ -231,10 +226,15 @@ namespace ObjectCountingExplorer
 
                 if (this.image.ImageFile is StorageFile currentImageFile)
                 {
-                    // ImagePrediction result = await AnalyzeImageAsync(currentProject, currentImageFile);
+                    // ImagePrediction result = await CustomVisionServiceHelper.AnalyzeImageAsync(trainingApi, predictionApi, currentProject.Id, currentImageFile);
                     //currentDetectedObjects = result?.Predictions?.ToList() ?? new List<PredictionModel>();
 
-                    currentDetectedObjects = CustomVisionServiceHelper.GetFakeTestData(tempW, tempH, marginX, marginY).Select(x => new ProductItemViewModel(x)).ToList();
+                    currentDetectedObjects = CustomVisionServiceHelper.GetFakeTestData(tempW, tempH, marginX, marginY)
+                        .Select(x => new ProductItemViewModel()
+                        {
+                            DisplayName = x.TagName, // can modify a product name for display name
+                            Model = x
+                        }).ToList();
 
                     using (var stream = (await currentImageFile.OpenStreamForReadAsync()).AsRandomAccessStream())
                     {
@@ -242,14 +242,15 @@ namespace ObjectCountingExplorer
                         {
                             double imageWidth = this.image.PixelWidth;
                             double imageHeight = this.image.PixelHeight;
+                            BoundingBox boundingBox = product.Model.BoundingBox;
 
-                            var rect = new Rect(imageWidth * product.Rect.Left, imageHeight * product.Rect.Top, imageWidth * product.Rect.Width, imageHeight * product.Rect.Height);
+                            var rect = new Rect(imageWidth * boundingBox.Left, imageHeight * boundingBox.Top, imageWidth * boundingBox.Width, imageHeight * boundingBox.Height);
                             product.Image = await Util.GetCroppedBitmapAsync(stream, rect);
                         }
                     }
                 }
 
-                await Task.Delay(2000);
+                await Task.Delay(500);
 
                 UpdateResult(currentDetectedObjects);
             }
@@ -266,6 +267,11 @@ namespace ObjectCountingExplorer
 
         private void UpdateResult(IEnumerable<ProductItemViewModel> productItemCollection)
         {
+            SelectedProductItemCollection.Clear();
+
+            UniqueProductItemCollection.Clear();
+            UniqueProductItemCollection.AddRange(productItemCollection.GroupBy(p => p.DisplayName).Select(p => p.FirstOrDefault()).OrderBy(p => p.DisplayName));
+
             LowConfidenceCollection.Clear();
             LowConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability <= 0.3));
 
@@ -279,46 +285,26 @@ namespace ObjectCountingExplorer
             this.chartControl.Visibility = Visibility.Visible;
             this.chartControl.UpdateChart(productItemCollection);
 
+            this.image.SelectedRegions.Clear();
             this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
+            this.image.ToggleEditState();
 
             AppViewState = AppViewState.ImageAnalyzed;
         }
 
-        private async Task<ImagePrediction> AnalyzeImageAsync(ProjectViewModel project, StorageFile file)
+        private void OnImageRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> args)
         {
-            ImagePrediction result = null;
-
-            try
+            if (args?.Item1 != null && args?.Item2 != null)
             {
-                var iteractions = await trainingApi.GetIterationsAsync(project.Id);
-                var latestTrainedIteraction = iteractions.Where(i => i.Status == "Completed").OrderByDescending(i => i.TrainedAt.Value).FirstOrDefault();
-                if (latestTrainedIteraction == null || string.IsNullOrEmpty(latestTrainedIteraction?.PublishName))
+                ProductItemViewModel product = args.Item2.DeepCopy();
+                if (args.Item1 == RegionState.Selected)
                 {
-                    throw new Exception("This project doesn't have any trained models or published iteration yet. Please train and publish it, or wait until training completes if one is in progress.");
+                    SelectedProductItemCollection.Add(product);
                 }
-
-                using (Stream stream = (await file.OpenReadAsync()).AsStream())
+                else
                 {
-                    result = await CustomVisionServiceHelper.PredictImageWithRetryAsync(predictionApi, project.Id, latestTrainedIteraction.PublishName, stream);
+                    SelectedProductItemCollection.Remove(product);
                 }
-            }
-            catch (Exception ex)
-            {
-                await Util.GenericApiCallExceptionHandler(ex, "Custom Vision service error");
-            }
-
-            return result;
-        }
-
-        private void OnImageRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> item)
-        {
-            if (item.Item1 == RegionState.Selected)
-            {
-                SelectedProductItemCollection.Add(item.Item2);
-            }
-            else
-            {
-                SelectedProductItemCollection.Remove(item.Item2);
             }
 
             RecognitionGroup = SelectedProductItemCollection.Any() ? RecognitionGroup.SelectedItems : RecognitionGroup.Summary;
@@ -363,6 +349,16 @@ namespace ObjectCountingExplorer
                 {
                     foreach (ProductItemViewModel product in SelectedProductItemCollection)
                     {
+                        if (!DeletedProductItems.Any(p => p.Id == product.Id))
+                        {
+                            DeletedProductItems.Add(product);
+                        }
+
+                        if (AddedProductItems.Any(p => p.Id == product.Id))
+                        {
+                            AddedProductItems.Remove(product);
+                        }
+
                         currentDetectedObjects.Remove(product);
                     }
 
@@ -372,14 +368,132 @@ namespace ObjectCountingExplorer
             }
         }
 
-        private async void OnInputImageSelected(object sender, Tuple<ProjectViewModel, StorageFile> item)
+        private async void OnInputImageSelected(object sender, Tuple<ProjectViewModel, StorageFile> inputData)
         {
             ResetImageData();
 
-            currentProject = item.Item1;
-            await this.image.SetSourceFromFileAsync(item.Item2);
+            // get project and image from input view page
+            currentProject = inputData.Item1;
+            await this.image.SetSourceFromFileAsync(inputData.Item2);
 
             AppViewState = AppViewState.ImageSelected;
+        }
+
+        private void OnProductEditorControlClosed(object sender, EventArgs e)
+        {
+            foreach (var product in SelectedProductItemCollection)
+            {
+                var originalProduct = currentDetectedObjects.FirstOrDefault(p => p.Id == product.Id)?.DeepCopy();
+                product.DisplayName = originalProduct.DisplayName;
+                product.Model = originalProduct.Model;
+            }
+
+            this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
+            this.image.ToggleEditState();
+            AppViewState = AppViewState.ImageAnalyzed;
+        }
+
+        private void OnAddOrEditProductButtonClick(object sender, RoutedEventArgs e)
+        {
+            string tag = ((Button)sender).Tag as string ?? string.Empty;
+
+            if (tag == "Add")
+            {
+                this.productEditorControl.EditorState = EditorState.Add;
+                this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
+                this.image.ToggleEditState(enableRemoveOption: true);
+            }
+            else
+            {
+                this.productEditorControl.EditorState = EditorState.Edit;
+                var detectedProductsWithoutSelected = currentDetectedObjects.Where(p => !SelectedProductItemCollection.Select(s => s.Id).Contains(p.Id));
+                this.image.ShowObjectDetectionBoxes(detectedProductsWithoutSelected, RegionState.Disabled);
+                this.image.ToggleEditState(SelectedProductItemCollection);
+            }
+
+            AppViewState = AppViewState.ImageAddOrUpdateProduct;
+        }
+
+        private async void OnProductEditorControlProductUpdated(object sender, Tuple<UpdateMode, ProductItemViewModel> args)
+        {
+            if (args != null)
+            {
+                switch (args.Item1)
+                {
+                    case UpdateMode.UpdateExistingProduct:
+                        foreach (var item in SelectedProductItemCollection)
+                        {
+                            item.DisplayName = args.Item2.DisplayName;
+                        }
+
+                        this.image.ToggleEditState(SelectedProductItemCollection);
+                        break;
+
+                    case UpdateMode.UpdateNewProduct:
+                        this.image.ShowNewObjects(args.Item2.DisplayName);
+                        break;
+
+                    case UpdateMode.SaveExistingProduct:
+                        if (this.image.ImageFile is StorageFile currentImageFile)
+                        {
+                            using (var stream = (await currentImageFile.OpenStreamForReadAsync()).AsRandomAccessStream())
+                            {
+                                double imageWidth = this.image.PixelWidth;
+                                double imageHeight = this.image.PixelHeight;
+
+                                foreach (var item in SelectedProductItemCollection.Select(p => p.DeepCopy()))
+                                {
+                                    var product = currentDetectedObjects.FirstOrDefault(p => p.Id == item.Id);
+                                    if (product != null)
+                                    {
+                                        BoundingBox boundingBox = product.Model.BoundingBox;
+
+                                        product.DisplayName = item.DisplayName;
+                                        product.Model = item.Model;
+
+                                        var rect = new Rect(imageWidth * boundingBox.Left, imageHeight * boundingBox.Top, imageWidth * boundingBox.Width, imageHeight * boundingBox.Height);
+                                        product.Image = await Util.GetCroppedBitmapAsync(stream, rect);
+                                    }
+                                }
+                            }
+                        }
+
+                        UpdateResult(currentDetectedObjects);
+                        break;
+
+                    case UpdateMode.SaveNewProduct:
+                        if (this.image.ImageFile is StorageFile imageFile)
+                        {
+                            using (var stream = (await imageFile.OpenStreamForReadAsync()).AsRandomAccessStream())
+                            {
+                                double imageWidth = this.image.PixelWidth;
+                                double imageHeight = this.image.PixelHeight;
+
+                                foreach (var item in this.image.AddedNewObjects.Select(p => p))
+                                {
+                                    bool isNewProduct = !currentDetectedObjects.Any(p => p.Id == item.Id);
+                                    if (isNewProduct)
+                                    {
+                                        BoundingBox boundingBox = item.Model.BoundingBox;
+                                        item.DisplayName = args.Item2.DisplayName;
+
+                                        var rect = new Rect(imageWidth * boundingBox.Left, imageHeight * boundingBox.Top, imageWidth * boundingBox.Width, imageHeight * boundingBox.Height);
+                                        item.Image = await Util.GetCroppedBitmapAsync(stream, rect);
+
+                                        currentDetectedObjects.Add(item);
+                                    }
+                                }
+
+                                this.image.AddedNewObjects.Clear();
+                            }
+                        }
+
+                        UpdateResult(currentDetectedObjects);
+                        break;
+                }
+            }
+
+            
         }
     }
 }
