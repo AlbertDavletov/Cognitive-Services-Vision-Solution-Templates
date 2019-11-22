@@ -12,7 +12,9 @@ namespace ObjectCountingExplorer.Models
         ImageSelection,
         ImageSelected,
         ImageAnalyzed,
-        ImageAddOrUpdateProduct
+        ImageAddOrUpdateProduct,
+        ImageAnalysisReview,
+        ImageAnalysisPublish
     }
 
     public enum RegionState
@@ -106,5 +108,14 @@ namespace ObjectCountingExplorer.Models
                                             this.Model.BoundingBox.Width, this.Model.BoundingBox.Height))
             };
         }
+    }
+
+    public class ResultDataGridViewModel
+    {
+        public string Name { get; set; }
+        public int LowConfidenceCount { get; set; }
+        public int MediumConfidenceCount { get; set; }
+        public int HighConfidenceCount { get; set; }
+        public int TotalCount { get; set; }
     }
 }

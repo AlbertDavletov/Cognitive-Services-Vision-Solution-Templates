@@ -29,10 +29,10 @@ namespace ObjectCountingExplorer.Controls
             this.InitializeComponent();
 
             this.imagePicker.SetSuggestedImageList(
-                "https://howoldkiosk.blob.core.windows.net/kiosksuggestedphotos/1.jpg",
-                "https://howoldkiosk.blob.core.windows.net/kiosksuggestedphotos/2.jpg",
-                "https://howoldkiosk.blob.core.windows.net/kiosksuggestedphotos/3.jpg",
-                "https://howoldkiosk.blob.core.windows.net/kiosksuggestedphotos/4.jpg"
+                "ms-appx:///Assets/ImageSamples/1.jpg",
+                "ms-appx:///Assets/ImageSamples/2.jpg",
+                "ms-appx:///Assets/ImageSamples/3.jpg",
+                "ms-appx:///Assets/ImageSamples/4.jpg"
             );
         }
 

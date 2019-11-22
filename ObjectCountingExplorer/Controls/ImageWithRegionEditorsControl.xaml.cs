@@ -52,6 +52,17 @@ namespace ObjectCountingExplorer.Controls
             }
         }
 
+        private bool enableImageControls = true;
+        public bool EnableImageControls
+        {
+            get { return enableImageControls; }
+            set
+            {
+                enableImageControls = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("EnableImageControls"));
+            }
+        }
+
         public ImageWithRegionEditorsControl()
         {
             this.InitializeComponent();

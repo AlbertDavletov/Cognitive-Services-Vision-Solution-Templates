@@ -25,7 +25,7 @@ namespace ObjectCountingExplorer.Controls
         {
             Dictionary<string, List<PredictionModel>> productDict = productCollection.GroupBy(x => x.DisplayName).ToDictionary(x => x.Key, x => x.Select(y => y.Model).ToList());
             int maxProductCount = productDict.Any(x => x.Value.Any()) ? productDict.Max(x => x.Value.Count) : 0;
-            int maxBarCharValue = maxProductCount > 12 ? maxProductCount : 12;
+            int maxBarCharValue = maxProductCount > 6 ? maxProductCount : 6;
             SetAxisLabels(maxBarCharValue);
 
             ChartLabelCollection.Clear();
@@ -58,8 +58,6 @@ namespace ObjectCountingExplorer.Controls
 
         private void OnChartGridSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            var tmp = chartGrid.ActualHeight;
-            var t = tmp;
         }
 
         private void SetAxisLabels(int maxAxisValue, int minAxisValue = 0)

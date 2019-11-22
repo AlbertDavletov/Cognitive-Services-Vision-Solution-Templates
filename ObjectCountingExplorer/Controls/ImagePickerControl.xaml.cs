@@ -175,7 +175,15 @@ namespace ObjectCountingExplorer.Controls
 
                 if (img.ImageUrl != null)
                 {
-                    await Util.DownloadAndSaveBitmapAsync(img.ImageUrl, imageFile);
+                    if (img.ImageUrl.Contains("ms-appx"))
+                    {
+                        var projectFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(img.ImageUrl));
+                        imageFile = await projectFile.CopyAsync(ApplicationData.Current.LocalFolder, "Image.jpg", NameCollisionOption.ReplaceExisting);
+                    }
+                    else
+                    {
+                        await Util.DownloadAndSaveBitmapAsync(img.ImageUrl, imageFile);
+                    }
                 }
                 else if (img.GetImageStreamCallback != null)
                 {

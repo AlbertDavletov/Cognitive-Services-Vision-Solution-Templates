@@ -60,7 +60,6 @@ namespace ObjectCountingExplorer
                 var appView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
                 var titleBar = appView.TitleBar;
                 titleBar.BackgroundColor = Windows.UI.Colors.Black;
-                titleBar.ForegroundColor = Windows.UI.Colors.Black;
                 titleBar.ButtonBackgroundColor = Windows.UI.Colors.Black;
                 titleBar.ButtonForegroundColor = Windows.UI.Colors.White;
 

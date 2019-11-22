@@ -128,43 +128,26 @@ namespace ObjectCountingExplorer.Helpers
             return response;
         }
 
-        public static List<PredictionModel> GetFakeTestData(double tempW, double tempH, double marginX, double marginY)
+        public static List<PredictionModel> GetFakeTestData()
         {
             return new List<PredictionModel>()
             {
-                new PredictionModel(probability: 0.99,  tagName: "General Mills", boundingBox: new BoundingBox(marginX, marginY, tempW, tempH)),
-                new PredictionModel(probability: 0.98,  tagName: "General Mills", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, marginY, tempW, tempH)),
-                new PredictionModel(probability: 0.97,  tagName: "General Mills", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, marginY, tempW, tempH)),
-                new PredictionModel(probability: 0.96,  tagName: "General Mills", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, marginY, tempW, tempH)),
-                new PredictionModel(probability: 0.95,  tagName: "General Mills", boundingBox: new BoundingBox(5 * marginX + 4 * tempW, marginY, tempW, tempH)),
-                new PredictionModel(probability: 0.94,  tagName: "General Mills", boundingBox: new BoundingBox(6 * marginX + 5 * tempW, marginY, tempW, tempH)),
-                new PredictionModel(probability: 0.6,   tagName: "General Mills", boundingBox: new BoundingBox(7 * marginX + 6 * tempW, marginY, tempW, tempH)),
-                new PredictionModel(probability: 0.59,  tagName: "General Mills", boundingBox: new BoundingBox(8 * marginX + 7 * tempW, marginY, tempW, tempH)),
-                new PredictionModel(probability: 0.25,  tagName: "General Mills", boundingBox: new BoundingBox(9 * marginX + 8 * tempW, marginY, tempW, tempH)),
+                new PredictionModel(probability: 0.99,  tagName: "Trop50 Orange Juice", boundingBox: new BoundingBox(0.135476189113207, 0.669977965318636, 0.17846288184557, 0.308048642493458)),
+                new PredictionModel(probability: 0.98,  tagName: "Trop50 Orange Juice", boundingBox: new BoundingBox(0.306554068727999, 0.681500409919821, 0.151975687560846, 0.310943845358046)),
+                new PredictionModel(probability: 0.97,  tagName: "Trop50 Orange Juice", boundingBox: new BoundingBox(0.464153883968774, 0.686719870097959, 0.147633526762836, 0.303416329837948)),
 
+                new PredictionModel(probability: 0.79,  tagName: "Tropicana Orange Juice", boundingBox: new BoundingBox(0.612670091605608, 0.686178346532142, 0.156752062947892, 0.303995366434922)),
+                new PredictionModel(probability: 0.78,  tagName: "Tropicana Orange Juice", boundingBox: new BoundingBox(0.764694124616114, 0.693662981496752, 0.149804599708025, 0.29415170452693)),
+                new PredictionModel(probability: 0.59,  tagName: "Tropicana Orange Juice", boundingBox: new BoundingBox(0.894931667590343, 0.7098632036725, 0.105068332409657, 0.269832087935157)),
 
-                new PredictionModel(probability: 0.81,  tagName: "Great Value", boundingBox: new BoundingBox(marginX, 2 * marginY + tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.79,  tagName: "Great Value", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 2 * marginY + tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.78,  tagName: "Great Value", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 2 * marginY + tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.59,  tagName: "Great Value", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, 2 * marginY + tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.58,  tagName: "Great Value", boundingBox: new BoundingBox(5 * marginX + 4 * tempW, 2 * marginY + tempH, tempW, tempH)),
+                new PredictionModel(probability: 0.99, tagName: "Minute Maid Orange Juice", boundingBox: new BoundingBox(0.067717112064961, 0.0486046126516127, 0.269214058922355, 0.569774198191264)),
+                new PredictionModel(probability: 0.8, tagName: "Minute Maid Orange Juice", boundingBox: new BoundingBox(0.290491244628631, 0.0491955075014134, 0.224924021764188, 0.570353214908518)),
+                new PredictionModel(probability: 0.5, tagName: "Minute Maid Orange Juice", boundingBox: new BoundingBox(0.498494925501794, 0.0538241821682095, 0.240990021189111, 0.567458012043929)),
+                new PredictionModel(probability: 0.2, tagName: "Minute Maid Orange Juice", boundingBox: new BoundingBox(0.676108623921835, 0.0694828807781399, 0.299174999734644, 0.554140150433815)),
 
-
-                new PredictionModel(probability: 0.99, tagName: "Quaker", boundingBox: new BoundingBox(marginX, 3 * marginY + 2 * tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.98, tagName: "Quaker", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 3 * marginY + 2 * tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.97, tagName: "Quaker", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 3 * marginY + 2 * tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.96, tagName: "Quaker", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, 3 * marginY + 2 * tempH, tempW, tempH)),
-
-
-                new PredictionModel(probability: 0.8,  tagName: "Kellog", boundingBox: new BoundingBox(marginX, 4 * marginY + 3 * tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.81, tagName: "Kellog", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 4 * marginY + 3 * tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.82, tagName: "Kellog", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 4 * marginY + 3 * tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.7,  tagName: "Kellog", boundingBox: new BoundingBox(4 * marginX + 3 * tempW, 4 * marginY + 3 * tempH, tempW, tempH)),
-
-
-                new PredictionModel(probability: 0.8,  tagName: "None", boundingBox: new BoundingBox(marginX, 5 * marginY + 4 * tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.81, tagName: "None", boundingBox: new BoundingBox(2 * marginX + 1 * tempW, 5 * marginY + 4 * tempH, tempW, tempH)),
-                new PredictionModel(probability: 0.82, tagName: "None", boundingBox: new BoundingBox(3 * marginX + 2 * tempW, 5 * marginY + 4 * tempH, tempW, tempH))
+                new PredictionModel(probability: 0.8,  tagName: "None", boundingBox: new BoundingBox(0.00257976566872595, 0.707548965737701, 0.14893617052995, 0.290098448348115)),
+                new PredictionModel(probability: 0.81, tagName: "None", boundingBox: new BoundingBox(0.856270454016098, 0.296435049377248, 0.143725580553865, 0.331210205771003)),
+                new PredictionModel(probability: 0.82, tagName: "None", boundingBox: new BoundingBox(0, 0.0578619321656251, 0.160660009156864, 0.561088589597499))
             };
         }
     }

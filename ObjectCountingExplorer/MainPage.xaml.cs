@@ -13,9 +13,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 namespace ObjectCountingExplorer
@@ -59,7 +61,11 @@ namespace ObjectCountingExplorer
 
         public ObservableCollection<ProductItemViewModel> AddedProductItems { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
+        public ObservableCollection<ProductItemViewModel> EditedProductItems { get; set; } = new ObservableCollection<ProductItemViewModel>();
+
         public ObservableCollection<ProductItemViewModel> DeletedProductItems { get; set; } = new ObservableCollection<ProductItemViewModel>();
+
+        public ObservableCollection<ResultDataGridViewModel> ResultDataGridCollection { get; set; } = new ObservableCollection<ResultDataGridViewModel>();
 
         private AppViewState appViewState = AppViewState.ImageSelection;
         public AppViewState AppViewState
@@ -159,7 +165,14 @@ namespace ObjectCountingExplorer
 
         private void AppViewStateChanged()
         {
+            this.statusRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
             this.resultColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
+
+            this.leftOffsetColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
+            this.rightOffsetColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
+            this.footerRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
+
+            this.image.EnableImageControls = AppViewState != AppViewState.ImageAnalysisReview && AppViewState != AppViewState.ImageAnalysisPublish;
 
             switch (AppViewState)
             {
@@ -172,8 +185,22 @@ namespace ObjectCountingExplorer
                     break;
 
                 case AppViewState.ImageAddOrUpdateProduct:
+                case AppViewState.ImageAnalysisReview:
                     this.resultRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
                     this.resultColumnDefinition.Width = new GridLength(0.3, GridUnitType.Star);
+                    this.reviewGrid.Background = new SolidColorBrush(Color.FromArgb(255, 43, 43, 43));
+                    break;
+
+                case AppViewState.ImageAnalysisPublish:
+                    this.statusRowDefinition.Height = new GridLength(0.15, GridUnitType.Star);
+                    this.resultRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
+                    this.resultColumnDefinition.Width = new GridLength(0.3, GridUnitType.Star);
+                    this.footerRowDefinition.Height = new GridLength(0.15, GridUnitType.Star);
+
+                    this.leftOffsetColumnDefinition.Width = new GridLength(0.15, GridUnitType.Star);
+                    this.rightOffsetColumnDefinition.Width = new GridLength(0.15, GridUnitType.Star);
+
+                    this.reviewGrid.Background = new SolidColorBrush(Colors.Transparent);
                     break;
 
                 default:
@@ -192,16 +219,37 @@ namespace ObjectCountingExplorer
             SelectedProductItemCollection.Clear();
             UniqueProductItemCollection.Clear();
             AddedProductItems.Clear();
+            EditedProductItems.Clear();
             DeletedProductItems.Clear();
 
             this.recognitionGroupListView.SelectedIndex = -1;
             this.chartControl.Visibility = Visibility.Collapsed;
         }
 
-        private void OnCloseImageViewButtonClicked(object sender, RoutedEventArgs e)
+        private async void OnCloseImageViewButtonClicked(object sender, RoutedEventArgs e)
         {
-            this.image.ClearSource();
-            AppViewState = AppViewState.ImageSelection;
+            bool close = false;
+            bool anyResults = AddedProductItems.Any() || EditedProductItems.Any() || DeletedProductItems.Any();
+            if (anyResults)
+            {
+                ContentDialog dialog = new ContentDialog
+                {
+                    Title = "Are you sure?",
+                    Content = "It looks like you have been editing something. If you leave before publishing, your changes will be lost.",
+                    PrimaryButtonText = "Yes",
+                    SecondaryButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Secondary
+                };
+
+                ContentDialogResult result = await dialog.ShowAsync();
+                close = (result == ContentDialogResult.Primary);
+            }
+            
+            if (close || !anyResults)
+            {
+                this.image.ClearSource();
+                AppViewState = AppViewState.ImageSelection;
+            }
         }
 
         private async void OnAnalyzeImageButtonClicked(object sender, RoutedEventArgs e)
@@ -216,20 +264,12 @@ namespace ObjectCountingExplorer
                 this.progressRing.IsActive = true;
                 this.analyzeButton.IsEnabled = false;
 
-                double imageW = this.image.PixelWidth;
-                double imageH = this.image.PixelHeight;
-
-                double tempW = imageW != 0 ? 60 / imageW : 60;
-                double tempH = imageH != 0 ? 60 / imageH : 60;
-                double marginX = imageW != 0 ? 5 / imageW : 5;
-                double marginY = imageH != 0 ? 5 / imageH : 5;
-
                 if (this.image.ImageFile is StorageFile currentImageFile)
                 {
                     // ImagePrediction result = await CustomVisionServiceHelper.AnalyzeImageAsync(trainingApi, predictionApi, currentProject.Id, currentImageFile);
                     //currentDetectedObjects = result?.Predictions?.ToList() ?? new List<PredictionModel>();
 
-                    currentDetectedObjects = CustomVisionServiceHelper.GetFakeTestData(tempW, tempH, marginX, marginY)
+                    currentDetectedObjects = CustomVisionServiceHelper.GetFakeTestData()
                         .Select(x => new ProductItemViewModel()
                         {
                             DisplayName = x.TagName, // can modify a product name for display name
@@ -303,7 +343,11 @@ namespace ObjectCountingExplorer
                 }
                 else
                 {
-                    SelectedProductItemCollection.Remove(product);
+                    var productToRemove = SelectedProductItemCollection.FirstOrDefault(p => p.Id == product.Id);
+                    if (productToRemove != null)
+                    {
+                        SelectedProductItemCollection.Remove(productToRemove);
+                    }
                 }
             }
 
@@ -349,17 +393,23 @@ namespace ObjectCountingExplorer
                 {
                     foreach (ProductItemViewModel product in SelectedProductItemCollection)
                     {
-                        if (!DeletedProductItems.Any(p => p.Id == product.Id))
+                        var newProductItem = AddedProductItems.FirstOrDefault(p => p.Id == product.Id);
+
+                        if (!DeletedProductItems.Any(p => p.Id == product.Id) && newProductItem == null)
                         {
                             DeletedProductItems.Add(product);
                         }
 
-                        if (AddedProductItems.Any(p => p.Id == product.Id))
+                        if (newProductItem != null)
                         {
-                            AddedProductItems.Remove(product);
+                            AddedProductItems.Remove(newProductItem);
                         }
 
-                        currentDetectedObjects.Remove(product);
+                        var productToRemove = currentDetectedObjects.FirstOrDefault(p => p.Id == product.Id);
+                        if (productToRemove != null)
+                        {
+                            currentDetectedObjects.Remove(productToRemove);
+                        }
                     }
 
                     SelectedProductItemCollection.Clear();
@@ -453,6 +503,11 @@ namespace ObjectCountingExplorer
 
                                         var rect = new Rect(imageWidth * boundingBox.Left, imageHeight * boundingBox.Top, imageWidth * boundingBox.Width, imageHeight * boundingBox.Height);
                                         product.Image = await Util.GetCroppedBitmapAsync(stream, rect);
+
+                                        if (!EditedProductItems.Any(p => p.Id == product.Id))
+                                        {
+                                            EditedProductItems.Add(product);
+                                        }
                                     }
                                 }
                             }
@@ -480,6 +535,7 @@ namespace ObjectCountingExplorer
                                         var rect = new Rect(imageWidth * boundingBox.Left, imageHeight * boundingBox.Top, imageWidth * boundingBox.Width, imageHeight * boundingBox.Height);
                                         item.Image = await Util.GetCroppedBitmapAsync(stream, rect);
 
+                                        AddedProductItems.Add(item);
                                         currentDetectedObjects.Add(item);
                                     }
                                 }
@@ -492,8 +548,91 @@ namespace ObjectCountingExplorer
                         break;
                 }
             }
+        }
 
-            
+        private async void OnOpenResultsViewButtonClick(object sender, RoutedEventArgs e)
+        {
+            bool anyResults = AddedProductItems.Any() || EditedProductItems.Any() || DeletedProductItems.Any();
+            if (anyResults)
+            {
+                ResultDataGridCollection.Clear();
+
+                foreach (var item in UniqueProductItemCollection)
+                {
+                    int lowConfCount = LowConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
+                    int medConfCount = MediumConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
+                    int highConfCount = HighConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
+                    ResultDataGridCollection.Add(new ResultDataGridViewModel()
+                    {
+                        Name = item.DisplayName,
+                        LowConfidenceCount = lowConfCount,
+                        MediumConfidenceCount = medConfCount,
+                        HighConfidenceCount = highConfCount,
+                        TotalCount = lowConfCount + medConfCount + highConfCount
+                    });
+                }
+                var totalRow = new ResultDataGridViewModel()
+                {
+                    Name = "Total",
+                    LowConfidenceCount = ResultDataGridCollection.Sum(r => r.LowConfidenceCount),
+                    MediumConfidenceCount = ResultDataGridCollection.Sum(r => r.MediumConfidenceCount),
+                    HighConfidenceCount = ResultDataGridCollection.Sum(r => r.HighConfidenceCount),
+                    TotalCount = ResultDataGridCollection.Sum(r => r.TotalCount)
+                };
+                ResultDataGridCollection.Add(totalRow);
+
+                this.publishStatus.Text = "Publish results";
+                this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
+                AppViewState = AppViewState.ImageAnalysisReview;
+            }
+            else
+            {
+                await new MessageDialog("It looks like you didn't make any corrections.", "Publishing results").ShowAsync();
+            }
+        }
+
+        private void OnPublishResultsCloseButtonClick(object sender, RoutedEventArgs e)
+        {
+            this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
+            AppViewState = AppViewState.ImageAnalyzed;
+        }
+
+        private async void OnPublishResultsButtonClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                this.progressRing.IsActive = true;
+
+                this.currentProjectTextBlock.Text = this.currentProject.Name;
+                string[] corrections = new string[] 
+                {
+                    EditedProductItems.Any() ? $"{EditedProductItems.Count} item(s) edited" : string.Empty,
+                    AddedProductItems.Any() ? $"{AddedProductItems.Count} item(s) added" : string.Empty,
+                    DeletedProductItems.Any() ? $"{DeletedProductItems.Count} item(s) deleted" : string.Empty
+                };
+                this.correctionsTextBlock.Text = string.Join(", ", corrections.Where(x => x.Length > 0));
+                AppViewState = AppViewState.ImageAnalysisPublish;
+
+                // TODO: sync result data with detection project
+                await Task.Delay(2000);
+
+                this.publishStatus.Text = "Publish successful";
+            }
+            catch (Exception ex)
+            {
+                this.publishStatus.Text = "Publish failed";
+                await Util.GenericApiCallExceptionHandler(ex, "Publishing results error");
+            }
+            finally
+            {
+                this.progressRing.IsActive = false;
+            }
+        }
+
+        private void OnTryAnotherImageButtonClick(object sender, RoutedEventArgs e)
+        {
+            this.image.ClearSource();
+            AppViewState = AppViewState.ImageSelection;
         }
     }
 }

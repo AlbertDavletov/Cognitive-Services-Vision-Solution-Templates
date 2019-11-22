@@ -43,7 +43,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel Spacing="12" VerticalAlignment="Stretch" Margin="7,12,7,9">
+                <StackPanel Spacing="12" VerticalAlignment="Stretch" Margin="7,12,7,9" Width="100">
                     <Viewbox Height="100" Stretch="Uniform">
                         <Image Source="{Binding Image}" />
                     </Viewbox>
@@ -68,32 +68,40 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <CommandBar x:Name="commandBar" Style="{StaticResource PageTitleCommandBarStyle}">
-            <AppBarButton Icon="Setting" Label="Settings" AllowFocusOnInteraction="True" IsEnabled="False">
-                <AppBarButton.Flyout>
-                    <Flyout>
-                        <StackPanel>
-                            <TextBlock Text="Settings" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                        </StackPanel>
-                    </Flyout>
-                </AppBarButton.Flyout>
-            </AppBarButton>
-        </CommandBar>
-
         <ctl:InitialView Grid.Row="1" Projects="{Binding Projects}" ImageSelected="OnInputImageSelected" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}"/>
 
-        <Grid Grid.Row="1" RowSpacing="12" Margin="24,12,24,36" Visibility="{Binding AppViewState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}">
+        <Grid Grid.Row="1" Visibility="{Binding AppViewState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}">
             <Grid.RowDefinitions>
+                <RowDefinition x:Name="statusRowDefinition" Height="Auto"/>
                 <RowDefinition x:Name="imageRowDefinition" Height="0.6*"/>
                 <RowDefinition x:Name="resultRowDefinition" Height="Auto" />
+                <RowDefinition x:Name="footerRowDefinition" Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="leftOffsetColumnDefinition" Width="Auto"/>
                 <ColumnDefinition x:Name="imageColumnDefinition" Width="0.7*"/>
                 <ColumnDefinition x:Name="resultColumnDefinition" Width="Auto"/>
+                <ColumnDefinition x:Name="rightOffsetColumnDefinition" Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Background="#1F1F1F">
-                <ctl:ImageWithRegionEditorsControl x:Name="image" HorizontalAlignment="Stretch" RegionSelected="OnImageRegionSelected"/>
+            <Grid Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="0,0,0,25" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisPublish'}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock x:Name="publishStatus" Style="{StaticResource HeaderTextBlockStyle}"/>
+                </StackPanel>
+                <Button Grid.Column="1" HorizontalAlignment="Right" Background="#0078D7" Width="280" Height="40" Click="OnTryAnotherImageButtonClick" IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE72C;"/>
+                        <TextBlock Text="Try another image" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <Grid Grid.Row="1" Grid.Column="1" Background="#1F1F1F">
+                <ctl:ImageWithRegionEditorsControl x:Name="image" HorizontalAlignment="Stretch" RegionSelected="OnImageRegionSelected" Margin="24,0"/>
                 <ProgressRing x:Name="progressRing" Width="100" Height="100" Foreground="White"/>
 
                 <Button Background="Black" Width="40" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" Click="OnCloseImageViewButtonClicked"
@@ -102,8 +110,8 @@
                 </Button>
             </Grid>
 
-            <Grid Grid.Row="1" Grid.ColumnSpan="2">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelected'}">
+            <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,30,24,24" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelected'}">
                     <Button Content="Cancel" Background="{StaticResource GrayColorButton}" Width="120" Click="OnCloseImageViewButtonClicked"/>
                     <Button x:Name="analyzeButton" Content="Identify items" Background="#0078D7" Width="120" Click="OnAnalyzeImageButtonClicked" 
                             IsEnabled="{Binding ElementName=image, Path=EnableCropFeature, Mode=OneWay, Converter={StaticResource reverseBooleanConverter}}"/>
@@ -141,10 +149,10 @@
                             </StackPanel>
                         </Button>
                         <Rectangle VerticalAlignment="Stretch" Width="1" Fill="White" Opacity="0.2" Margin="4,6"/>
-                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}">
+                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Click="OnOpenResultsViewButtonClick">
                             <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE895;"/>
-                                <TextBlock Text="Sync report"/>
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE896;"/>
+                                <TextBlock Text="Publish results"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -234,8 +242,53 @@
             </Grid>
 
             <!-- Product Add/Edit panel -->
-            <Grid Grid.Column="1" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAddOrUpdateProduct'}">
-                <ctl:ProductEditorControl x:Name="productEditorControl" ProductCollection="{Binding UniqueProductItemCollection}" ProductUpdated="OnProductEditorControlProductUpdated"  EditorClosed="OnProductEditorControlClosed"/>
+            <Grid Grid.Row="1" Grid.Column="2" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAddOrUpdateProduct'}">
+                <ctl:ProductEditorControl x:Name="productEditorControl" ProductCollection="{Binding UniqueProductItemCollection}" ProductUpdated="OnProductEditorControlProductUpdated" EditorClosed="OnProductEditorControlClosed"/>
+            </Grid>
+
+            <!-- Image Analysis review panel -->
+            <Grid x:Name="reviewGrid" Grid.Row="1" Grid.Column="2" Padding="12,0" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisReview|ImageAnalysisPublish'}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Spacing="18" Margin="0,12,0,18" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisReview'}">
+                    <TextBlock Text="Publish results" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="White" Opacity="0.8"/>
+                    <TextBlock Text="Review the data below to make sure it's complete and correct"/>
+                    <TextBlock Text="Items by object tag" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="White" Opacity="0.8"/>
+                </StackPanel>
+
+                <!-- Corrections summary -->
+                <StackPanel Spacing="24" Margin="0,0,0,24" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisPublish'}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Product vision model" FontSize="12" Foreground="White" Opacity="0.8"/>
+                        <TextBlock x:Name="currentProjectTextBlock" />
+                    </StackPanel>
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Corrections" FontSize="12" Foreground="White" Opacity="0.8"/>
+                        <TextBlock x:Name="correctionsTextBlock"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Result Data Grid -->
+                <Grid Grid.Row="1" VerticalAlignment="Top">
+                    <controls:DataGrid x:Name="dataGrid" ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal">
+                        <controls:DataGrid.Columns>
+                            <controls:DataGridTextColumn Header="Object tag" Binding="{Binding Name}"/>
+                            <controls:DataGridTextColumn Header="Low confidence" Binding="{Binding LowConfidenceCount}"/>
+                            <controls:DataGridTextColumn Header="Medium confidence" Binding="{Binding MediumConfidenceCount}"/>
+                            <controls:DataGridTextColumn Header="High confidence" Binding="{Binding HighConfidenceCount}"/>
+                            <controls:DataGridTextColumn Header="Total" Binding="{Binding TotalCount}"/>
+                        </controls:DataGrid.Columns>
+                    </controls:DataGrid>
+                </Grid>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12" Spacing="8" HorizontalAlignment="Right" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisReview'}">
+                    <Button Content="Publish results" Width="120" Background="#0078D7" Click="OnPublishResultsButtonClick" IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}"/>
+                    <Button Content="Cancel" Width="120" Click="OnPublishResultsCloseButtonClick"/>
+                </StackPanel>
             </Grid>
             
         </Grid>
