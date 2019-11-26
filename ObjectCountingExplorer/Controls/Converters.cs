@@ -114,15 +114,16 @@ namespace ObjectCountingExplorer.Controls
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value == null || parameter == null || !(value is Enum))
+            string parameterString = parameter as string;
+            if (value == null || string.IsNullOrEmpty(parameterString))
             {
                 return Visibility.Collapsed;
             }
 
             var currentState = value.ToString();
-            var stateStrings = parameter.ToString();
+            string[] parameters = parameterString.Split('|');
 
-            if (!string.Equals(currentState, stateStrings, StringComparison.OrdinalIgnoreCase))
+            if (!parameters.Any(x => x.Equals(currentState, StringComparison.OrdinalIgnoreCase)))
             {
                 return Visibility.Visible;
             }

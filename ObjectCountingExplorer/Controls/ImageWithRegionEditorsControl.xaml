@@ -85,7 +85,7 @@
                 <Button Background="Transparent" Padding="6" Width="100" Click="OnSaveImageButtonClicked">
                     <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74E;"/>
-                        <TextBlock Text="Update"/>
+                        <TextBlock Text="Apply"/>
                     </StackPanel>
                 </Button>
             </StackPanel>

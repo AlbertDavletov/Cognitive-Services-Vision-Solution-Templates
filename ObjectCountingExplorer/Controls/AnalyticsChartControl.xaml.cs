@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using ObjectCountingExplorer.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace ObjectCountingExplorer.Controls
         {
             Dictionary<string, List<PredictionModel>> productDict = productCollection.GroupBy(x => x.DisplayName).ToDictionary(x => x.Key, x => x.Select(y => y.Model).ToList());
             int maxProductCount = productDict.Any(x => x.Value.Any()) ? productDict.Max(x => x.Value.Count) : 0;
-            int maxBarCharValue = maxProductCount > 6 ? maxProductCount : 6;
+            int maxBarCharValue = maxProductCount > 2 ? maxProductCount : 2;
             SetAxisLabels(maxBarCharValue);
 
             ChartLabelCollection.Clear();
@@ -63,7 +64,7 @@ namespace ObjectCountingExplorer.Controls
         private void SetAxisLabels(int maxAxisValue, int minAxisValue = 0)
         {
             int axisLabelCount = 5;
-            int axisDiffValue = GetDivider(maxAxisValue, axisLabelCount - 1);
+            int axisDiffValue = (int)Math.Ceiling((double)maxAxisValue / (axisLabelCount - 1));
             this.x1_Lbl.Text = $"{minAxisValue + 0 * axisDiffValue}";
             this.x2_Lbl.Text = $"{minAxisValue + 1 * axisDiffValue}";
             this.x3_Lbl.Text = $"{minAxisValue + 2 * axisDiffValue}";

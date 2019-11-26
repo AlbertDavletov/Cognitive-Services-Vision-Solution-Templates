@@ -316,7 +316,7 @@ namespace ObjectCountingExplorer.Controls
                 double normalizedWidth = 50 / editObjectVisualizationCanvas.ActualWidth;
                 double normalizedHeight = 50 / editObjectVisualizationCanvas.ActualHeight;
 
-                PredictionModel obj = new PredictionModel(
+                PredictionModel obj = new PredictionModel(probability: 1.0,
                     boundingBox: new BoundingBox(normalizedPosX, normalizedPosY,
                                         normalizedWidth + normalizedPosX > 1 ? 1 - normalizedPosX : normalizedWidth,
                                         normalizedHeight + normalizedPosY > 1 ? 1 - normalizedPosY : normalizedHeight));

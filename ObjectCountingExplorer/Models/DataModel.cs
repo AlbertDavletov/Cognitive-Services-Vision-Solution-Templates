@@ -25,6 +25,54 @@ namespace ObjectCountingExplorer.Models
         Edit
     }
 
+    public enum SummaryViewState
+    {
+        GroupedByCategory,
+        CategorySelected,
+        GroupedByTag,
+        TagSelected
+    }
+
+    public enum FilterType
+    {
+        ProductName,
+        LowConfidence,
+        MediumConfidence,
+        HighConfidence
+    }
+
+    public class ProductFilter : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private bool? isChecked = false;
+        public bool? IsChecked
+        {
+            get { return isChecked; }
+            set
+            {
+                this.isChecked = value;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsChecked"));
+            }
+        }
+        public string Name { get; set; }
+
+        public FilterType FilterType { get; set; }
+
+        public ProductFilter(string name, FilterType filterType, bool? isChecked = false)
+        {
+            Name = name;
+            IsChecked = isChecked;
+            FilterType = filterType;
+        }
+    }
+
+    public class SummaryGroupItem
+    {
+        public string Name { get; set; }
+        public SummaryViewState State { get; set; }
+    }
+
     public class DetectedObjectsViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -44,22 +92,6 @@ namespace ObjectCountingExplorer.Models
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsEnable"));
             }
         }
-    }
-
-    public enum RecognitionGroup
-    {
-        Unknown,
-        Summary,
-        LowConfidence,
-        MediumConfidence,
-        HighConfidence,
-        SelectedItems
-    }
-
-    public class RecognitionGroupViewModel
-    {
-        public string Name { get; set; }
-        public RecognitionGroup Group { get; set; }
     }
 
     public class ProjectViewModel

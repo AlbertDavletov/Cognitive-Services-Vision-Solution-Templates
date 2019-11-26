@@ -36,25 +36,25 @@
                     <SolidColorBrush Color="{Binding Color}"/>
                 </Rectangle.Stroke>
             </Rectangle>
-            <Thumb Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-7" BorderThickness="2" CornerRadius="1" DragDelta="OnTopLeftDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
-                <Thumb.BorderBrush>
+            <Thumb Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-7" CornerRadius="8" DragDelta="OnTopLeftDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+                <Thumb.Background>
                     <SolidColorBrush Color="{Binding Color}"/>
-                </Thumb.BorderBrush>
+                </Thumb.Background>
             </Thumb>
-            <Thumb Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-7" BorderThickness="2" CornerRadius="1" DragDelta="OnBottomLeftDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
-                <Thumb.BorderBrush>
+            <Thumb Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-7" CornerRadius="8" DragDelta="OnBottomLeftDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+                <Thumb.Background>
                     <SolidColorBrush Color="{Binding Color}"/>
-                </Thumb.BorderBrush>
+                </Thumb.Background>
             </Thumb>
-            <Thumb Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-7" BorderThickness="2" CornerRadius="1" DragDelta="OnTopRightDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
-                <Thumb.BorderBrush>
+            <Thumb Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-7" CornerRadius="8" DragDelta="OnTopRightDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+                <Thumb.Background>
                     <SolidColorBrush Color="{Binding Color}"/>
-                </Thumb.BorderBrush>
+                </Thumb.Background>
             </Thumb>
-            <Thumb Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="-7" BorderThickness="2" CornerRadius="1" DragDelta="OnBottomRightDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
-                <Thumb.BorderBrush>
+            <Thumb Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="-7" CornerRadius="8" DragDelta="OnBottomRightDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+                <Thumb.Background>
                     <SolidColorBrush Color="{Binding Color}"/>
-                </Thumb.BorderBrush>
+                </Thumb.Background>
             </Thumb>
         </Grid>
     </Grid>

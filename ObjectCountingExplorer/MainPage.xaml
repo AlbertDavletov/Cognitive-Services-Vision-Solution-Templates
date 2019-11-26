@@ -5,6 +5,7 @@
     xmlns:local="using:ObjectCountingExplorer"
     xmlns:ctl="using:ObjectCountingExplorer.Controls"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:models="using:ObjectCountingExplorer.Models"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -34,6 +35,15 @@
                     </ItemsPanelTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <Style x:Key="ListViewItemContainerStyle" TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <Setter Property="Margin" Value="0,0,0,20" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
         </Style>
 
         <DataTemplate x:Key="SelectedProductGridView">
@@ -123,119 +133,132 @@
                         <RowDefinition />
                     </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Tag="Add" Click="OnAddOrEditProductButtonClick">
-                            <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEF20;"/>
-                                <TextBlock Text="Add label"/>
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="editRegionButton" Background="Transparent" IsEnabled="False" Style="{StaticResource ControlButtonStyle}" Tag="Edit" Click="OnAddOrEditProductButtonClick">
-                            <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE70F;"/>
-                                <TextBlock Text="Edit label"/>
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="clearSelectionButton" Background="Transparent" IsEnabled="False" Style="{StaticResource ControlButtonStyle}" Click="OnClearSelectionButtonClick">
-                            <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8E6;"/>
-                                <TextBlock Text="Clear selection"/>
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="removeRegionButton" Background="Transparent" IsEnabled="False" Style="{StaticResource ControlButtonStyle}" Click="OnRemoveRegionButtonClick">
-                            <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74D;"/>
-                                <TextBlock Text="Remove"/>
-                            </StackPanel>
-                        </Button>
-                        <Rectangle VerticalAlignment="Stretch" Width="1" Fill="White" Opacity="0.2" Margin="4,6"/>
-                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Click="OnOpenResultsViewButtonClick">
-                            <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE896;"/>
-                                <TextBlock Text="Publish results"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                
-                    <Grid Grid.Row="1" x:Name="selectedProductsGrid" RowSpacing="24" Margin="24,0" Visibility="{Binding RecognitionGroup, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='SelectedItems'}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
 
-                        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Foreground="White" Opacity="0.8">
+                        <TextBlock Text="No items selected" Foreground="White" Opacity="0.8" Margin="24,12" Visibility="{Binding SelectedProductItemCollection.Count, Converter={StaticResource reverseCollectionCountToVisibilityConverter}}"/>
+                        <TextBlock Foreground="White" Opacity="0.8" Margin="24,12" Visibility="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}">
                             <Run Text="{Binding SelectedProductItemCollection.Count}"/>
                             <Run Text="item selected"/>
                         </TextBlock>
 
-                        <ScrollViewer Grid.Row="1" HorizontalScrollMode="Disabled">
-                            <GridView ItemsSource="{Binding SelectedProductItemCollection}"
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Tag="Add" Click="OnAddOrEditProductButtonClick">
+                                <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEF20;"/>
+                                    <TextBlock Text="Add label"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="editRegionButton" Background="Transparent" IsEnabled="False" Style="{StaticResource ControlButtonStyle}" Tag="Edit" Click="OnAddOrEditProductButtonClick">
+                                <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE70F;"/>
+                                    <TextBlock Text="Edit label"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="clearSelectionButton" Background="Transparent" IsEnabled="False" Style="{StaticResource ControlButtonStyle}" Click="OnClearSelectionButtonClick">
+                                <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8E6;"/>
+                                    <TextBlock Text="Clear selection"/>
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="removeRegionButton" Background="Transparent" IsEnabled="False" Style="{StaticResource ControlButtonStyle}" Click="OnRemoveRegionButtonClick">
+                                <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74D;"/>
+                                    <TextBlock Text="Remove"/>
+                                </StackPanel>
+                            </Button>
+                            <Rectangle VerticalAlignment="Stretch" Width="1" Fill="White" Opacity="0.2" Margin="4,6"/>
+                            <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Click="OnOpenResultsViewButtonClick">
+                                <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE896;"/>
+                                    <TextBlock Text="Publish results"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Grid.Row="1" ColumnSpacing="17">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.8*"/>
+                            <ColumnDefinition Width="0.2*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid x:Name="selectedItemsGrid" Grid.Column="0" RowSpacing="24" Margin="24,0" Visibility="{Binding SummaryViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='CategorySelected|TagSelected'}">
+                            <ScrollViewer HorizontalScrollMode="Disabled">
+                                <GridView ItemsSource="{Binding SelectedProductItemCollection}"
                                       ItemTemplate="{StaticResource SelectedProductGridView}"
                                       ItemContainerStyle="{StaticResource SelectedProductGridViewItemContainerStyle}"
                                       Style="{StaticResource SelectedProductGridViewStyle}" />
-                        </ScrollViewer>
-                    </Grid>
-
-                    <Grid Grid.Row="1" x:Name="summaryGrid" ColumnSpacing="12" Visibility="{Binding RecognitionGroup, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='SelectedItems'}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.2*"/>
-                            <ColumnDefinition Width="0.8*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Spacing="6">
-                            <TextBlock Text="Products recognized" Style="{StaticResource TitleTextBlockStyle}" Opacity="0.8" HorizontalAlignment="Center"/>
-                            <ListView x:Name="recognitionGroupListView" ItemsSource="{Binding RecognitionGroupCollection}" DisplayMemberPath="Name" SelectedValuePath="Group" SelectedValue="{Binding RecognitionGroup, Mode=TwoWay}"/>
-                        </StackPanel>
-
-                        <Grid Grid.Column="1">
-
-                            <!-- Summary View -->
-                            <Grid ColumnSpacing="30" Visibility="{Binding RecognitionGroup, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Summary'}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid RowSpacing="12">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="Items detected by brand" Foreground="White" Opacity="0.8" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                                    <ctl:AnalyticsChartControl Grid.Row="1" x:Name="chartControl" />
-                                </Grid>
-
-                                <ScrollViewer Grid.Column="1" HorizontalScrollMode="Disabled">
-                                    <StackPanel Spacing="20">
-                                        <ctl:ProductCollectionControl Title="Low Confidence"    ProductCollection="{Binding LowConfidenceCollection}"    Visibility="{Binding LowConfidenceCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
-                                        <ctl:ProductCollectionControl Title="Medium Confidence" ProductCollection="{Binding MediumConfidenceCollection}" Visibility="{Binding MediumConfidenceCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
-                                        <ctl:ProductCollectionControl Title="High Confidence"   ProductCollection="{Binding HighConfidenceCollection}"   Visibility="{Binding HighConfidenceCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
-                                    </StackPanel>
-                                </ScrollViewer>
-                            </Grid>
-
-                            <!-- Low Confidence -->
-                            <Grid Visibility="{Binding RecognitionGroup, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='LowConfidence'}">
-                                <ScrollViewer HorizontalScrollMode="Disabled">
-                                    <ctl:ProductCollectionControl Title="Low Confidence" ProductCollection="{Binding LowConfidenceCollection}" EnableExtendedView="True"/>
-                                </ScrollViewer>
-                            </Grid>
-
-                            <!-- Medium Confidence -->
-                            <Grid Visibility="{Binding RecognitionGroup, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='MediumConfidence'}">
-                                <ScrollViewer HorizontalScrollMode="Disabled">
-                                    <ctl:ProductCollectionControl Title="Medium Confidence" ProductCollection="{Binding MediumConfidenceCollection}" EnableExtendedView="True"/>
-                                </ScrollViewer>
-                            </Grid>
-
-                            <!-- High Confidence -->
-                            <Grid Visibility="{Binding RecognitionGroup, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='HighConfidence'}">
-                                <ScrollViewer HorizontalScrollMode="Disabled">
-                                    <ctl:ProductCollectionControl Title="High Confidence" ProductCollection="{Binding HighConfidenceCollection}" EnableExtendedView="True"/>
-                                </ScrollViewer>
-                            </Grid>
-
+                            </ScrollViewer>
                         </Grid>
+
+                        <Grid Grid.Column="0" ColumnSpacing="40" Margin="24,0,0,0" Visibility="{Binding SummaryViewState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='CategorySelected|TagSelected'}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.45*"/>
+                                <ColumnDefinition Width="0.55*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid RowSpacing="12">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Items by" Foreground="White" Opacity="0.8" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                                    <ComboBox x:Name="summaryGroupComboBox" ItemsSource="{Binding SummaryGroupCollection}" SelectedIndex="0" DisplayMemberPath="Name" SelectedValuePath="State" SelectionChanged="OnSummaryGroupComboBoxSelectionChanged" />
+                                </StackPanel>
+
+                                <ctl:AnalyticsChartControl Grid.Row="1" x:Name="chartControl" />
+                                <Grid Grid.Row="1" x:Name="resultsGrid" Visibility="Collapsed" VerticalAlignment="Top">
+                                    <controls:DataGrid ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal">
+                                        <controls:DataGrid.Columns>
+                                            <controls:DataGridTextColumn Header="Object tag" Binding="{Binding Name}"/>
+                                            <controls:DataGridTextColumn Header="Low confidence" Binding="{Binding LowConfidenceCount}"/>
+                                            <controls:DataGridTextColumn Header="Medium confidence" Binding="{Binding MediumConfidenceCount}"/>
+                                            <controls:DataGridTextColumn Header="High confidence" Binding="{Binding HighConfidenceCount}"/>
+                                            <controls:DataGridTextColumn Header="Total" Binding="{Binding TotalCount}"/>
+                                        </controls:DataGrid.Columns>
+                                    </controls:DataGrid>
+                                </Grid>
+                            </Grid>
+
+                            <ScrollViewer x:Name="productGroupedByCategoryGrid" Grid.Column="1" HorizontalScrollMode="Disabled">
+                                <StackPanel Spacing="20">
+                                    <ctl:ProductCollectionControl Title="Low Confidence"    ProductCollection="{Binding LowConfidenceCollection}"    Visibility="{Binding LowConfidenceCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
+                                    <ctl:ProductCollectionControl Title="Medium Confidence" ProductCollection="{Binding MediumConfidenceCollection}" Visibility="{Binding MediumConfidenceCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
+                                    <ctl:ProductCollectionControl Title="High Confidence"   ProductCollection="{Binding HighConfidenceCollection}"   Visibility="{Binding HighConfidenceCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
+                                </StackPanel>
+                            </ScrollViewer>
+
+                            <ScrollViewer x:Name="productGroupedByNameGrid" Grid.Column="1" HorizontalScrollMode="Disabled" Visibility="Collapsed">
+                                <ListView ItemsSource="{Binding GroupedProductCollection}" SelectionMode="None" ItemContainerStyle="{StaticResource ListViewItemContainerStyle}">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <ctl:ProductCollectionControl Title="{Binding Item1}" ProductCollection="{Binding Item2}" Visibility="{Binding Item2.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </ScrollViewer>
+                        </Grid>
+
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="Quick select"/>
+
+                            <ListView ItemsSource="{Binding ProductFilterCollection}" SelectionMode="None" ItemContainerStyle="{StaticResource ListViewItemContainerStyle}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:ProductFilter">
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Width="30" MinWidth="30" Checked="ProductFilterChecked" Unchecked="ProductFilterUnchecked"/>
+                                            <TextBlock Text="{x:Bind Name}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
                     </Grid>
 
                 </Grid>

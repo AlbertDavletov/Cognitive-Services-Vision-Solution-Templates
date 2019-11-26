@@ -65,11 +65,6 @@ namespace ObjectCountingExplorer.Controls
                     this.activeRegion.BorderBrush = highlightColor;
                     break;
 
-                case RegionState.Disabled:
-                    this.disabledRegion.BorderThickness = borderSize;
-                    this.disabledRegion.BorderBrush = highlightColor;
-                    break;
-
                 case RegionState.Selected:
                     this.labelPanel.BorderThickness = borderSize;
                     this.labelPanel.BorderBrush = highlightColor;

@@ -29,6 +29,7 @@ namespace ObjectCountingExplorer
         private static readonly string PredictionApiKey = "<CUSTOM VISION PREDICTION API KEY>";
         private static readonly string PredictionApiKeyEndpoint = "<CUSTOM VISION PREDICTION API ENDPOINT>";
 
+        private SummaryViewState currentSummaryGroupItem;
         private ProjectViewModel currentProject;
         private List<ProductItemViewModel> currentDetectedObjects;
 
@@ -36,12 +37,18 @@ namespace ObjectCountingExplorer
         private CustomVisionPredictionClient predictionApi;
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public ObservableCollection<RecognitionGroupViewModel> RecognitionGroupCollection { get; set; } = new ObservableCollection<RecognitionGroupViewModel>
+
+        public ObservableCollection<SummaryGroupItem> SummaryGroupCollection { get; set; } = new ObservableCollection<SummaryGroupItem>
         {
-            new RecognitionGroupViewModel { Name = "Summary", Group = RecognitionGroup.Summary },
-            new RecognitionGroupViewModel { Name = "Low Confidence", Group = RecognitionGroup.LowConfidence },
-            new RecognitionGroupViewModel { Name = "Medium Confidence", Group = RecognitionGroup.MediumConfidence },
-            new RecognitionGroupViewModel { Name = "High Confidence", Group = RecognitionGroup.HighConfidence }
+            new SummaryGroupItem { Name = "result category", State = SummaryViewState.GroupedByCategory },
+            new SummaryGroupItem { Name = "object tag", State = SummaryViewState.GroupedByTag }
+        };
+
+        public static readonly List<ProductFilter> ProductFilterByCategory = new List<ProductFilter>()
+        {
+            new ProductFilter("Low confidence", FilterType.LowConfidence),
+            new ProductFilter("Medium confidence", FilterType.MediumConfidence),
+            new ProductFilter("High confidence", FilterType.HighConfidence)
         };
 
         public ObservableCollection<ProjectViewModel> Projects { get; set; } = new ObservableCollection<ProjectViewModel>()
@@ -59,6 +66,8 @@ namespace ObjectCountingExplorer
 
         public ObservableCollection<ProductItemViewModel> UniqueProductItemCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
+        public ObservableCollection<Tuple<string, List<ProductItemViewModel>>> GroupedProductCollection { get; set; } = new ObservableCollection<Tuple<string, List<ProductItemViewModel>>>();
+
         public ObservableCollection<ProductItemViewModel> AddedProductItems { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
         public ObservableCollection<ProductItemViewModel> EditedProductItems { get; set; } = new ObservableCollection<ProductItemViewModel>();
@@ -66,6 +75,8 @@ namespace ObjectCountingExplorer
         public ObservableCollection<ProductItemViewModel> DeletedProductItems { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
         public ObservableCollection<ResultDataGridViewModel> ResultDataGridCollection { get; set; } = new ObservableCollection<ResultDataGridViewModel>();
+
+        public ObservableCollection<ProductFilter> ProductFilterCollection { get; set; } = new ObservableCollection<ProductFilter>();
 
         private AppViewState appViewState = AppViewState.ImageSelection;
         public AppViewState AppViewState
@@ -79,15 +90,15 @@ namespace ObjectCountingExplorer
             }
         }
 
-        private RecognitionGroup recognitionGroup;
-        public RecognitionGroup RecognitionGroup
+        private SummaryViewState summaryViewState = SummaryViewState.GroupedByCategory;
+        public SummaryViewState SummaryViewState
         {
-            get { return recognitionGroup; }
+            get { return summaryViewState; }
             set
             {
-                recognitionGroup = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("RecognitionGroup"));
-                RecognitionGroupChanged();
+                summaryViewState = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SummaryViewState"));
+                SummaryViewStateChanged();
             }
         }
 
@@ -134,31 +145,41 @@ namespace ObjectCountingExplorer
             }
         }
 
-        private void RecognitionGroupChanged()
+        private void SummaryViewStateChanged()
         {
             bool isAnySelectedProduct = SelectedProductItemCollection.Any();
             this.editRegionButton.IsEnabled = isAnySelectedProduct;
             this.clearSelectionButton.IsEnabled = isAnySelectedProduct;
             this.removeRegionButton.IsEnabled = isAnySelectedProduct;
 
-            switch (RecognitionGroup)
+            switch (SummaryViewState)
             {
-                case RecognitionGroup.Summary:
-                    this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
+                case SummaryViewState.GroupedByCategory:
+                    this.chartControl.Visibility = Visibility.Visible;
+                    this.resultsGrid.Visibility = Visibility.Collapsed;
+
+                    this.productGroupedByCategoryGrid.Visibility = Visibility.Visible;
+                    this.productGroupedByNameGrid.Visibility = Visibility.Collapsed;
+
+                    ProductFilterCollection.Clear();
+                    ProductFilterCollection.AddRange(ProductFilterByCategory);
                     break;
 
-                case RecognitionGroup.HighConfidence:
-                    this.image.ShowObjectDetectionBoxes(HighConfidenceCollection);
+                case SummaryViewState.CategorySelected:
                     break;
 
-                case RecognitionGroup.MediumConfidence:
-                    this.image.ShowObjectDetectionBoxes(MediumConfidenceCollection);
+                case SummaryViewState.GroupedByTag:
+                    this.chartControl.Visibility = Visibility.Collapsed;
+                    this.resultsGrid.Visibility = Visibility.Visible;
+
+                    this.productGroupedByCategoryGrid.Visibility = Visibility.Collapsed;
+                    this.productGroupedByNameGrid.Visibility = Visibility.Visible;
+
+                    ProductFilterCollection.Clear();
+                    ProductFilterCollection.AddRange(GroupedProductCollection.Select(p => new ProductFilter(p.Item1, FilterType.ProductName)));
                     break;
 
-                case RecognitionGroup.LowConfidence:
-                    this.image.ShowObjectDetectionBoxes(LowConfidenceCollection);
-                    break;
-                default:
+                case SummaryViewState.TagSelected:
                     break;
             }
         }
@@ -218,12 +239,10 @@ namespace ObjectCountingExplorer
             HighConfidenceCollection.Clear();
             SelectedProductItemCollection.Clear();
             UniqueProductItemCollection.Clear();
+            GroupedProductCollection.Clear();
             AddedProductItems.Clear();
             EditedProductItems.Clear();
             DeletedProductItems.Clear();
-
-            this.recognitionGroupListView.SelectedIndex = -1;
-            this.chartControl.Visibility = Visibility.Collapsed;
         }
 
         private async void OnCloseImageViewButtonClicked(object sender, RoutedEventArgs e)
@@ -293,6 +312,14 @@ namespace ObjectCountingExplorer
                 await Task.Delay(500);
 
                 UpdateResult(currentDetectedObjects);
+
+                UniqueProductItemCollection.Clear();
+                UniqueProductItemCollection.AddRange(currentDetectedObjects.GroupBy(p => p.DisplayName).Select(p => p.FirstOrDefault()).OrderBy(p => p.DisplayName));
+
+                ProductFilterCollection.Clear();
+                ProductFilterCollection.AddRange(summaryViewState == SummaryViewState.GroupedByCategory
+                    ? ProductFilterByCategory.Select(p => new ProductFilter(p.Name, p.FilterType))
+                    : UniqueProductItemCollection.Select(p => new ProductFilter(p.DisplayName, FilterType.ProductName)));
             }
             catch (Exception ex)
             {
@@ -309,8 +336,11 @@ namespace ObjectCountingExplorer
         {
             SelectedProductItemCollection.Clear();
 
-            UniqueProductItemCollection.Clear();
-            UniqueProductItemCollection.AddRange(productItemCollection.GroupBy(p => p.DisplayName).Select(p => p.FirstOrDefault()).OrderBy(p => p.DisplayName));
+            GroupedProductCollection.Clear();
+            var groupedProductCollection = productItemCollection.GroupBy(p => p.DisplayName)
+                .OrderBy(p => p.Key)
+                .Select(p => new Tuple<string, List<ProductItemViewModel>>(p.Key, p.ToList()));
+            GroupedProductCollection.AddRange(groupedProductCollection);
 
             LowConfidenceCollection.Clear();
             LowConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability <= 0.3));
@@ -321,15 +351,25 @@ namespace ObjectCountingExplorer
             HighConfidenceCollection.Clear();
             HighConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability > 0.6));
 
-            this.recognitionGroupListView.SelectedIndex = 0;
-            this.chartControl.Visibility = Visibility.Visible;
             this.chartControl.UpdateChart(productItemCollection);
 
+            LoadResultsDataGrid();
+
             this.image.SelectedRegions.Clear();
-            this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
+            this.image.ShowObjectDetectionBoxes(productItemCollection);
             this.image.ToggleEditState();
 
             AppViewState = AppViewState.ImageAnalyzed;
+
+            switch (SummaryViewState)
+            {
+                case SummaryViewState.CategorySelected:
+                    SummaryViewState = SummaryViewState.GroupedByCategory;
+                    break;
+                case SummaryViewState.TagSelected:
+                    SummaryViewState = SummaryViewState.GroupedByTag;
+                    break;
+            }
         }
 
         private void OnImageRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> args)
@@ -351,14 +391,16 @@ namespace ObjectCountingExplorer
                 }
             }
 
-            RecognitionGroup = SelectedProductItemCollection.Any() ? RecognitionGroup.SelectedItems : RecognitionGroup.Summary;
+            SummaryViewState = SelectedProductItemCollection.Any()
+                ? currentSummaryGroupItem == SummaryViewState.GroupedByCategory ? SummaryViewState.CategorySelected : SummaryViewState.TagSelected
+                : currentSummaryGroupItem;
         }
 
         private void OnClearSelectionButtonClick(object sender, RoutedEventArgs e)
         {
             this.image.ClearSelectedRegions();
             SelectedProductItemCollection.Clear();
-            RecognitionGroup = RecognitionGroup.Summary;
+            SummaryViewState = currentSummaryGroupItem;
         }
 
         private void OnCancelProductSelectionButtonClick(object sender, RoutedEventArgs e)
@@ -370,7 +412,7 @@ namespace ObjectCountingExplorer
 
                 if (!SelectedProductItemCollection.Any())
                 {
-                    RecognitionGroup = RecognitionGroup.Summary;
+                    SummaryViewState = currentSummaryGroupItem;
                 }
             }
         }
@@ -555,31 +597,7 @@ namespace ObjectCountingExplorer
             bool anyResults = AddedProductItems.Any() || EditedProductItems.Any() || DeletedProductItems.Any();
             if (anyResults)
             {
-                ResultDataGridCollection.Clear();
-
-                foreach (var item in UniqueProductItemCollection)
-                {
-                    int lowConfCount = LowConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
-                    int medConfCount = MediumConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
-                    int highConfCount = HighConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
-                    ResultDataGridCollection.Add(new ResultDataGridViewModel()
-                    {
-                        Name = item.DisplayName,
-                        LowConfidenceCount = lowConfCount,
-                        MediumConfidenceCount = medConfCount,
-                        HighConfidenceCount = highConfCount,
-                        TotalCount = lowConfCount + medConfCount + highConfCount
-                    });
-                }
-                var totalRow = new ResultDataGridViewModel()
-                {
-                    Name = "Total",
-                    LowConfidenceCount = ResultDataGridCollection.Sum(r => r.LowConfidenceCount),
-                    MediumConfidenceCount = ResultDataGridCollection.Sum(r => r.MediumConfidenceCount),
-                    HighConfidenceCount = ResultDataGridCollection.Sum(r => r.HighConfidenceCount),
-                    TotalCount = ResultDataGridCollection.Sum(r => r.TotalCount)
-                };
-                ResultDataGridCollection.Add(totalRow);
+                LoadResultsDataGrid();
 
                 this.publishStatus.Text = "Publish results";
                 this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
@@ -589,6 +607,35 @@ namespace ObjectCountingExplorer
             {
                 await new MessageDialog("It looks like you didn't make any corrections.", "Publishing results").ShowAsync();
             }
+        }
+
+        private void LoadResultsDataGrid()
+        {
+            ResultDataGridCollection.Clear();
+
+            foreach (var item in UniqueProductItemCollection)
+            {
+                int lowConfCount = LowConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
+                int medConfCount = MediumConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
+                int highConfCount = HighConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
+                ResultDataGridCollection.Add(new ResultDataGridViewModel()
+                {
+                    Name = item.DisplayName,
+                    LowConfidenceCount = lowConfCount,
+                    MediumConfidenceCount = medConfCount,
+                    HighConfidenceCount = highConfCount,
+                    TotalCount = lowConfCount + medConfCount + highConfCount
+                });
+            }
+            var totalRow = new ResultDataGridViewModel()
+            {
+                Name = "Total",
+                LowConfidenceCount = ResultDataGridCollection.Sum(r => r.LowConfidenceCount),
+                MediumConfidenceCount = ResultDataGridCollection.Sum(r => r.MediumConfidenceCount),
+                HighConfidenceCount = ResultDataGridCollection.Sum(r => r.HighConfidenceCount),
+                TotalCount = ResultDataGridCollection.Sum(r => r.TotalCount)
+            };
+            ResultDataGridCollection.Add(totalRow);
         }
 
         private void OnPublishResultsCloseButtonClick(object sender, RoutedEventArgs e)
@@ -633,6 +680,61 @@ namespace ObjectCountingExplorer
         {
             this.image.ClearSource();
             AppViewState = AppViewState.ImageSelection;
+        }
+
+        private void OnSummaryGroupComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.summaryGroupComboBox.SelectedValue is SummaryViewState selectedSummaryGroupState)
+            {
+                this.currentSummaryGroupItem = selectedSummaryGroupState;
+                SummaryViewState = selectedSummaryGroupState;
+            }
+        }
+
+        private void ProductFilterChecked(object sender, RoutedEventArgs e)
+        {
+            this.ApplyFilters();
+        }
+
+        private void ProductFilterUnchecked(object sender, RoutedEventArgs e)
+        {
+            this.ApplyFilters();
+        }
+
+        private void ApplyFilters()
+        {
+            var filterData = currentDetectedObjects;
+            var activeFilters = ProductFilterCollection.Where(f => f.IsChecked.GetValueOrDefault()).ToList();
+            
+            if (activeFilters.Any())
+            {
+                var tempData = new List<ProductItemViewModel>();
+                foreach (var filter in activeFilters)
+                {
+                    switch (filter.FilterType)
+                    {
+                        case FilterType.HighConfidence:
+                            tempData.AddRange(currentDetectedObjects.Where(p => p.Model.Probability > 0.6));
+                            break;
+
+                        case FilterType.MediumConfidence:
+                            tempData.AddRange(currentDetectedObjects.Where(p => p.Model.Probability > 0.3 && p.Model.Probability <= 0.6));
+                            break;
+
+                        case FilterType.LowConfidence:
+                            tempData.AddRange(currentDetectedObjects.Where(p => p.Model.Probability <= 0.3));
+                            break;
+
+                        case FilterType.ProductName:
+                            tempData.AddRange(currentDetectedObjects.Where(p => p.DisplayName == filter.Name));
+                            break;
+                    }
+                }
+
+                filterData = tempData;
+            }
+
+            UpdateResult(filterData);
         }
     }
 }
