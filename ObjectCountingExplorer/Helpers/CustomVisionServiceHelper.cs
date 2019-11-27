@@ -1,18 +1,13 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction;
-using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
+using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training;
 using Microsoft.Rest;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
-using System.Linq;
-using System.Collections.ObjectModel;
-using ObjectCountingExplorer.Models;
-using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Media;
-using Windows.Foundation;
 
 namespace ObjectCountingExplorer.Helpers
 {
@@ -51,45 +46,6 @@ namespace ObjectCountingExplorer.Helpers
             }
 
             return result;
-        }
-
-        public static async void PopulateTagSamplesAsync(ICustomVisionTrainingClient trainingApi, Guid projectId, ObservableCollection<TagSampleViewModel> collection)
-        {
-            var tags = (await trainingApi.GetTagsAsync(projectId)).Take(5);
-            foreach (var tag in tags.OrderBy(t => t.Name))
-            {
-                try
-                {
-                    if (tag.ImageCount > 0)
-                    {
-                        var imageModelSample = (await trainingApi.GetTaggedImagesAsync(projectId, null, new List<Guid>() { tag.Id }, null, 1)).First();
-
-                        var tagRegion = imageModelSample.Regions?.FirstOrDefault(r => r.TagId == tag.Id);
-                        if (tagRegion == null || (tagRegion.Width == 0 && tagRegion.Height == 0))
-                        {
-                            collection.Add(new TagSampleViewModel { TagName = tag.Name, TagSampleImage = new BitmapImage(new Uri(imageModelSample.ThumbnailUri)) });
-                        }
-                        else
-                        {
-                            // Crop a region from the image that is associated with the tag, so we show something more 
-                            // relevant than the whole image. 
-                            ImageSource croppedImage = await Util.DownloadAndCropBitmapAsync(
-                                imageModelSample.OriginalImageUri,
-                                new Rect(
-                                    tagRegion.Left * imageModelSample.Width,
-                                    tagRegion.Top * imageModelSample.Height,
-                                    tagRegion.Width * imageModelSample.Width,
-                                    tagRegion.Height * imageModelSample.Height));
-
-                            collection.Add(new TagSampleViewModel { TagName = tag.Name, TagSampleImage = croppedImage });
-                        }
-                    }
-                }
-                catch (HttpOperationException exception) when (exception.Response.StatusCode == (System.Net.HttpStatusCode)429)
-                {
-                    continue;
-                }
-            }
         }
 
         public static async Task<ImagePrediction> PredictImageUrlWithRetryAsync(this ICustomVisionPredictionClient predictionApi, Guid projectId, string publishedName, ImageUrl imageUrl)

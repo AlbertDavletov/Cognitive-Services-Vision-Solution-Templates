@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using System;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
@@ -99,19 +98,11 @@ namespace ObjectCountingExplorer.Models
         public Guid Id { get; set; }
         public string Name { get; set; }
 
-        public ObservableCollection<TagSampleViewModel> TagSamples { get; set; }
-
         public ProjectViewModel(Guid id, string name)
         {
             Id = id;
             Name = name;
         }
-    }
-
-    public class TagSampleViewModel
-    {
-        public string TagName { get; set; }
-        public ImageSource TagSampleImage { get; set; }
     }
 
     public class ProductItemViewModel

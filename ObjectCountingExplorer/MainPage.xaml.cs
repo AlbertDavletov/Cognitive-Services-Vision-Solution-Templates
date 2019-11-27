@@ -116,8 +116,6 @@ namespace ObjectCountingExplorer
                 this.mainPage.IsEnabled = true;
                 trainingApi = new CustomVisionTrainingClient { Endpoint = TrainingApiKeyEndpoint, ApiKey = TrainingApiKey };
                 predictionApi = new CustomVisionPredictionClient { Endpoint = PredictionApiKeyEndpoint, ApiKey = PredictionApiKey };
-
-                await LoadProjectsFromService();
             }
             else
             {
@@ -126,23 +124,6 @@ namespace ObjectCountingExplorer
             }
 
             base.OnNavigatedTo(e);
-        }
-
-        private async Task LoadProjectsFromService()
-        {
-            try
-            {
-                // Trigger loading of the tags associated with each project
-                foreach (var project in this.Projects)
-                {
-                    project.TagSamples = new ObservableCollection<TagSampleViewModel>();
-                    CustomVisionServiceHelper.PopulateTagSamplesAsync(this.trainingApi, project.Id, project.TagSamples);
-                }
-            }
-            catch (Exception ex)
-            {
-                await Util.GenericApiCallExceptionHandler(ex, "Failure loading projects");
-            }
         }
 
         private void SummaryViewStateChanged()
@@ -187,11 +168,14 @@ namespace ObjectCountingExplorer
         private void AppViewStateChanged()
         {
             this.statusRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
+            this.imageRowDefinition.Height = new GridLength(0.6, GridUnitType.Star);
+            this.footerRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
+
+            this.imageColumnDefinition.Width = new GridLength(0.7, GridUnitType.Star);
             this.resultColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
 
             this.leftOffsetColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
             this.rightOffsetColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
-            this.footerRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
 
             this.image.EnableImageControls = AppViewState != AppViewState.ImageAnalysisReview && AppViewState != AppViewState.ImageAnalysisPublish;
 
@@ -213,13 +197,15 @@ namespace ObjectCountingExplorer
                     break;
 
                 case AppViewState.ImageAnalysisPublish:
-                    this.statusRowDefinition.Height = new GridLength(0.15, GridUnitType.Star);
+                    this.statusRowDefinition.Height = new GridLength(0.4, GridUnitType.Star);
+                    this.imageRowDefinition.Height = new GridLength(0.5, GridUnitType.Star);
                     this.resultRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
-                    this.resultColumnDefinition.Width = new GridLength(0.3, GridUnitType.Star);
                     this.footerRowDefinition.Height = new GridLength(0.15, GridUnitType.Star);
 
-                    this.leftOffsetColumnDefinition.Width = new GridLength(0.15, GridUnitType.Star);
-                    this.rightOffsetColumnDefinition.Width = new GridLength(0.15, GridUnitType.Star);
+                    this.imageColumnDefinition.Width = new GridLength(0.3, GridUnitType.Star);
+                    this.resultColumnDefinition.Width = new GridLength(0.2, GridUnitType.Star);
+                    this.leftOffsetColumnDefinition.Width = new GridLength(0.2, GridUnitType.Star);
+                    this.rightOffsetColumnDefinition.Width = new GridLength(0.2, GridUnitType.Star);
 
                     this.reviewGrid.Background = new SolidColorBrush(Colors.Transparent);
                     break;
@@ -599,7 +585,6 @@ namespace ObjectCountingExplorer
             {
                 LoadResultsDataGrid();
 
-                this.publishStatus.Text = "Publish results";
                 this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
                 AppViewState = AppViewState.ImageAnalysisReview;
             }
@@ -649,8 +634,21 @@ namespace ObjectCountingExplorer
             try
             {
                 this.progressRing.IsActive = true;
+                this.publishStatus.Text = "Publishing results";
+                this.publishDetails.Text = "The image, results and corrections are being uploaded to your Custom Vision portal.";
 
                 this.currentProjectTextBlock.Text = this.currentProject.Name;
+
+                string[] unknownNames = new string[] { "none", "unknown" };
+                int unknownProductCount = currentDetectedObjects.Count(x => unknownNames.Contains(x.DisplayName.ToLower()));
+                int taggedProductCount = currentDetectedObjects.Count - unknownProductCount;
+                string[] finalResults = new string[] 
+                {
+                    $"{taggedProductCount} tagged",
+                    $"{unknownProductCount} unknown"
+                };
+                this.finalResultsTextBlock.Text = $"{currentDetectedObjects.Count} objects ({string.Join(", ", finalResults)})";
+
                 string[] corrections = new string[] 
                 {
                     EditedProductItems.Any() ? $"{EditedProductItems.Count} item(s) edited" : string.Empty,
@@ -663,11 +661,13 @@ namespace ObjectCountingExplorer
                 // TODO: sync result data with detection project
                 await Task.Delay(2000);
 
-                this.publishStatus.Text = "Publish successful";
+                this.publishStatus.Text = "Results published";
+                this.publishDetails.Text = "The image, results and corrections are now available in your Custom Vision portal.";
             }
             catch (Exception ex)
             {
-                this.publishStatus.Text = "Publish failed";
+                this.publishStatus.Text = "Publishing failed";
+                this.publishDetails.Text = string.Empty;
                 await Util.GenericApiCallExceptionHandler(ex, "Publishing results error");
             }
             finally

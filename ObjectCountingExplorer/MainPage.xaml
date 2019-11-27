@@ -94,21 +94,16 @@
                 <ColumnDefinition x:Name="rightOffsetColumnDefinition" Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="0,0,0,25" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisPublish'}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock x:Name="publishStatus" Style="{StaticResource HeaderTextBlockStyle}"/>
-                </StackPanel>
-                <Button Grid.Column="1" HorizontalAlignment="Right" Background="#0078D7" Width="280" Height="40" Click="OnTryAnotherImageButtonClick" IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}">
+            <StackPanel Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Spacing="24" Margin="0,0,0,25" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisPublish'}">
+                <TextBlock x:Name="publishStatus" Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Center" Foreground="White" Opacity="0.8"/>
+                <Button Grid.Column="1" HorizontalAlignment="Center" Background="#0078D7" Width="280" Height="40" Click="OnTryAnotherImageButtonClick" IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE72C;"/>
                         <TextBlock Text="Try another image" />
                     </StackPanel>
                 </Button>
-            </Grid>
+                <TextBlock x:Name="publishDetails" Style="{StaticResource SubheaderTextBlockStyle}" Foreground="White" Opacity="0.8"/>
+            </StackPanel>
 
             <Grid Grid.Row="1" Grid.Column="1" Background="#1F1F1F">
                 <ctl:ImageWithRegionEditorsControl x:Name="image" HorizontalAlignment="Stretch" RegionSelected="OnImageRegionSelected" Margin="24,0"/>
@@ -290,20 +285,21 @@
                         <TextBlock x:Name="currentProjectTextBlock" />
                     </StackPanel>
                     <StackPanel Spacing="4">
+                        <TextBlock Text="Final results" FontSize="12" Foreground="White" Opacity="0.8"/>
+                        <TextBlock x:Name="finalResultsTextBlock"/>
+                    </StackPanel>
+                    <StackPanel Spacing="4">
                         <TextBlock Text="Corrections" FontSize="12" Foreground="White" Opacity="0.8"/>
                         <TextBlock x:Name="correctionsTextBlock"/>
                     </StackPanel>
                 </StackPanel>
 
                 <!-- Result Data Grid -->
-                <Grid Grid.Row="1" VerticalAlignment="Top">
+                <Grid Grid.Row="1" VerticalAlignment="Top" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisReview'}">
                     <controls:DataGrid x:Name="dataGrid" ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal">
                         <controls:DataGrid.Columns>
-                            <controls:DataGridTextColumn Header="Object tag" Binding="{Binding Name}"/>
-                            <controls:DataGridTextColumn Header="Low confidence" Binding="{Binding LowConfidenceCount}"/>
-                            <controls:DataGridTextColumn Header="Medium confidence" Binding="{Binding MediumConfidenceCount}"/>
-                            <controls:DataGridTextColumn Header="High confidence" Binding="{Binding HighConfidenceCount}"/>
-                            <controls:DataGridTextColumn Header="Total" Binding="{Binding TotalCount}"/>
+                            <controls:DataGridTextColumn Header="Object tag" Binding="{Binding Name}" Width="Auto"/>
+                            <controls:DataGridTextColumn Header="Total" Binding="{Binding TotalCount}" Width="Auto"/>
                         </controls:DataGrid.Columns>
                     </controls:DataGrid>
                 </Grid>
