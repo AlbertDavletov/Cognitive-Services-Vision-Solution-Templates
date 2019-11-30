@@ -19,6 +19,23 @@ namespace ObjectCountingExplorer
 {
     internal static class Util
     {
+        public static Color GetObjectRegionColor(double probability)
+        {
+            double minHigh = MainPage.MinHighProbability;
+            double minMed = MainPage.MinMediumProbability;
+
+            if (probability >= minHigh)
+            {
+                return Color.FromArgb(255, 36, 143, 255);
+            }
+            else if (probability < minMed)
+            {
+                return Color.FromArgb(255, 228, 19, 35);
+            }
+
+            return Color.FromArgb(255, 250, 190, 20);
+        }
+
         public static double EnsureValidNormalizedValue(double value)
         {
             // ensure [0,1]

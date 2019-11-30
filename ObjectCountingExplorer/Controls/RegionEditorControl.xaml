@@ -11,10 +11,17 @@
 
     <UserControl.Resources>
         <local:BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
+        <Style x:Key="ThumbStyle" BasedOn="{StaticResource CustomThumbStyle}" TargetType="Thumb">
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Margin" Value="-11"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="ManipulationMode" Value="All"/>
+        </Style>
     </UserControl.Resources>
 
     <Grid>
-        <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-42,0,0">
+        <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-45,0,0">
             <StackPanel x:Name="labelPanel" Orientation="Horizontal" CornerRadius="1" Spacing="4">
                 <StackPanel.Resources>
                     <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="Black" Opacity="0.7"/>
@@ -36,22 +43,22 @@
                     <SolidColorBrush Color="{Binding Color}"/>
                 </Rectangle.Stroke>
             </Rectangle>
-            <Thumb Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-7" CornerRadius="8" DragDelta="OnTopLeftDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+            <Thumb HorizontalAlignment="Left" VerticalAlignment="Top" ManipulationDelta="OnTopLeftManipulationDelta" PointerReleased="OnThumbReleased" Style="{StaticResource ThumbStyle}">
                 <Thumb.Background>
                     <SolidColorBrush Color="{Binding Color}"/>
                 </Thumb.Background>
             </Thumb>
-            <Thumb Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-7" CornerRadius="8" DragDelta="OnBottomLeftDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+            <Thumb HorizontalAlignment="Left" VerticalAlignment="Bottom" ManipulationDelta="OnBottomLeftManipulationDelta" PointerReleased="OnThumbReleased" Style="{StaticResource ThumbStyle}">
                 <Thumb.Background>
                     <SolidColorBrush Color="{Binding Color}"/>
                 </Thumb.Background>
             </Thumb>
-            <Thumb Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-7" CornerRadius="8" DragDelta="OnTopRightDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+            <Thumb HorizontalAlignment="Right" VerticalAlignment="Top" ManipulationDelta="OnTopRightManipulationDelta" PointerReleased="OnThumbReleased" Style="{StaticResource ThumbStyle}">
                 <Thumb.Background>
                     <SolidColorBrush Color="{Binding Color}"/>
                 </Thumb.Background>
             </Thumb>
-            <Thumb Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="-7" CornerRadius="8" DragDelta="OnBottomRightDragDelta" PointerReleased="OnThumbReleased" Style="{StaticResource CustomThumbStyle}">
+            <Thumb HorizontalAlignment="Right" VerticalAlignment="Bottom" ManipulationDelta="OnBottomRightManipulationDelta" PointerReleased="OnThumbReleased" Style="{StaticResource ThumbStyle}">
                 <Thumb.Background>
                     <SolidColorBrush Color="{Binding Color}"/>
                 </Thumb.Background>

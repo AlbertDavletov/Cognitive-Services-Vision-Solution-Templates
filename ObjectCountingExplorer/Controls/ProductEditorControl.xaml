@@ -41,8 +41,8 @@
         </Grid.RowDefinitions>
 
         <Grid>
-            <TextBlock Text="Add object" Foreground="White" Opacity="0.8" Style="{StaticResource SubtitleTextBlockStyle}" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Add'}"/>
-            <TextBlock Text="Edit" Foreground="White" Opacity="0.8" Style="{StaticResource SubtitleTextBlockStyle}" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Edit'}"/>
+            <TextBlock Text="Add object" Foreground="{StaticResource RegularTextColor}" Style="{StaticResource SubtitleTextBlockStyle}" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Add'}"/>
+            <TextBlock Text="Edit" Foreground="{StaticResource RegularTextColor}" Style="{StaticResource SubtitleTextBlockStyle}" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Edit'}"/>
         </Grid>
 
         <StackPanel Grid.Row="1" Spacing="12">

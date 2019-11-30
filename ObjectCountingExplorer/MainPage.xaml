@@ -14,6 +14,8 @@
 
     <Page.Resources>
         <SolidColorBrush x:Key="GrayColorButton" Color="White" Opacity="0.2"/>
+        <SolidColorBrush x:Key="DataGridColumnHeaderBackgroundColor" Color="Transparent" />
+        <SolidColorBrush x:Key="DataGridColumnHeaderForegroundBrush" Color="White" />
 
         <ctl:ReverseEnumMatchToVisibilityConverter x:Key="reverseEnumMatchToVisibilityConverter"/>
         <ctl:EnumMatchToVisibilityConverter x:Key="enumMatchToVisibilityConverter"/>
@@ -46,7 +48,7 @@
             <Setter Property="MinHeight" Value="0"/>
         </Style>
 
-        <DataTemplate x:Key="SelectedProductGridView">
+        <DataTemplate x:Key="SelectedProductGridView" x:DataType="models:ProductItemViewModel">
             <Grid Background="#2B2B2B" CornerRadius="2" Height="200">
                 <Grid.RowDefinitions>
                     <RowDefinition />
@@ -67,7 +69,7 @@
                     <SymbolIcon Symbol="Cancel"/>
                 </Button>
 
-                <Rectangle Grid.Row="1" Fill="#248FFF" Height="8" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+                <Rectangle Grid.Row="1" Fill="{x:Bind models:ProductItemViewModel.GetPredictionColor(Model)}" Height="8" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
             </Grid>
         </DataTemplate>
     </Page.Resources>
@@ -95,19 +97,19 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Spacing="24" Margin="0,0,0,25" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisPublish'}">
-                <TextBlock x:Name="publishStatus" Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Center" Foreground="White" Opacity="0.8"/>
+                <TextBlock x:Name="publishStatus" Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Center" Foreground="{StaticResource RegularTextColor}"/>
                 <Button Grid.Column="1" HorizontalAlignment="Center" Background="#0078D7" Width="280" Height="40" Click="OnTryAnotherImageButtonClick" IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE72C;"/>
                         <TextBlock Text="Try another image" />
                     </StackPanel>
                 </Button>
-                <TextBlock x:Name="publishDetails" Style="{StaticResource SubheaderTextBlockStyle}" Foreground="White" Opacity="0.8"/>
+                <TextBlock x:Name="publishDetails" Style="{StaticResource SubheaderTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
             </StackPanel>
 
             <Grid Grid.Row="1" Grid.Column="1" Background="#1F1F1F">
                 <ctl:ImageWithRegionEditorsControl x:Name="image" HorizontalAlignment="Stretch" RegionSelected="OnImageRegionSelected" Margin="24,0"/>
-                <ProgressRing x:Name="progressRing" Width="100" Height="100" Foreground="White"/>
+                <ProgressRing x:Name="progressRing" Width="100" Height="100" Foreground="{StaticResource RegularTextColor}"/>
 
                 <Button Background="Black" Width="40" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" Click="OnCloseImageViewButtonClicked"
                         Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalyzed'}">
@@ -134,8 +136,8 @@
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="No items selected" Foreground="White" Opacity="0.8" Margin="24,12" Visibility="{Binding SelectedProductItemCollection.Count, Converter={StaticResource reverseCollectionCountToVisibilityConverter}}"/>
-                        <TextBlock Foreground="White" Opacity="0.8" Margin="24,12" Visibility="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}">
+                        <TextBlock Text="No items selected" Foreground="{StaticResource RegularTextColor}" Margin="24,12" Visibility="{Binding SelectedProductItemCollection.Count, Converter={StaticResource reverseCollectionCountToVisibilityConverter}}"/>
+                        <TextBlock Foreground="{StaticResource RegularTextColor}" Margin="24,12" Visibility="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}">
                             <Run Text="{Binding SelectedProductItemCollection.Count}"/>
                             <Run Text="item selected"/>
                         </TextBlock>
@@ -203,13 +205,13 @@
                                 </Grid.RowDefinitions>
 
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Items by" Foreground="White" Opacity="0.8" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                                    <TextBlock Text="Items by" Foreground="{StaticResource RegularTextColor}" Style="{StaticResource SubtitleTextBlockStyle}"/>
                                     <ComboBox x:Name="summaryGroupComboBox" ItemsSource="{Binding SummaryGroupCollection}" SelectedIndex="0" DisplayMemberPath="Name" SelectedValuePath="State" SelectionChanged="OnSummaryGroupComboBoxSelectionChanged" />
                                 </StackPanel>
 
                                 <ctl:AnalyticsChartControl Grid.Row="1" x:Name="chartControl" />
                                 <Grid Grid.Row="1" x:Name="resultsGrid" Visibility="Collapsed" VerticalAlignment="Top">
-                                    <controls:DataGrid ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal">
+                                    <controls:DataGrid ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal" ColumnWidth="*">
                                         <controls:DataGrid.Columns>
                                             <controls:DataGridTextColumn Header="Object tag" Binding="{Binding Name}"/>
                                             <controls:DataGridTextColumn Header="Low confidence" Binding="{Binding LowConfidenceCount}"/>
@@ -273,33 +275,33 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Spacing="18" Margin="0,12,0,18" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisReview'}">
-                    <TextBlock Text="Publish results" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="White" Opacity="0.8"/>
+                    <TextBlock Text="Publish results" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
                     <TextBlock Text="Review the data below to make sure it's complete and correct"/>
-                    <TextBlock Text="Items by object tag" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="White" Opacity="0.8"/>
+                    <TextBlock Text="Items by object tag" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
                 </StackPanel>
 
                 <!-- Corrections summary -->
                 <StackPanel Spacing="24" Margin="0,0,0,24" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisPublish'}">
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Product vision model" FontSize="12" Foreground="White" Opacity="0.8"/>
+                        <TextBlock Text="Product vision model" FontSize="12" Foreground="{StaticResource RegularTextColor}"/>
                         <TextBlock x:Name="currentProjectTextBlock" />
                     </StackPanel>
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Final results" FontSize="12" Foreground="White" Opacity="0.8"/>
+                        <TextBlock Text="Final results" FontSize="12" Foreground="{StaticResource RegularTextColor}"/>
                         <TextBlock x:Name="finalResultsTextBlock"/>
                     </StackPanel>
                     <StackPanel Spacing="4">
-                        <TextBlock Text="Corrections" FontSize="12" Foreground="White" Opacity="0.8"/>
+                        <TextBlock Text="Corrections" FontSize="12" Foreground="{StaticResource RegularTextColor}"/>
                         <TextBlock x:Name="correctionsTextBlock"/>
                     </StackPanel>
                 </StackPanel>
 
                 <!-- Result Data Grid -->
                 <Grid Grid.Row="1" VerticalAlignment="Top" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisReview'}">
-                    <controls:DataGrid x:Name="dataGrid" ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal">
+                    <controls:DataGrid x:Name="dataGrid" ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal" ColumnWidth="*">
                         <controls:DataGrid.Columns>
-                            <controls:DataGridTextColumn Header="Object tag" Binding="{Binding Name}" Width="Auto"/>
-                            <controls:DataGridTextColumn Header="Total" Binding="{Binding TotalCount}" Width="Auto"/>
+                            <controls:DataGridTextColumn Header="Object tag" Binding="{Binding Name}"/>
+                            <controls:DataGridTextColumn Header="Total" Binding="{Binding TotalCount}"/>
                         </controls:DataGrid.Columns>
                     </controls:DataGrid>
                 </Grid>

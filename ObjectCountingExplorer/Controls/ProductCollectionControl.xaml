@@ -13,7 +13,6 @@
     x:Name="userControl">
 
     <UserControl.Resources>
-        <SolidColorBrush x:Key="TextForeground" Color="White" Opacity="0.8"/>
         <SolidColorBrush x:Key="ImageBorderBackground" Color="Black" Opacity="0.6"/>
         <local:CollectionCountToVisibilityConverter x:Key="collectionCountToVisibilityConverter"/>
 
@@ -48,7 +47,7 @@
                         <ColumnDefinition />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding DisplayName}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource TextForeground}"/>
+                    <TextBlock Text="{Binding DisplayName}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Background="Transparent">
                             <StackPanel Orientation="Horizontal" Spacing="8">
@@ -78,12 +77,12 @@
 
                     <StackPanel Grid.Column="1" Spacing="12">
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Name" FontSize="12" Foreground="{StaticResource TextForeground}"/>
-                            <TextBlock Text="{Binding DisplayName}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource TextForeground}"/>
+                            <TextBlock Text="Name" FontSize="12" Foreground="{StaticResource RegularTextColor}"/>
+                            <TextBlock Text="{Binding DisplayName}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
                         </StackPanel>
                         <StackPanel Spacing="4">
-                            <TextBlock Text="Details" FontSize="12" Foreground="{StaticResource TextForeground}"/>
-                            <TextBlock Text="Some details" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource TextForeground}"/>
+                            <TextBlock Text="Details" FontSize="12" Foreground="{StaticResource RegularTextColor}"/>
+                            <TextBlock Text="Some details" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
@@ -124,7 +123,7 @@
             </StackPanel>
         </controls:Expander.Header>
 
-        <GridView ItemsSource="{Binding ElementName=userControl, Path=ProductCollection}" Margin="0,6,0,0"
+        <GridView ItemsSource="{Binding ElementName=userControl, Path=ProductCollection}" Margin="0,6,0,0" SelectionMode="None"
                   ItemTemplate="{Binding ElementName=userControl, Path=EnableExtendedView, Converter={StaticResource boolToExtendedViewConverter}}"
                   ItemContainerStyle="{StaticResource GridViewItemContainerStyle}"/>
     </controls:Expander>

@@ -36,9 +36,9 @@ namespace ObjectCountingExplorer.Controls
             {
                 ChartLabelCollection.Add(item.Key);
 
-                int highConfidenceCount = item.Value.Count(x => x.Probability > 0.6);
-                int mediumConfidenceCount = item.Value.Count(x => x.Probability > 0.3 && x.Probability <= 0.6);
-                int lowConfidenceCount = item.Value.Count(x => x.Probability <= 0.3);
+                int highConfidenceCount = item.Value.Count(x => x.Probability >= MainPage.MinHighProbability);
+                int mediumConfidenceCount = item.Value.Count(x => x.Probability >= MainPage.MinMediumProbability && x.Probability < MainPage.MinHighProbability);
+                int lowConfidenceCount = item.Value.Count(x => x.Probability < MainPage.MinMediumProbability);
                 
                 ChartItemCollection.Add(new ChartItem()
                 {

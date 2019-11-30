@@ -67,6 +67,11 @@ namespace ObjectCountingExplorer.Controls
         {
             this.InitializeComponent();
             this.DataContext = this;
+
+            this.scrollViewerMain.RegisterPropertyChangedCallback(ScrollViewer.ZoomFactorProperty, (s, e) =>
+            {
+                UpdateRegions();
+            });
         }
 
         public async Task SetSourceFromFileAsync(StorageFile imagefile)
@@ -154,7 +159,7 @@ namespace ObjectCountingExplorer.Controls
                     Title = obj.DisplayName,
                     State = state,
                     ProductItemViewModel = obj,
-                    Color = GetObjectRegionColor(model)
+                    Color = Util.GetObjectRegionColor(model.Probability)
                 };
 
                 if (regionState != RegionState.Disabled)
@@ -173,7 +178,7 @@ namespace ObjectCountingExplorer.Controls
         public void ToggleEditState(IEnumerable<ProductItemViewModel> detectedObjects = null, bool enableRemoveOption = false)
         {
             this.enableRemoveMode = enableRemoveOption;
-            selectedObjects = detectedObjects != null ? new Tuple<bool, List<ProductItemViewModel>>(enableRemoveOption, detectedObjects.ToList()) : null;
+            selectedObjects = new Tuple<bool, List<ProductItemViewModel>>(enableRemoveOption, detectedObjects?.ToList() ?? new List<ProductItemViewModel>());
 
             this.overlayCanvas.Children.Clear();
             this.editObjectVisualizationCanvas.Children.Clear();
@@ -200,7 +205,8 @@ namespace ObjectCountingExplorer.Controls
                             ProductId = obj.Id,
                             Title = obj.DisplayName,
                             Model = model,
-                            EnableRemove = enableRemoveOption
+                            EnableRemove = enableRemoveOption,
+                            ZoomValue = this.scrollViewerMain.ZoomFactor
                         }
                     };
 
@@ -284,24 +290,6 @@ namespace ObjectCountingExplorer.Controls
             }
         }
 
-        private Color GetObjectRegionColor(PredictionModel prediction)
-        {
-            double minHigh = 0.6;
-            double minMed = 0.3;
-            double prob = prediction.Probability;
-
-            if (prob >= minHigh)
-            {
-                return Color.FromArgb(255, 36, 143, 255);
-            }
-            else if (prob < minMed)
-            {
-                return Color.FromArgb(255, 228, 19, 35);
-            }
-
-            return Color.FromArgb(255, 250, 190, 20);
-        }
-
         private void OnPointerReleasedOverImage(object sender, PointerRoutedEventArgs e)
         {
             bool isAnyRegionsOnCanvas = this.editObjectVisualizationCanvas.Children.Any();
@@ -346,7 +334,8 @@ namespace ObjectCountingExplorer.Controls
                     ProductId = product.Id,
                     Title = product.DisplayName,
                     Model = model,
-                    EnableRemove = true
+                    EnableRemove = true,
+                    ZoomValue = this.scrollViewerMain.ZoomFactor
                 }
             };
 
@@ -355,6 +344,7 @@ namespace ObjectCountingExplorer.Controls
 
             this.editObjectVisualizationCanvas.Children.Add(editor);
             AddedNewObjects.Add(product);
+            selectedObjects.Item2?.Add(product);
         }
 
         private void OnRegionChanged(object sender, Guid productId)
@@ -391,6 +381,7 @@ namespace ObjectCountingExplorer.Controls
                 if (product != null)
                 {
                     AddedNewObjects.Remove(product);
+                    selectedObjects.Item2?.Remove(product);
                 }
 
                 bool isRemoved = this.editObjectVisualizationCanvas.Children.Remove(regionControl);
@@ -398,6 +389,19 @@ namespace ObjectCountingExplorer.Controls
                 {
                     regionControl.RegionChanged -= OnRegionChanged;
                     regionControl.RegionDeleted -= OnRegionDeleted;
+                }
+            }
+        }
+
+        private void UpdateRegions()
+        {
+            var regionList = this.editObjectVisualizationCanvas.Children.Cast<RegionEditorControl>().ToList();
+            foreach (var region in regionList)
+            {
+                RegionEditorViewModel regionEditorViewModel = (RegionEditorViewModel)region.DataContext;
+                if (regionEditorViewModel != null)
+                {
+                    regionEditorViewModel.ZoomValue = this.scrollViewerMain.ZoomFactor;
                 }
             }
         }

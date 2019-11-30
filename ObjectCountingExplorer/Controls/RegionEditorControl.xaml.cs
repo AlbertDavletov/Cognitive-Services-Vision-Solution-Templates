@@ -29,6 +29,17 @@ namespace ObjectCountingExplorer.Controls
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Color"));
             }
         }
+
+        public double zoomValue = 1;
+        public double ZoomValue
+        {
+            get { return zoomValue; }
+            set
+            {
+                zoomValue = value;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ZoomValue"));
+            }
+        }
     }
 
     public sealed partial class RegionEditorControl : UserControl
@@ -41,39 +52,64 @@ namespace ObjectCountingExplorer.Controls
             this.InitializeComponent();
         }
 
-        private void OnTopLeftDragDelta(object sender, DragDeltaEventArgs e)
+        private void OnTopLeftManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            AdjustBoundingBoxSize(e.HorizontalChange, e.VerticalChange, 0, 0);
+            if (((Thumb)sender).DataContext is RegionEditorViewModel dataContext)
+            {
+                double zoom = dataContext.ZoomValue > 0 ? dataContext.ZoomValue : 1.0;
+                AdjustBoundingBoxSize(e.Delta.Translation.X / zoom, e.Delta.Translation.Y / zoom, 0, 0);
+            }
         }
 
-        private void OnBottomRightDragDelta(object sender, DragDeltaEventArgs e)
+        private void OnBottomRightManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            AdjustBoundingBoxSize(0, 0, e.HorizontalChange, e.VerticalChange);
+            if (((Thumb)sender).DataContext is RegionEditorViewModel dataContext)
+            {
+                double zoom = dataContext.ZoomValue > 0 ? dataContext.ZoomValue : 1.0;
+                AdjustBoundingBoxSize(0, 0, e.Delta.Translation.X / zoom, e.Delta.Translation.Y / zoom);
+            }
         }
 
-        private void OnTopRightDragDelta(object sender, DragDeltaEventArgs e)
+        private void OnTopRightManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            AdjustBoundingBoxSize(0, e.VerticalChange, e.HorizontalChange, 0);
+            if (((Thumb)sender).DataContext is RegionEditorViewModel dataContext)
+            {
+                double zoom = dataContext.ZoomValue > 0 ? dataContext.ZoomValue : 1.0;
+                AdjustBoundingBoxSize(0, e.Delta.Translation.Y / zoom, e.Delta.Translation.X / zoom, 0);
+            }
         }
 
-        private void OnBottomLeftDragDelta(object sender, DragDeltaEventArgs e)
+        private void OnBottomLeftManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            AdjustBoundingBoxSize(e.HorizontalChange, 0, 0, e.VerticalChange);
+            if (((Thumb)sender).DataContext is RegionEditorViewModel dataContext)
+            {
+                double zoom = dataContext.ZoomValue > 0 ? dataContext.ZoomValue : 1.0;
+                AdjustBoundingBoxSize(e.Delta.Translation.X / zoom, 0, 0, e.Delta.Translation.Y / zoom);
+            }
         }
 
         private void AdjustBoundingBoxSize(double leftOffset, double topOffset, double widthOffset, double heightOffset)
         {
-            double newWidth = this.ActualWidth + widthOffset - leftOffset;
-            double newHeight = this.ActualHeight + heightOffset - topOffset;
+            var parentWidth = (this.Parent as FrameworkElement)?.ActualWidth ?? double.MaxValue;
+            var parentHeight = (this.Parent as FrameworkElement)?.ActualHeight ?? double.MaxValue;
 
-            if ((newWidth >= 0) && (newHeight >= 0))
+            double newWidth = this.Width + widthOffset - leftOffset;
+            double newHeight = this.Height + heightOffset - topOffset;
+
+            double newLeftOffset = (this.Margin.Left + leftOffset) >= 0 ? this.Margin.Left + leftOffset : 0;
+            double newTopOffset = (this.Margin.Top + topOffset) >= 0 ? this.Margin.Top + topOffset : 0;
+
+            bool isValidXOffset = (newLeftOffset + newWidth) <= parentWidth;
+            bool isValidYOffset = (newTopOffset + newHeight) <= parentHeight;
+
+            if (isValidXOffset && isValidYOffset && newWidth >= 1 && newHeight >= 1)
             {
                 this.Width = newWidth;
                 this.Height = newHeight;
 
                 this.Margin = new Thickness(
-                    this.Margin.Left + leftOffset,
-                    this.Margin.Top + topOffset,
+                    newLeftOffset,
+                    newTopOffset,
                     this.Margin.Right,
                     this.Margin.Bottom);
             }

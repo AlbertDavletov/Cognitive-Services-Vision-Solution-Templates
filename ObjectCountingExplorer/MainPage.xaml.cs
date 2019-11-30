@@ -24,6 +24,9 @@ namespace ObjectCountingExplorer
 {
     public sealed partial class MainPage : Page, INotifyPropertyChanged
     {
+        public const double MinMediumProbability = 0.3;
+        public const double MinHighProbability = 0.6;
+
         private static readonly string TrainingApiKey = "<CUSTOM VISION TRANING API KEY>";
         private static readonly string TrainingApiKeyEndpoint = "<CUSTOM VISION TRANING API ENDPOINT>";
         private static readonly string PredictionApiKey = "<CUSTOM VISION PREDICTION API KEY>";
@@ -157,7 +160,7 @@ namespace ObjectCountingExplorer
                     this.productGroupedByNameGrid.Visibility = Visibility.Visible;
 
                     ProductFilterCollection.Clear();
-                    ProductFilterCollection.AddRange(GroupedProductCollection.Select(p => new ProductFilter(p.Item1, FilterType.ProductName)));
+                    ProductFilterCollection.AddRange(UniqueProductItemCollection.Select(p => new ProductFilter(p.DisplayName, FilterType.ProductName)));
                     break;
 
                 case SummaryViewState.TagSelected:
@@ -297,8 +300,6 @@ namespace ObjectCountingExplorer
 
                 await Task.Delay(500);
 
-                UpdateResult(currentDetectedObjects);
-
                 UniqueProductItemCollection.Clear();
                 UniqueProductItemCollection.AddRange(currentDetectedObjects.GroupBy(p => p.DisplayName).Select(p => p.FirstOrDefault()).OrderBy(p => p.DisplayName));
 
@@ -306,6 +307,8 @@ namespace ObjectCountingExplorer
                 ProductFilterCollection.AddRange(summaryViewState == SummaryViewState.GroupedByCategory
                     ? ProductFilterByCategory.Select(p => new ProductFilter(p.Name, p.FilterType))
                     : UniqueProductItemCollection.Select(p => new ProductFilter(p.DisplayName, FilterType.ProductName)));
+
+                UpdateResult(currentDetectedObjects);
             }
             catch (Exception ex)
             {
@@ -329,13 +332,13 @@ namespace ObjectCountingExplorer
             GroupedProductCollection.AddRange(groupedProductCollection);
 
             LowConfidenceCollection.Clear();
-            LowConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability <= 0.3));
+            LowConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability < MinMediumProbability));
 
             MediumConfidenceCollection.Clear();
-            MediumConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability > 0.3 && x.Model.Probability <= 0.6));
+            MediumConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability >= MinMediumProbability && x.Model.Probability < MinHighProbability));
 
             HighConfidenceCollection.Clear();
-            HighConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability > 0.6));
+            HighConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability >= MinHighProbability));
 
             this.chartControl.UpdateChart(productItemCollection);
 
@@ -714,15 +717,15 @@ namespace ObjectCountingExplorer
                     switch (filter.FilterType)
                     {
                         case FilterType.HighConfidence:
-                            tempData.AddRange(currentDetectedObjects.Where(p => p.Model.Probability > 0.6));
+                            tempData.AddRange(currentDetectedObjects.Where(p => p.Model.Probability >= MinHighProbability));
                             break;
 
                         case FilterType.MediumConfidence:
-                            tempData.AddRange(currentDetectedObjects.Where(p => p.Model.Probability > 0.3 && p.Model.Probability <= 0.6));
+                            tempData.AddRange(currentDetectedObjects.Where(p => p.Model.Probability >= MinMediumProbability && p.Model.Probability < MinHighProbability));
                             break;
 
                         case FilterType.LowConfidence:
-                            tempData.AddRange(currentDetectedObjects.Where(p => p.Model.Probability <= 0.3));
+                            tempData.AddRange(currentDetectedObjects.Where(p => p.Model.Probability < MinMediumProbability));
                             break;
 
                         case FilterType.ProductName:
