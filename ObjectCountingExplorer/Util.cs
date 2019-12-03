@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics.Display;
@@ -19,6 +18,12 @@ namespace ObjectCountingExplorer
 {
     internal static class Util
     {
+        public static readonly Color HighConfidenceColor = Color.FromArgb(255, 36, 143, 255);
+        public static readonly Color MediumConfidenceColor = Color.FromArgb(255, 250, 190, 20);
+        public static readonly Color LowConfidenceColor = Color.FromArgb(255, 228, 19, 35);
+        public static readonly Color UnknownProductColor = Color.FromArgb(255, 180, 0, 158);
+        public static readonly Color EmptyGapColor = Color.FromArgb(255, 0, 158, 179);
+
         public static Color GetObjectRegionColor(double probability)
         {
             double minHigh = MainPage.MinHighProbability;
@@ -26,14 +31,14 @@ namespace ObjectCountingExplorer
 
             if (probability >= minHigh)
             {
-                return Color.FromArgb(255, 36, 143, 255);
+                return HighConfidenceColor;
             }
             else if (probability < minMed)
             {
-                return Color.FromArgb(255, 228, 19, 35);
+                return LowConfidenceColor;
             }
 
-            return Color.FromArgb(255, 250, 190, 20);
+            return MediumConfidenceColor;
         }
 
         public static double EnsureValidNormalizedValue(double value)
@@ -41,9 +46,10 @@ namespace ObjectCountingExplorer
             // ensure [0,1]
             return Math.Min(1, Math.Max(0, value));
         }
-        public static double Min(params double[] values)
+
+        public static double Max(params double[] values)
         {
-            return Enumerable.Min(values);
+            return Enumerable.Max(values);
         }
 
         internal static async Task GenericApiCallExceptionHandler(Exception ex, string errorTitle)
@@ -99,48 +105,6 @@ namespace ObjectCountingExplorer
             }
         }
 
-        public static List<Color> GetColors(int count)
-        {
-            var colors = new List<Color>();
-
-            var colorNames = new List<Color>();
-            foreach (var color in typeof(Colors).GetRuntimeProperties())
-            {
-                colorNames.Add((Color)color.GetValue(null));
-            }
-
-            List<int> randomUniqueNumbers = GetRandomUniqueNumbers(count, 0, colorNames.Count);
-
-            foreach (int number in randomUniqueNumbers)
-            {
-                colors.Add(colorNames[number]);
-            }
-
-            return colors;
-        }
-
-        public static List<int> GetRandomUniqueNumbers(int count, int start, int end)
-        {
-            if (count > end - start)
-            {
-                throw new ArgumentException("Count should be less then input range.");
-            }
-
-            Random rnd = new Random();
-            List<int> randomList = new List<int>();
-
-            while (randomList.Count < count)
-            {
-                int number = rnd.Next(start, end);
-                if (!randomList.Contains(number))
-                {
-                    randomList.Add(number);
-                }
-            }
-
-            return randomList;
-        }
-
         public static async Task DownloadAndSaveBitmapAsync(string imageUrl, StorageFile resultFile)
         {
             byte[] imgBytes = await new System.Net.Http.HttpClient().GetByteArrayAsync(imageUrl);
@@ -167,26 +131,6 @@ namespace ObjectCountingExplorer
                                         DisplayInformation.GetForCurrentView().LogicalDpi, DisplayInformation.GetForCurrentView().LogicalDpi, pixels.Item1);
 
                 await encoder.FlushAsync();
-            }
-        }
-
-        public static Color ColorFromString(string str)
-        {
-            if (string.IsNullOrEmpty(str) || str.Length != 8)
-            {
-                return Colors.Gray;
-            }
-
-            try
-            {
-                return Color.FromArgb(byte.Parse(str.Substring(0, 2), System.Globalization.NumberStyles.HexNumber),
-                                    byte.Parse(str.Substring(2, 2), System.Globalization.NumberStyles.HexNumber),
-                                    byte.Parse(str.Substring(4, 2), System.Globalization.NumberStyles.HexNumber),
-                                    byte.Parse(str.Substring(6, 2), System.Globalization.NumberStyles.HexNumber));
-            }
-            catch (Exception)
-            {
-                return Colors.Gray;
             }
         }
 

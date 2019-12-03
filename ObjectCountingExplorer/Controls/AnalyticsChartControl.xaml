@@ -46,7 +46,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -62,7 +61,7 @@
         </StackPanel>
 
         <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Disabled">
-            <Grid x:Name="chartGrid" SizeChanged="OnChartGridSizeChanged">
+            <Grid x:Name="chartGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100"/>
                     <ColumnDefinition />
@@ -98,16 +97,12 @@
                                     </Style>
                                 </Grid.Resources>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition x:Name="highColumn"  Width="{x:Bind local:ChartItem.GetColumnWidth(HighConfidenceWidth)}"/>
-                                    <ColumnDefinition x:Name="medColumn"   Width="{x:Bind local:ChartItem.GetColumnWidth(MediumConfidenceWidth)}"/>
-                                    <ColumnDefinition x:Name="lowColumn"   Width="{x:Bind local:ChartItem.GetColumnWidth(LowConfidenceWidth)}"/>
-                                    <ColumnDefinition x:Name="emptyColumn" Width="{x:Bind local:ChartItem.GetColumnWidth(EmptyWidth)}"/>
+                                    <ColumnDefinition Width="{x:Bind local:ChartItem.GetColumnWidth(ItemWidth)}"/>
+                                    <ColumnDefinition Width="{x:Bind local:ChartItem.GetColumnWidth(EmptyWidth)}"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Rectangle Grid.Column="0" Fill="#248FFF" ToolTipService.ToolTip="{Binding HighConfidenceCount}"/>
-                                <Rectangle Grid.Column="1" Fill="#FABE14" ToolTipService.ToolTip="{Binding MediumConfidenceCount}"/>
-                                <Rectangle Grid.Column="2" Fill="#E41323" ToolTipService.ToolTip="{Binding LowConfidenceCount}"/>
-                                <Rectangle Grid.Column="3" Fill="Transparent" />
+                                <Rectangle Grid.Column="0" Fill="{Binding Color}" ToolTipService.ToolTip="{Binding ItemCount}"/>
+                                <Rectangle Grid.Column="1" Fill="Transparent" />
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -142,28 +137,8 @@
             <TextBlock Grid.Column="3" x:Name="x4_Lbl" HorizontalAlignment="Right" Margin="0,6,-3,0" Style="{StaticResource BaseTextStyle}"/>
             <TextBlock Grid.Column="4" x:Name="x5_Lbl" HorizontalAlignment="Right" Margin="0,6,-6,0" Style="{StaticResource BaseTextStyle}"/>
 
-            <TextBlock Grid.Row="1" Grid.ColumnSpan="5" Text="Items" HorizontalAlignment="Center" Style="{StaticResource BaseTextStyle}"/>
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="5" Text="Item count" HorizontalAlignment="Center" Style="{StaticResource BaseTextStyle}"/>
         </Grid>
-
-        <!-- Chart legend -->
-        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="18" Margin="0,12">
-            <TextBlock Text="Confidence" Style="{StaticResource BaseTextStyle}"/>
-
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <Border Style="{StaticResource SquareStyle}" Background="#248FFF"/>
-                <TextBlock Text="High" Style="{StaticResource BaseTextStyle}"/>
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <Border Style="{StaticResource SquareStyle}" Background="#FABE14"/>
-                <TextBlock Text="Medium" Style="{StaticResource BaseTextStyle}"/>
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <Border Style="{StaticResource SquareStyle}" Background="#E41323"/>
-                <TextBlock Text="Low" Style="{StaticResource BaseTextStyle}"/>
-            </StackPanel>
-        </StackPanel>
 
     </Grid>
 </UserControl>

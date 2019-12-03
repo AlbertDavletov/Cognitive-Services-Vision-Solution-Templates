@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ObjectCountingExplorer.Controls"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -14,13 +13,12 @@
 
     <UserControl.Resources>
         <SolidColorBrush x:Key="ImageBorderBackground" Color="Black" Opacity="0.6"/>
-        <local:CollectionCountToVisibilityConverter x:Key="collectionCountToVisibilityConverter"/>
 
         <Style x:Key="GridViewItemContainerStyle" TargetType="FrameworkElement">
             <Setter Property="Margin" Value="0,0,8,8"/>
         </Style>
 
-        <DataTemplate x:Key="ShortViewTemplate">
+        <DataTemplate x:Key="ProductViewTemplate">
             <StackPanel CornerRadius="2" Width="94">
                 <Border Background="{StaticResource ImageBorderBackground}">
                     <Viewbox Height="94" Stretch="Uniform">
@@ -34,63 +32,6 @@
             </StackPanel>
         </DataTemplate>
 
-        <DataTemplate x:Key="ExtendedViewTemplate">
-            <Grid Background="#2B2B2B" Width="400" Height="230" CornerRadius="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-
-                <Grid Margin="18,12,12,8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding DisplayName}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Background="Transparent">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE70F;"/>
-                                <TextBlock Text="Edit"/>
-                            </StackPanel>
-                        </Button>
-                        <Button Background="Transparent">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74D;"/>
-                                <TextBlock Text="Remove"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                </Grid>
-
-                <Rectangle Grid.Row="1" Height="1" Stroke="White" Opacity="0.1" HorizontalAlignment="Stretch"/>
-
-                <Grid Grid.Row="2" Margin="18,15,18,12" ColumnSpacing="15">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Viewbox Stretch="Uniform" VerticalAlignment="Top">
-                        <Image Source="{Binding Image}" />
-                    </Viewbox>
-
-                    <StackPanel Grid.Column="1" Spacing="12">
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Name" FontSize="12" Foreground="{StaticResource RegularTextColor}"/>
-                            <TextBlock Text="{Binding DisplayName}" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
-                        </StackPanel>
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="Details" FontSize="12" Foreground="{StaticResource RegularTextColor}"/>
-                            <TextBlock Text="Some details" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
-
-            </Grid>
-        </DataTemplate>
-
-        <converters:BoolToObjectConverter x:Key="boolToExtendedViewConverter" TrueValue="{StaticResource ExtendedViewTemplate}" FalseValue="{StaticResource ShortViewTemplate}" />
     </UserControl.Resources>
 
     <controls:Expander x:Name="expanderControl"
@@ -124,7 +65,7 @@
         </controls:Expander.Header>
 
         <GridView ItemsSource="{Binding ElementName=userControl, Path=ProductCollection}" Margin="0,6,0,0" SelectionMode="None"
-                  ItemTemplate="{Binding ElementName=userControl, Path=EnableExtendedView, Converter={StaticResource boolToExtendedViewConverter}}"
+                  ItemTemplate="{StaticResource ProductViewTemplate}"
                   ItemContainerStyle="{StaticResource GridViewItemContainerStyle}"/>
     </controls:Expander>
     

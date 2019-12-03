@@ -7,12 +7,6 @@ namespace ObjectCountingExplorer.Controls
 {
     public sealed partial class ProductCollectionControl : UserControl
     {
-        public static readonly DependencyProperty EnableExtendedViewProperty =
-            DependencyProperty.Register("EnableExtendedView",
-                typeof(bool),
-                typeof(ProductCollectionControl),
-                new PropertyMetadata(false));
-
         public static readonly DependencyProperty TitleProperty =
             DependencyProperty.Register("Title",
                 typeof(string),
@@ -25,12 +19,6 @@ namespace ObjectCountingExplorer.Controls
                 typeof(ObservableCollection<ProductItemViewModel>),
                 typeof(ProductCollectionControl),
                 new PropertyMetadata(null));
-
-        public bool EnableExtendedView
-        {
-            get { return (bool)GetValue(EnableExtendedViewProperty); }
-            set { SetValue(EnableExtendedViewProperty, value); }
-        }
 
         public string Title
         {

@@ -46,7 +46,7 @@
                         <TextBlock Text="Crop"/>
                     </StackPanel>
                 </Button>
-                <Button Background="Transparent" Padding="6" Width="100" IsEnabled="False" Style="{StaticResource ControlButtonStyle}">
+                <Button Background="Transparent" Padding="6" Width="100" IsEnabled="False" Visibility="Collapsed" Style="{StaticResource ControlButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7AD;"/>
                         <TextBlock Text="Rotate"/>

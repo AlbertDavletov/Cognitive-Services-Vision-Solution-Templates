@@ -2,12 +2,14 @@
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training;
 using Microsoft.Rest;
+using ObjectCountingExplorer.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
+using TrainingModels = Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 
 namespace ObjectCountingExplorer.Helpers
 {
@@ -58,6 +60,31 @@ namespace ObjectCountingExplorer.Helpers
             return await RunTaskWithAutoRetryOnQuotaLimitExceededError(async () => await predictionApi.DetectImageAsync(projectId, publishedName, imageStream));
         }
 
+        public static async Task AddImageRegionsAsync(ICustomVisionTrainingClient trainingApi, Guid projectId, StorageFile file, List<ProductItemViewModel> items)
+        {
+            var regions = items?.Select(p => p.Model).ToList();
+            if (regions.Any())
+            {
+                TrainingModels.ImageCreateSummary addResult;
+                using (Stream stream = (await file.OpenReadAsync()).AsStream())
+                {
+                    addResult = await trainingApi.CreateImagesFromDataAsync(projectId, stream);
+                }
+
+                var addedImage = addResult?.Images?.FirstOrDefault();
+                if (addedImage != null)
+                {
+                    // add any new regions to the image 
+                    await trainingApi.CreateImageRegionsAsync(projectId,
+                        new TrainingModels.ImageRegionCreateBatch(
+                            regions.Select(r => new TrainingModels.ImageRegionCreateEntry(
+                                addedImage.Image.Id, r.TagId, r.BoundingBox.Left, r.BoundingBox.Top, r.BoundingBox.Width, r.BoundingBox.Height)).ToArray())
+                    );
+
+                }
+            }
+        }
+
         private static async Task<TResponse> RunTaskWithAutoRetryOnQuotaLimitExceededError<TResponse>(Func<Task<TResponse>> action)
         {
             int retriesLeft = RetryCountOnQuotaLimitError;
@@ -92,9 +119,9 @@ namespace ObjectCountingExplorer.Helpers
                 new PredictionModel(probability: 0.98, tagName: "Trop50 Orange Juice", tagId: new Guid("9fe2fa62-1824-4d63-a146-d38fb3052ec6"), boundingBox: new BoundingBox(0.306554068727999, 0.681500409919821, 0.151975687560846, 0.310943845358046)),
                 new PredictionModel(probability: 0.97, tagName: "Trop50 Orange Juice", tagId: new Guid("44a96011-349d-444a-9ee0-ea6f4b47aa67"), boundingBox: new BoundingBox(0.464153883968774, 0.686719870097959, 0.147633526762836, 0.303416329837948)),
 
-                new PredictionModel(probability: 0.79,  tagName: "Tropicana Orange Juice", tagId: new Guid("52b451f2-d132-4017-bfb8-9c30bcc4fbad"), boundingBox: new BoundingBox(0.612670091605608, 0.686178346532142, 0.156752062947892, 0.303995366434922)),
-                new PredictionModel(probability: 0.78,  tagName: "Tropicana Orange Juice", tagId: new Guid("f5950503-60c5-4dd9-a8e5-ad58abfc00dc"), boundingBox: new BoundingBox(0.764694124616114, 0.693662981496752, 0.149804599708025, 0.29415170452693)),
-                new PredictionModel(probability: 0.59,  tagName: "Tropicana Orange Juice", tagId: new Guid("aa55a6d7-17c7-426d-87d1-6e6817a0b776"), boundingBox: new BoundingBox(0.894931667590343, 0.7098632036725, 0.105068332409657, 0.269832087935157)),
+                new PredictionModel(probability: 0.79, tagName: "Tropicana Orange Juice", tagId: new Guid("52b451f2-d132-4017-bfb8-9c30bcc4fbad"), boundingBox: new BoundingBox(0.612670091605608, 0.686178346532142, 0.156752062947892, 0.303995366434922)),
+                new PredictionModel(probability: 0.78, tagName: "Tropicana Orange Juice", tagId: new Guid("f5950503-60c5-4dd9-a8e5-ad58abfc00dc"), boundingBox: new BoundingBox(0.764694124616114, 0.693662981496752, 0.149804599708025, 0.29415170452693)),
+                new PredictionModel(probability: 0.59, tagName: "Tropicana Orange Juice", tagId: new Guid("aa55a6d7-17c7-426d-87d1-6e6817a0b776"), boundingBox: new BoundingBox(0.894931667590343, 0.7098632036725, 0.105068332409657, 0.269832087935157)),
 
                 new PredictionModel(probability: 0.99, tagName: "Minute Maid Orange Juice", tagId: new Guid("993be70a-87ae-4404-86fd-666351e4b32c"), boundingBox: new BoundingBox(0.067717112064961, 0.0486046126516127, 0.269214058922355, 0.569774198191264)),
                 new PredictionModel(probability: 0.8, tagName: "Minute Maid Orange Juice", tagId: new Guid("d6667b39-f867-4148-b35c-8a168424adaa"), boundingBox: new BoundingBox(0.290491244628631, 0.0491955075014134, 0.224924021764188, 0.570353214908518)),

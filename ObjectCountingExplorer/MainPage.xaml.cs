@@ -1,7 +1,6 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training;
-using ObjectCountingExplorer.Controls;
 using ObjectCountingExplorer.Helpers;
 using ObjectCountingExplorer.Models;
 using System;
@@ -27,10 +26,10 @@ namespace ObjectCountingExplorer
         public const double MinMediumProbability = 0.3;
         public const double MinHighProbability = 0.6;
 
-        private static readonly string TrainingApiKey = "<CUSTOM VISION TRANING API KEY>";
-        private static readonly string TrainingApiKeyEndpoint = "<CUSTOM VISION TRANING API ENDPOINT>";
-        private static readonly string PredictionApiKey = "<CUSTOM VISION PREDICTION API KEY>";
-        private static readonly string PredictionApiKeyEndpoint = "<CUSTOM VISION PREDICTION API ENDPOINT>";
+        private static readonly string TrainingApiKey = "";           // CUSTOM VISION TRANING API KEY
+        private static readonly string TrainingApiKeyEndpoint = "";   // CUSTOM VISION TRANING API ENDPOINT
+        private static readonly string PredictionApiKey = "";         // CUSTOM VISION PREDICTION API KEY
+        private static readonly string PredictionApiKeyEndpoint = ""; // CUSTOM VISION PREDICTION API ENDPOINT
 
         private SummaryViewState currentSummaryGroupItem;
         private ProjectViewModel currentProject;
@@ -56,7 +55,7 @@ namespace ObjectCountingExplorer
 
         public ObservableCollection<ProjectViewModel> Projects { get; set; } = new ObservableCollection<ProjectViewModel>()
         {
-            new ProjectViewModel(new Guid("eb3ba8ab-b716-44d4-950e-d9de7d5c92e7"), "GroceryItems")
+            new ProjectViewModel(new Guid("af826f5b-97c1-40a0-b8bb-bf44e08cec2b"), "Product Reco Solution Template")
         };
 
         public ObservableCollection<ProductItemViewModel> LowConfidenceCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
@@ -124,7 +123,7 @@ namespace ObjectCountingExplorer
             }
             else
             {
-                this.mainPage.IsEnabled = true;
+                this.mainPage.IsEnabled = false;
                 await new MessageDialog("Please enter Custom Vision API Keys in the code behind of this demo.", "Missing API Keys").ShowAsync();
             }
 
@@ -151,9 +150,6 @@ namespace ObjectCountingExplorer
                     ProductFilterCollection.AddRange(ProductFilterByCategory);
                     break;
 
-                case SummaryViewState.CategorySelected:
-                    break;
-
                 case SummaryViewState.GroupedByTag:
                     this.chartControl.Visibility = Visibility.Collapsed;
                     this.resultsGrid.Visibility = Visibility.Visible;
@@ -165,7 +161,9 @@ namespace ObjectCountingExplorer
                     ProductFilterCollection.AddRange(UniqueProductItemCollection.Select(p => new ProductFilter(p.DisplayName, FilterType.ProductName)));
                     break;
 
+                case SummaryViewState.CategorySelected:
                 case SummaryViewState.TagSelected:
+                default:
                     break;
             }
         }
@@ -218,22 +216,6 @@ namespace ObjectCountingExplorer
                 default:
                     break;
             }
-        }
-
-        private void ResetImageData()
-        {
-            this.image.ClearSource();
-            this.currentDetectedObjects = null;
-
-            LowConfidenceCollection.Clear();
-            MediumConfidenceCollection.Clear();
-            HighConfidenceCollection.Clear();
-            SelectedProductItemCollection.Clear();
-            UniqueProductItemCollection.Clear();
-            GroupedProductCollection.Clear();
-            AddedProductItems.Clear();
-            EditedProductItems.Clear();
-            DeletedProductItems.Clear();
         }
 
         private async void OnCloseImageViewButtonClicked(object sender, RoutedEventArgs e)
@@ -517,17 +499,18 @@ namespace ObjectCountingExplorer
                         foreach (var item in SelectedProductItemCollection)
                         {
                             item.DisplayName = args.Item2.DisplayName;
+                            item.Model = new PredictionModel(probability: 1.0, item.Model.TagId, item.Model.TagName, item.Model.BoundingBox);
                         }
 
                         this.image.ToggleEditState(SelectedProductItemCollection);
                         break;
 
                     case UpdateMode.UpdateNewProduct:
-                        this.image.ShowNewObjects(args.Item2.DisplayName);
+                        this.image.ShowNewObjects(args.Item2);
                         break;
 
                     case UpdateMode.SaveExistingProduct:
-                        if (this.image.ImageFile is StorageFile currentImageFile)
+                        if (this.image.ImageFile is StorageFile currentImageFile && SelectedProductItemCollection.Any())
                         {
                             using (var stream = (await currentImageFile.OpenStreamForReadAsync()).AsRandomAccessStream())
                             {
@@ -560,14 +543,14 @@ namespace ObjectCountingExplorer
                         break;
 
                     case UpdateMode.SaveNewProduct:
-                        if (this.image.ImageFile is StorageFile imageFile)
+                        if (this.image.ImageFile is StorageFile imageFile && this.image.AddedNewObjects.Any())
                         {
                             using (var stream = (await imageFile.OpenStreamForReadAsync()).AsRandomAccessStream())
                             {
                                 double imageWidth = this.image.PixelWidth;
                                 double imageHeight = this.image.PixelHeight;
 
-                                foreach (var item in this.image.AddedNewObjects.Select(p => p))
+                                foreach (var item in this.image.AddedNewObjects)
                                 {
                                     bool isNewProduct = !currentDetectedObjects.Any(p => p.Id == item.Id);
                                     if (isNewProduct)
@@ -675,6 +658,7 @@ namespace ObjectCountingExplorer
 
                 // TODO: sync result data with detection project
                 await Task.Delay(2000);
+                await CustomVisionServiceHelper.AddImageRegionsAsync(trainingApi, currentProject.Id, this.image.ImageFile, currentDetectedObjects);
 
                 this.publishStatus.Text = "Results published";
                 this.publishDetails.Text = "The image, results and corrections are now available in your Custom Vision portal.";
@@ -750,6 +734,25 @@ namespace ObjectCountingExplorer
             }
 
             UpdateResult(filterData);
+        }
+
+        private void ResetImageData()
+        {
+            this.image.ClearSource();
+            this.currentDetectedObjects = null;
+
+            LowConfidenceCollection.Clear();
+            MediumConfidenceCollection.Clear();
+            HighConfidenceCollection.Clear();
+            SelectedProductItemCollection.Clear();
+            UniqueProductItemCollection.Clear();
+            RecentlyUsedProductCollection.Clear();
+            GroupedProductCollection.Clear();
+            AddedProductItems.Clear();
+            EditedProductItems.Clear();
+            DeletedProductItems.Clear();
+            ProductFilterCollection.Clear();
+            ResultDataGridCollection.Clear();
         }
     }
 }

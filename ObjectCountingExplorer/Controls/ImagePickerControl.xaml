@@ -12,9 +12,7 @@
     <UserControl.Resources>
         <local:BooleanToVisibilityConverter x:Key="bolleanToVisibilityConverter"/>
         <local:StringMatchToVisibilityConverter x:Key="stringMatchToVisibilityConverter"/>
-        <local:CollectionCountToVisibilityConverter x:Key="collectionCountToVisibilityConverter"/>
         <local:ReverseStringMatchToVisibilityConverter x:Key="reverseStringMatchToVisibilityConverter"/>
-        <local:NullToVisibilityConverter x:Key="nullToVisibilityConverter"/>
         <Style x:Key="WideStyle" TargetType="GridViewItem">
             <Setter Property="VariableSizedWrapGrid.ColumnSpan" Value="2" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />

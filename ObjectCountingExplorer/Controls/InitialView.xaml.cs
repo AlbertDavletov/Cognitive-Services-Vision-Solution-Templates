@@ -29,10 +29,10 @@ namespace ObjectCountingExplorer.Controls
             this.InitializeComponent();
 
             this.imagePicker.SetSuggestedImageList(
-                "ms-appx:///Assets/ImageSamples/1.jpg",
-                "ms-appx:///Assets/ImageSamples/2.jpg",
-                "ms-appx:///Assets/ImageSamples/3.jpg",
-                "ms-appx:///Assets/ImageSamples/4.jpg"
+                "ms-appx:///Assets/ImageSamples/1_1.jpg",
+                "ms-appx:///Assets/ImageSamples/2_2.jpg",
+                "ms-appx:///Assets/ImageSamples/3_3.jpg",
+                "ms-appx:///Assets/ImageSamples/4_4.jpg"
             );
         }
 

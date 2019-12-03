@@ -8,26 +8,20 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
-using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace ObjectCountingExplorer.Controls
 {
     public sealed partial class ImageWithRegionEditorsControl : UserControl, INotifyPropertyChanged
     {
-        
-        public List<ProductItemViewModel> AddedNewObjects { get; set; } = new List<ProductItemViewModel>();
-
         private bool enableRemoveMode = false;
         private Tuple<RegionState, List<ProductItemViewModel>> currentDetectedObjects;
         private Tuple<bool, List<ProductItemViewModel>> selectedObjects;
 
         public event EventHandler<Tuple<RegionState, ProductItemViewModel>> RegionSelected;
-
 
         public int PixelWidth { get; private set; }
 
@@ -36,6 +30,8 @@ namespace ObjectCountingExplorer.Controls
         public StorageFile ImageFile { get; private set; }
 
         public List<ProductItemViewModel> SelectedRegions { get; set; } = new List<ProductItemViewModel>();
+
+        public List<ProductItemViewModel> AddedNewObjects { get; set; } = new List<ProductItemViewModel>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -218,11 +214,12 @@ namespace ObjectCountingExplorer.Controls
             }
         }
 
-        public void ShowNewObjects(string name)
+        public void ShowNewObjects(ProductItemViewModel product)
         {
             foreach (var item in AddedNewObjects)
             {
-                item.DisplayName = name;
+                item.DisplayName = product.DisplayName;
+                item.Model = new PredictionModel(item.Model.Probability, product.Model.TagId, product.Model.TagName, item.Model.BoundingBox);
             }
             this.ToggleEditState(AddedNewObjects, true);
         }

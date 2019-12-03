@@ -1,19 +1,29 @@
-﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
-using ObjectCountingExplorer.Models;
+﻿using ObjectCountingExplorer.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 namespace ObjectCountingExplorer.Controls
 {
     public sealed partial class AnalyticsChartControl : UserControl
     {
+        private const string EmptyGapName = "Gap";
+        private const string UnknownProductName = "Product";
+
         private int MaxAxisValue = 0;
 
-        public ObservableCollection<string> ChartLabelCollection { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<string> ChartLabelCollection { get; set; } = new ObservableCollection<string>()
+        {
+            "High confidence",
+            "Medium confidence",
+            "Low confidence",
+            "Unknown product",
+            "Shelf gap"
+        };
 
         public ObservableCollection<ChartItem> ChartItemCollection { get; set; } = new ObservableCollection<ChartItem>();
 
@@ -24,41 +34,59 @@ namespace ObjectCountingExplorer.Controls
 
         public void UpdateChart(IEnumerable<ProductItemViewModel> productCollection)
         {
-            Dictionary<string, List<PredictionModel>> productDict = productCollection.GroupBy(x => x.DisplayName).ToDictionary(x => x.Key, x => x.Select(y => y.Model).ToList());
-            int maxProductCount = productDict.Any(x => x.Value.Any()) ? productDict.Max(x => x.Value.Count) : 0;
-            int maxBarCharValue = maxProductCount > 2 ? maxProductCount : 2;
+            var emptyGapList =       productCollection.Where(p => p.DisplayName.Equals(EmptyGapName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Id).ToList();
+            var unknownProductList = productCollection.Where(p => p.DisplayName.Equals(UnknownProductName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Id).ToList();
+            
+            var highConfidenceList =   productCollection.Where(p => p.Model.Probability >= MainPage.MinHighProbability && !emptyGapList.Contains(p.Id) && !unknownProductList.Contains(p.Id)).ToList();
+            var mediumConfidenceList = productCollection.Where(p => p.Model.Probability >= MainPage.MinMediumProbability && p.Model.Probability < MainPage.MinHighProbability && !emptyGapList.Contains(p.Id) && !unknownProductList.Contains(p.Id)).ToList();
+            var lowConfidenceList =    productCollection.Where(p => p.Model.Probability < MainPage.MinMediumProbability && !emptyGapList.Contains(p.Id) && !unknownProductList.Contains(p.Id)).ToList();
+
+            int maxProductCount = (int)Util.Max(emptyGapList.Count, unknownProductList.Count, highConfidenceList.Count, mediumConfidenceList.Count, lowConfidenceList.Count);
+            int maxBarCharValue = maxProductCount > 6 ? maxProductCount : 6;
             SetAxisLabels(maxBarCharValue);
 
-            ChartLabelCollection.Clear();
+
             ChartItemCollection.Clear();
-
-            foreach (var item in productDict)
+            ChartItemCollection.Add(new ChartItem()
             {
-                ChartLabelCollection.Add(item.Key);
-
-                int highConfidenceCount = item.Value.Count(x => x.Probability >= MainPage.MinHighProbability);
-                int mediumConfidenceCount = item.Value.Count(x => x.Probability >= MainPage.MinMediumProbability && x.Probability < MainPage.MinHighProbability);
-                int lowConfidenceCount = item.Value.Count(x => x.Probability < MainPage.MinMediumProbability);
-                
-                ChartItemCollection.Add(new ChartItem()
-                {
-                    Name = item.Key,
-                    HighConfidenceCount = highConfidenceCount,
-                    HighConfidenceWidth = (double)highConfidenceCount / MaxAxisValue,
-
-                    MediumConfidenceCount = mediumConfidenceCount,
-                    MediumConfidenceWidth = (double)mediumConfidenceCount / MaxAxisValue,
-
-                    LowConfidenceCount = lowConfidenceCount,
-                    LowConfidenceWidth = (double)lowConfidenceCount / MaxAxisValue,
-
-                    EmptyWidth = 1 - (double)(highConfidenceCount + mediumConfidenceCount + lowConfidenceCount) / MaxAxisValue
-                });
-            }
-        }
-
-        private void OnChartGridSizeChanged(object sender, SizeChangedEventArgs e)
-        {
+                Name = "High confidence",
+                ItemCount = highConfidenceList.Count,
+                ItemWidth = (double)highConfidenceList.Count / MaxAxisValue,
+                EmptyWidth = 1 - (double)highConfidenceList.Count / MaxAxisValue,
+                Color = new SolidColorBrush(Util.HighConfidenceColor)
+            });
+            ChartItemCollection.Add(new ChartItem()
+            {
+                Name = "Medium confidence",
+                ItemCount = mediumConfidenceList.Count,
+                ItemWidth = (double)mediumConfidenceList.Count / MaxAxisValue,
+                EmptyWidth = 1 - (double)mediumConfidenceList.Count / MaxAxisValue,
+                Color = new SolidColorBrush(Util.MediumConfidenceColor)
+            });
+            ChartItemCollection.Add(new ChartItem()
+            {
+                Name = "Low confidence",
+                ItemCount = lowConfidenceList.Count,
+                ItemWidth = (double)lowConfidenceList.Count / MaxAxisValue,
+                EmptyWidth = 1 - (double)lowConfidenceList.Count / MaxAxisValue,
+                Color = new SolidColorBrush(Util.LowConfidenceColor)
+            });
+            ChartItemCollection.Add(new ChartItem()
+            {
+                Name = "Unknown product",
+                ItemCount = unknownProductList.Count,
+                ItemWidth = (double)unknownProductList.Count / MaxAxisValue,
+                EmptyWidth = 1 - (double)unknownProductList.Count / MaxAxisValue,
+                Color = new SolidColorBrush(Util.UnknownProductColor)
+            });
+            ChartItemCollection.Add(new ChartItem()
+            {
+                Name = "Shelf gap",
+                ItemCount = emptyGapList.Count,
+                ItemWidth = (double)emptyGapList.Count / MaxAxisValue,
+                EmptyWidth = 1 - (double)emptyGapList.Count / MaxAxisValue,
+                Color = new SolidColorBrush(Util.EmptyGapColor)
+            });
         }
 
         private void SetAxisLabels(int maxAxisValue, int minAxisValue = 0)
@@ -84,16 +112,10 @@ namespace ObjectCountingExplorer.Controls
     public class ChartItem
     {
         public string Name { get; set; }
-        public int HighConfidenceCount { get; set; }
-        public double HighConfidenceWidth { get; set; }
-
-        public int MediumConfidenceCount { get; set; }
-        public double MediumConfidenceWidth { get; set; }
-
-        public int LowConfidenceCount { get; set; }
-        public double LowConfidenceWidth { get; set; }
-
+        public int ItemCount { get; set; }
+        public double ItemWidth { get; set; }
         public double EmptyWidth { get; set; }
+        public SolidColorBrush Color { get; set; }
 
         public static GridLength GetColumnWidth(double value)
         {
