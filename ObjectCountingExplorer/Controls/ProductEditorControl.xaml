@@ -17,6 +17,21 @@
             <Setter Property="Margin" Value="0,0,8,8"/>
         </Style>
 
+        <Style x:Key="HorizontalGridViewStyle" TargetType="GridView">
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
+            <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
+            <Setter Property="ScrollViewer.VerticalScrollMode" Value="Disabled"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Vertical" MaximumRowsOrColumns="1"/>
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <DataTemplate x:Key="GridViewTemplate">
             <StackPanel Width="94">
                 <Border Background="#171717">
@@ -55,6 +70,17 @@
             </TextBlock>
             
             <TextBox x:Name="findProductTextBox" PlaceholderText="Find a product" TextChanged="OnFindProductTextBoxChanged"/>
+
+            <TextBlock Text="Quick Access" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <GridView ItemsSource="{Binding ElementName=userControl, Path=RecentlyUsedProductCollection}"
+                      SelectionMode="None" Tag="QuickAccess"
+                      ItemClick="OnProductClick"
+                      IsItemClickEnabled="True"
+                      ItemTemplate="{StaticResource GridViewTemplate}"
+                      ItemContainerStyle="{StaticResource GridViewItemContainerStyle}"
+                      Style="{StaticResource HorizontalGridViewStyle}">
+            </GridView>
+            <Rectangle HorizontalAlignment="Stretch" Height="1" Fill="White" Opacity="0.2"/>
         </StackPanel>
 
         <Grid Grid.Row="2">

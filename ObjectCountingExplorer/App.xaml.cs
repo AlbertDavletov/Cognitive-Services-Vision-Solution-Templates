@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ObjectCountingExplorer.Helpers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -55,6 +56,8 @@ namespace ObjectCountingExplorer
                 {
                     //TODO: Load state from previously suspended application
                 }
+
+                SettingsHelper.Instance.Initialize();
 
                 // Set the TitleBar to Dark Theme
                 var appView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();

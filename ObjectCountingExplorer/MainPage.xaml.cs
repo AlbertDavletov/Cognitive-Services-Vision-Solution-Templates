@@ -69,6 +69,8 @@ namespace ObjectCountingExplorer
 
         public ObservableCollection<ProductItemViewModel> UniqueProductItemCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
+        public ObservableCollection<ProductItemViewModel> RecentlyUsedProductCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
+
         public ObservableCollection<Tuple<string, List<ProductItemViewModel>>> GroupedProductCollection { get; set; } = new ObservableCollection<Tuple<string, List<ProductItemViewModel>>>();
 
         public ObservableCollection<ProductItemViewModel> AddedProductItems { get; set; } = new ObservableCollection<ProductItemViewModel>();
@@ -490,6 +492,16 @@ namespace ObjectCountingExplorer
                 var detectedProductsWithoutSelected = currentDetectedObjects.Where(p => !SelectedProductItemCollection.Select(s => s.Id).Contains(p.Id));
                 this.image.ShowObjectDetectionBoxes(detectedProductsWithoutSelected, RegionState.Disabled);
                 this.image.ToggleEditState(SelectedProductItemCollection);
+            }
+
+            RecentlyUsedProductCollection.Clear();
+            foreach (var tagId in SettingsHelper.Instance.RecentlyUsedProducts)
+            {
+                var product = UniqueProductItemCollection.FirstOrDefault(p => p.Model.TagId.ToString() == tagId);
+                if (product != null)
+                {
+                    RecentlyUsedProductCollection.Add(product);
+                }
             }
 
             AppViewState = AppViewState.ImageAddOrUpdateProduct;

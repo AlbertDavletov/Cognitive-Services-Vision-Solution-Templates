@@ -263,7 +263,11 @@
 
             <!-- Product Add/Edit panel -->
             <Grid Grid.Row="1" Grid.Column="2" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAddOrUpdateProduct'}">
-                <ctl:ProductEditorControl x:Name="productEditorControl" ProductCollection="{Binding UniqueProductItemCollection}" ProductUpdated="OnProductEditorControlProductUpdated" EditorClosed="OnProductEditorControlClosed"/>
+                <ctl:ProductEditorControl x:Name="productEditorControl" 
+                                          ProductCollection="{Binding UniqueProductItemCollection}" 
+                                          RecentlyUsedProductCollection="{Binding RecentlyUsedProductCollection}" 
+                                          ProductUpdated="OnProductEditorControlProductUpdated" 
+                                          EditorClosed="OnProductEditorControlClosed"/>
             </Grid>
 
             <!-- Image Analysis review panel -->

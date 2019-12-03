@@ -151,6 +151,7 @@
       <DependentUpon>RegionEditorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\CustomVisionServiceHelper.cs" />
+    <Compile Include="Helpers\SettingsHelper.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
