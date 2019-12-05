@@ -1,7 +1,10 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
+using TrainingModels = Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
 
 namespace ObjectCountingExplorer.Models
 {
@@ -28,6 +31,23 @@ namespace ObjectCountingExplorer.Models
             Name = name;
             IsChecked = isChecked;
             FilterType = filterType;
+        }
+    }
+
+    public class ProductTag
+    {
+        public TrainingModels.Tag Tag { get; set; }
+        public ProductTag(TrainingModels.Tag tag)
+        {
+            this.Tag = tag;
+        }
+
+        public static ImageSource GetTagImageSource(TrainingModels.Tag tag)
+        {
+            string tagName = tag.Name.ToLower();
+            bool isTagImageExist = Task.Run(() => Util.CheckAssetsFile($"{tagName}.jpg")).Result;
+            string tagImageName = isTagImageExist ? $"{tagName}.jpg" : "product.jpg";
+            return new BitmapImage(new Uri($"ms-appx:///Assets/ProductSamples/{tagImageName}"));
         }
     }
 
@@ -76,7 +96,7 @@ namespace ObjectCountingExplorer.Models
 
         public static SolidColorBrush GetPredictionColor(PredictionModel model)
         {
-            return new SolidColorBrush(Util.GetObjectRegionColor(model.Probability));
+            return new SolidColorBrush(Util.GetObjectRegionColor(model));
         }
     }
 
@@ -120,7 +140,9 @@ namespace ObjectCountingExplorer.Models
         ProductName,
         LowConfidence,
         MediumConfidence,
-        HighConfidence
+        HighConfidence,
+        UnknownProduct,
+        ShelfGap
     }
 
     public enum EditorState

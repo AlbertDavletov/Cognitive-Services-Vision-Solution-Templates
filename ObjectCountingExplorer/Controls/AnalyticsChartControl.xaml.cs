@@ -11,9 +11,6 @@ namespace ObjectCountingExplorer.Controls
 {
     public sealed partial class AnalyticsChartControl : UserControl
     {
-        private const string EmptyGapName = "Gap";
-        private const string UnknownProductName = "Product";
-
         private int MaxAxisValue = 0;
 
         public ObservableCollection<string> ChartLabelCollection { get; set; } = new ObservableCollection<string>()
@@ -34,8 +31,8 @@ namespace ObjectCountingExplorer.Controls
 
         public void UpdateChart(IEnumerable<ProductItemViewModel> productCollection)
         {
-            var emptyGapList =       productCollection.Where(p => p.DisplayName.Equals(EmptyGapName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Id).ToList();
-            var unknownProductList = productCollection.Where(p => p.DisplayName.Equals(UnknownProductName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Id).ToList();
+            var emptyGapList =       productCollection.Where(p => p.DisplayName.Equals(Util.EmptyGapName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Id).ToList();
+            var unknownProductList = productCollection.Where(p => p.DisplayName.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Id).ToList();
             
             var highConfidenceList =   productCollection.Where(p => p.Model.Probability >= MainPage.MinHighProbability && !emptyGapList.Contains(p.Id) && !unknownProductList.Contains(p.Id)).ToList();
             var mediumConfidenceList = productCollection.Where(p => p.Model.Probability >= MainPage.MinMediumProbability && p.Model.Probability < MainPage.MinHighProbability && !emptyGapList.Contains(p.Id) && !unknownProductList.Contains(p.Id)).ToList();

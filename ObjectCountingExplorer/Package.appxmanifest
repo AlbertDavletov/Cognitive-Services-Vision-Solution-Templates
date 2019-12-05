@@ -7,9 +7,9 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="5e7692c4-abf0-4172-8cde-2f12d0cb045c"
-    Publisher="CN=albert.davletov"
-    Version="1.0.0.0" />
+    Name="ProductRecognizerDemo"
+    Publisher="CN=albert.davletov@akvelon.com"
+    Version="1.0.2.0" />
 
   <mp:PhoneIdentity PhoneProductId="5e7692c4-abf0-4172-8cde-2f12d0cb045c" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -39,6 +39,9 @@
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
+        <uap:InitialRotationPreference>
+          <uap:Rotation Preference="landscape"/>
+          <uap:Rotation Preference="landscapeFlipped"/></uap:InitialRotationPreference>
       </uap:VisualElements>
     </Application>
   </Applications>

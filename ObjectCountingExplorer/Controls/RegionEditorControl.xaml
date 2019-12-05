@@ -32,7 +32,7 @@
                 </StackPanel.Background>
                 <TextBlock Text="{Binding Title}" FontSize="12" VerticalAlignment="Center" Foreground="Black" Margin="4" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Title}"/>
                 <Button Height="32" Click="OnRegionRemoveButtonClick" Foreground="Black" Style="{StaticResource ControlButtonStyle}" Visibility="{Binding EnableRemove, Converter={StaticResource booleanToVisibilityConverter}}">
-                    <SymbolIcon Symbol="Delete"/>
+                    <SymbolIcon Symbol="Cancel"/>
                 </Button>
             </StackPanel>
         </Canvas>

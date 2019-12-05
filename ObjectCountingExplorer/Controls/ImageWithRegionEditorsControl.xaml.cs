@@ -134,35 +134,60 @@ namespace ObjectCountingExplorer.Controls
             this.cropImageButton.IsEnabled = false;
 
             currentDetectedObjects = new Tuple<RegionState, List<ProductItemViewModel>>(regionState, detectedObjects.ToList());
-            this.objectDetectionVisualizationCanvas.Children.Clear();
 
             double canvasWidth = objectDetectionVisualizationCanvas.ActualWidth;
             double canvasHeight = objectDetectionVisualizationCanvas.ActualHeight;
 
-            foreach (ProductItemViewModel obj in detectedObjects)
+            var existingObjects = this.objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList();
+            foreach (var detectedObj in detectedObjects)
             {
-                var model = obj.Model;
-                var state = regionState == RegionState.Disabled ? RegionState.Disabled 
-                                                                : SelectedRegions.Any() && SelectedRegions.Any(x => x.Id == obj.Id) 
+                var model = detectedObj.Model;
+                var state = regionState == RegionState.Disabled ? RegionState.Disabled
+                                                                : SelectedRegions.Any() && SelectedRegions.Any(x => x.Id == detectedObj.Id)
                                                                 ? RegionState.Selected : RegionState.Active;
 
-                var region = new ObjectRegionControl
+                ObjectRegionControl region = existingObjects.FirstOrDefault(d => d.ProductItemViewModel.Id == detectedObj.Id);
+                if (region != null)
                 {
-                    Margin = new Thickness(model.BoundingBox.Left * canvasWidth, model.BoundingBox.Top * canvasHeight, 0, 0),
-                    Width = model.BoundingBox.Width * canvasWidth,
-                    Height = model.BoundingBox.Height * canvasHeight,
+                    region.Margin = new Thickness(model.BoundingBox.Left * canvasWidth, model.BoundingBox.Top * canvasHeight, 0, 0);
+                    region.Width = model.BoundingBox.Width * canvasWidth;
+                    region.Height = model.BoundingBox.Height * canvasHeight;
+                    region.Title = detectedObj.DisplayName;
+                    region.State = state;
+                    region.ProductItemViewModel = detectedObj;
+                    region.Color = Util.GetObjectRegionColor(model);
+                    region.RegionSelected -= OnRegionSelected;
+                }
+                else
+                {
+                    region = new ObjectRegionControl
+                    {
+                        Margin = new Thickness(model.BoundingBox.Left * canvasWidth, model.BoundingBox.Top * canvasHeight, 0, 0),
+                        Width = model.BoundingBox.Width * canvasWidth,
+                        Height = model.BoundingBox.Height * canvasHeight,
+                        Title = detectedObj.DisplayName,
+                        State = state,
+                        ProductItemViewModel = detectedObj,
+                        Color = Util.GetObjectRegionColor(model)
+                    };
 
-                    Title = obj.DisplayName,
-                    State = state,
-                    ProductItemViewModel = obj,
-                    Color = Util.GetObjectRegionColor(model.Probability)
-                };
+                    objectDetectionVisualizationCanvas.Children.Add(region);
+                }
 
                 if (regionState != RegionState.Disabled)
                 {
                     region.RegionSelected += OnRegionSelected;
                 }
-                objectDetectionVisualizationCanvas.Children.Add(region);
+                else
+                {
+                    region.RegionSelected -= OnRegionSelected;
+                }
+            }
+
+            var objectsToRemove = existingObjects.Where(p => !detectedObjects.Select(d => d.Id).Contains(p.ProductItemViewModel.Id)).ToList();
+            foreach (var objToRemove in objectsToRemove)
+            {
+                this.objectDetectionVisualizationCanvas.Children.Remove(objToRemove);
             }
 
             if (regionState != RegionState.Disabled)

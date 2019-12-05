@@ -17,7 +17,7 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
-    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -175,6 +175,81 @@
     <Content Include="Assets\ImageSamples\4.jpg" />
     <Content Include="Assets\ImageSamples\4_4.jpg" />
     <Content Include="Assets\ImageSamples\5_5.jpg" />
+    <Content Include="Assets\ProductSamples\champ-adulto-carne-&amp;-cereal.jpg" />
+    <Content Include="Assets\ProductSamples\champ-filhotes.jpg" />
+    <Content Include="Assets\ProductSamples\dreamies-carne.jpg" />
+    <Content Include="Assets\ProductSamples\dreamies-frango.jpg" />
+    <Content Include="Assets\ProductSamples\dreamies-queijo.jpg" />
+    <Content Include="Assets\ProductSamples\gap.jpg" />
+    <Content Include="Assets\ProductSamples\kitekat-sache-adulto-carne.jpg" />
+    <Content Include="Assets\ProductSamples\kitekat-sache-adulto-frango.jpg" />
+    <Content Include="Assets\ProductSamples\kitekat-sache-adulto-peixe.jpg" />
+    <Content Include="Assets\ProductSamples\optimum-cat-sache-ad-frango.jpg" />
+    <Content Include="Assets\ProductSamples\optimum-cat-sache-fil-frango.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree eqn-eqn-adulto.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree eqn-eqn-filhote.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree eqn-eqn-rmg.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree eqn-eqn-rp.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-biscrok-ad-multi.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-biscrok-ad-r-gde.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-biscrok-ad-r-peq.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-biscrok-filhotes.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dentastix-r-grandes.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dentastix-r-medias.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dentastix-r-pequenas.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-ad-rm-car-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-ad-rm-fgo-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-ad-rp-car-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-ad-rp-cor-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-ad-rp-fgo-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-filho-car-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-filho-fgo-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-sen-car-molho.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dry-ad-carne&amp;frango.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dry-ad-carne&amp;vegetais.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dry-ad-rpeq.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dry-fil-rmg.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dry-fil-rpeq.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-lata-adulto-cig-carne.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-lata-adulto-cig-frango.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-lata-adulto-pate-carne.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-lata-adulto-pate-frango.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-lata-filhotes-pate-carne&amp;fgo.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-marrobone.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-rodeo-carne-.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-rodeo-frango-.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-sch-mpk-ad-rp-carne-mo.jpg" />
+    <Content Include="Assets\ProductSamples\product.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-dry-adulto-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-dry-adulto-frango.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-dry-adulto-peixe.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-dry-adulto.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-dry-filhote-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-gatos-castrados-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-atum-ao-molho.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-atum.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-carne-ao-molho.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-frango.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-peixe.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-atum.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-carne-jelly.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-cordeiro.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-frango.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-peixe-jelly.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-salmao.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-cast-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-cast-peixe.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-filh-carne-jelly.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-filhote-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-filhote-frango.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-sen-carne-jelly.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-senior-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-senior-peixe.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-temptations-anti-bolapelo.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-temptations-pelo-saudavel.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-temptations-salmao.jpg" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

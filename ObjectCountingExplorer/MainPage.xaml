@@ -49,19 +49,19 @@
         </Style>
 
         <DataTemplate x:Key="SelectedProductGridView" x:DataType="models:ProductItemViewModel">
-            <Grid Background="#2B2B2B" CornerRadius="2" Height="200">
+            <Grid Background="#2B2B2B" CornerRadius="2" Height="250" ToolTipService.ToolTip="{Binding DisplayName}">
                 <Grid.RowDefinitions>
                     <RowDefinition />
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel Spacing="12" VerticalAlignment="Stretch" Margin="7,12,7,9" Width="100">
-                    <Viewbox Height="100" Stretch="Uniform">
+                <StackPanel Spacing="12" VerticalAlignment="Stretch" Margin="7,12,7,9" Width="150">
+                    <Viewbox Height="150" Stretch="Uniform">
                         <Image Source="{Binding Image}" />
                     </Viewbox>
 
                     <StackPanel>
-                        <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" Margin="8,0" Opacity="0.8"/>
+                        <TextBlock Text="{Binding DisplayName}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="8,0" Opacity="0.8"/>
                     </StackPanel>
                 </StackPanel>
 
@@ -186,9 +186,9 @@
                         <Grid x:Name="selectedItemsGrid" Grid.Column="0" RowSpacing="24" Margin="24,0" Visibility="{Binding SummaryViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='CategorySelected|TagSelected'}">
                             <ScrollViewer HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Auto">
                                 <GridView ItemsSource="{Binding SelectedProductItemCollection}"
-                                      ItemTemplate="{StaticResource SelectedProductGridView}"
-                                      ItemContainerStyle="{StaticResource SelectedProductGridViewItemContainerStyle}"
-                                      Style="{StaticResource SelectedProductGridViewStyle}" />
+                                          ItemTemplate="{StaticResource SelectedProductGridView}"
+                                          ItemContainerStyle="{StaticResource SelectedProductGridViewItemContainerStyle}"
+                                          Style="{StaticResource SelectedProductGridViewStyle}" />
                             </ScrollViewer>
                         </Grid>
 
@@ -228,6 +228,8 @@
                                     <ctl:ProductCollectionControl Title="Low Confidence"    ProductCollection="{Binding LowConfidenceCollection}"    Visibility="{Binding LowConfidenceCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
                                     <ctl:ProductCollectionControl Title="Medium Confidence" ProductCollection="{Binding MediumConfidenceCollection}" Visibility="{Binding MediumConfidenceCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
                                     <ctl:ProductCollectionControl Title="High Confidence"   ProductCollection="{Binding HighConfidenceCollection}"   Visibility="{Binding HighConfidenceCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
+                                    <ctl:ProductCollectionControl Title="Unknown product"   ProductCollection="{Binding GeneralProductCollection}"   Visibility="{Binding GeneralProductCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
+                                    <ctl:ProductCollectionControl Title="Shelf gap"         ProductCollection="{Binding ShelfGapCollection}"         Visibility="{Binding ShelfGapCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
                                 </StackPanel>
                             </ScrollViewer>
 
@@ -242,10 +244,14 @@
                             </ScrollViewer>
                         </Grid>
 
-                        <StackPanel Grid.Column="1" Spacing="4">
+                        <Grid Grid.Column="1" RowSpacing="12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
                             <TextBlock Text="Quick select"/>
 
-                            <ListView ItemsSource="{Binding ProductFilterCollection}" SelectionMode="None" ItemContainerStyle="{StaticResource ListViewItemContainerStyle}">
+                            <ListView Grid.Row="1" ItemsSource="{Binding ProductFilterCollection}" SelectionMode="None" ItemContainerStyle="{StaticResource ListViewItemContainerStyle}">
                                 <ListView.ItemTemplate>
                                     <DataTemplate x:DataType="models:ProductFilter">
                                         <StackPanel Orientation="Horizontal">
@@ -255,7 +261,7 @@
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
-                        </StackPanel>
+                        </Grid>
                     </Grid>
 
                 </Grid>
@@ -264,9 +270,9 @@
             <!-- Product Add/Edit panel -->
             <Grid Grid.Row="1" Grid.Column="2" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAddOrUpdateProduct'}">
                 <ctl:ProductEditorControl x:Name="productEditorControl" 
-                                          ProductCollection="{Binding UniqueProductItemCollection}" 
-                                          RecentlyUsedProductCollection="{Binding RecentlyUsedProductCollection}" 
-                                          ProductUpdated="OnProductEditorControlProductUpdated" 
+                                          ProjectTagCollection="{Binding ProjectTagCollection}" 
+                                          RecentlyUsedTagCollection="{Binding RecentlyUsedTagCollection}" 
+                                          ProductTagUpdated="OnProductEditorControlProductUpdated" 
                                           EditorClosed="OnProductEditorControlClosed"/>
             </Grid>
 

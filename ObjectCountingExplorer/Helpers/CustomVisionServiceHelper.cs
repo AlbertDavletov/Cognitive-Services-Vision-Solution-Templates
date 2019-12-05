@@ -15,12 +15,6 @@ namespace ObjectCountingExplorer.Helpers
 {
     public static class CustomVisionServiceHelper
     {
-        public static readonly List<Guid> ObjectDetectionDomainGuidList = new List<Guid>()
-        {
-            new Guid("da2e3a8a-40a5-4171-82f4-58522f70fbc1"), // Object Detection, General
-            new Guid("1d8ffafe-ec40-4fb2-8f90-72b3b6cecea4"), // Object Detection, Logo
-            new Guid("a27d5ca5-bb19-49d8-a70a-fec086c47f5b")  // Object Detection, General (exportable)
-        };
         public static int RetryCountOnQuotaLimitError = 6;
         public static int RetryDelayOnQuotaLimitError = 500;
 
@@ -48,6 +42,11 @@ namespace ObjectCountingExplorer.Helpers
             }
 
             return result;
+        }
+
+        public static async Task<IEnumerable<TrainingModels.Tag>> GetTagsAsync(ICustomVisionTrainingClient trainingApi, Guid projectId)
+        {
+            return await RunTaskWithAutoRetryOnQuotaLimitExceededError(async () => await trainingApi.GetTagsAsync(projectId));
         }
 
         public static async Task<ImagePrediction> PredictImageUrlWithRetryAsync(this ICustomVisionPredictionClient predictionApi, Guid projectId, string publishedName, ImageUrl imageUrl)
@@ -128,9 +127,9 @@ namespace ObjectCountingExplorer.Helpers
                 new PredictionModel(probability: 0.5, tagName: "Minute Maid Orange Juice", tagId: new Guid("bbd7ba78-837a-4038-849c-cedbea867bdf"), boundingBox: new BoundingBox(0.498494925501794, 0.0538241821682095, 0.240990021189111, 0.567458012043929)),
                 new PredictionModel(probability: 0.2, tagName: "Minute Maid Orange Juice", tagId: new Guid("37efb514-d21c-46eb-848a-f308a2c0f28c"), boundingBox: new BoundingBox(0.676108623921835, 0.0694828807781399, 0.299174999734644, 0.554140150433815)),
 
-                new PredictionModel(probability: 0.8,  tagName: "None", tagId: new Guid("9322ad29-ad52-42cd-81ef-751653fb569c"), boundingBox: new BoundingBox(0.00257976566872595, 0.707548965737701, 0.14893617052995, 0.290098448348115)),
-                new PredictionModel(probability: 0.81, tagName: "None", tagId: new Guid("999000fd-5298-46c1-b81e-55038e8f7f64"), boundingBox: new BoundingBox(0.856270454016098, 0.296435049377248, 0.143725580553865, 0.331210205771003)),
-                new PredictionModel(probability: 0.82, tagName: "None", tagId: new Guid("b4ae3955-766a-48fe-bd8b-9d799d61ce43"), boundingBox: new BoundingBox(0, 0.0578619321656251, 0.160660009156864, 0.561088589597499))
+                new PredictionModel(probability: 0.8,  tagName: "Product", tagId: new Guid("9322ad29-ad52-42cd-81ef-751653fb569c"), boundingBox: new BoundingBox(0.00257976566872595, 0.707548965737701, 0.14893617052995, 0.290098448348115)),
+                new PredictionModel(probability: 0.81, tagName: "Product", tagId: new Guid("999000fd-5298-46c1-b81e-55038e8f7f64"), boundingBox: new BoundingBox(0.856270454016098, 0.296435049377248, 0.143725580553865, 0.331210205771003)),
+                new PredictionModel(probability: 0.82, tagName: "Gap", tagId: new Guid("b4ae3955-766a-48fe-bd8b-9d799d61ce43"), boundingBox: new BoundingBox(0, 0.0578619321656251, 0.160660009156864, 0.561088589597499))
             };
         }
     }

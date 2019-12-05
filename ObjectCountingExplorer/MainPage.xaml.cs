@@ -9,7 +9,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.UI;
@@ -50,7 +49,9 @@ namespace ObjectCountingExplorer
         {
             new ProductFilter("Low confidence", FilterType.LowConfidence),
             new ProductFilter("Medium confidence", FilterType.MediumConfidence),
-            new ProductFilter("High confidence", FilterType.HighConfidence)
+            new ProductFilter("High confidence", FilterType.HighConfidence),
+            new ProductFilter("Unknown product", FilterType.UnknownProduct),
+            new ProductFilter("Shelf gap", FilterType.ShelfGap)
         };
 
         public ObservableCollection<ProjectViewModel> Projects { get; set; } = new ObservableCollection<ProjectViewModel>()
@@ -64,11 +65,15 @@ namespace ObjectCountingExplorer
 
         public ObservableCollection<ProductItemViewModel> HighConfidenceCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
+        public ObservableCollection<ProductItemViewModel> GeneralProductCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
+
+        public ObservableCollection<ProductItemViewModel> ShelfGapCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
+
         public ObservableCollection<ProductItemViewModel> SelectedProductItemCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
-        public ObservableCollection<ProductItemViewModel> UniqueProductItemCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
+        public ObservableCollection<ProductTag> ProjectTagCollection { get; set; } = new ObservableCollection<ProductTag>();
 
-        public ObservableCollection<ProductItemViewModel> RecentlyUsedProductCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
+        public ObservableCollection<ProductTag> RecentlyUsedTagCollection { get; set; } = new ObservableCollection<ProductTag>();
 
         public ObservableCollection<Tuple<string, List<ProductItemViewModel>>> GroupedProductCollection { get; set; } = new ObservableCollection<Tuple<string, List<ProductItemViewModel>>>();
 
@@ -158,7 +163,7 @@ namespace ObjectCountingExplorer
                     this.productGroupedByNameGrid.Visibility = Visibility.Visible;
 
                     ProductFilterCollection.Clear();
-                    ProductFilterCollection.AddRange(UniqueProductItemCollection.Select(p => new ProductFilter(p.DisplayName, FilterType.ProductName)));
+                    ProductFilterCollection.AddRange(GroupedProductCollection.Select(p => new ProductFilter(p.Item1, FilterType.ProductName)));
                     break;
 
                 case SummaryViewState.CategorySelected:
@@ -258,15 +263,17 @@ namespace ObjectCountingExplorer
 
                 if (this.image.ImageFile is StorageFile currentImageFile)
                 {
-                    // ImagePrediction result = await CustomVisionServiceHelper.AnalyzeImageAsync(trainingApi, predictionApi, currentProject.Id, currentImageFile);
-                    //currentDetectedObjects = result?.Predictions?.ToList() ?? new List<PredictionModel>();
-
-                    currentDetectedObjects = CustomVisionServiceHelper.GetFakeTestData()
+                    ImagePrediction result = await CustomVisionServiceHelper.AnalyzeImageAsync(trainingApi, predictionApi, currentProject.Id, currentImageFile);
+                    currentDetectedObjects = (result?.Predictions?.ToList() ?? new List<PredictionModel>())
                         .Select(x => new ProductItemViewModel()
                         {
                             DisplayName = x.TagName, // can modify a product name for display name
                             Model = x
                         }).ToList();
+
+                    ProjectTagCollection.Clear();
+                    ProjectTagCollection.AddRange((await CustomVisionServiceHelper.GetTagsAsync(trainingApi, currentProject.Id))
+                        .OrderBy(t => t.Name).Select(t => new ProductTag(t)));
 
                     using (var stream = (await currentImageFile.OpenStreamForReadAsync()).AsRandomAccessStream())
                     {
@@ -282,16 +289,7 @@ namespace ObjectCountingExplorer
                     }
                 }
 
-                await Task.Delay(500);
-
-                UniqueProductItemCollection.Clear();
-                UniqueProductItemCollection.AddRange(currentDetectedObjects.GroupBy(p => p.DisplayName).Select(p => p.FirstOrDefault()).OrderBy(p => p.DisplayName));
-
-                ProductFilterCollection.Clear();
-                ProductFilterCollection.AddRange(summaryViewState == SummaryViewState.GroupedByCategory
-                    ? ProductFilterByCategory.Select(p => new ProductFilter(p.Name, p.FilterType))
-                    : UniqueProductItemCollection.Select(p => new ProductFilter(p.DisplayName, FilterType.ProductName)));
-
+                UpdateFilters();
                 UpdateResult(currentDetectedObjects);
             }
             catch (Exception ex)
@@ -305,28 +303,43 @@ namespace ObjectCountingExplorer
             }
         }
 
-        private void UpdateResult(IEnumerable<ProductItemViewModel> productItemCollection)
+        private void UpdateFilters()
         {
-            SelectedProductItemCollection.Clear();
-
             GroupedProductCollection.Clear();
-            var groupedProductCollection = productItemCollection.GroupBy(p => p.DisplayName)
+            var groupedProductCollection = currentDetectedObjects.GroupBy(p => p.DisplayName)
                 .OrderBy(p => p.Key)
                 .Select(p => new Tuple<string, List<ProductItemViewModel>>(p.Key, p.ToList()));
             GroupedProductCollection.AddRange(groupedProductCollection);
 
+            ProductFilterCollection.Clear();
+            ProductFilterCollection.AddRange(summaryViewState == SummaryViewState.GroupedByCategory
+                ? ProductFilterByCategory.Select(p => new ProductFilter(p.Name, p.FilterType))
+                : GroupedProductCollection.Select(p => new ProductFilter(p.Item1, FilterType.ProductName)));
+        }
+
+        private void UpdateResult(IEnumerable<ProductItemViewModel> productItemCollection)
+        {
+            SelectedProductItemCollection.Clear();
+
+            GeneralProductCollection.Clear();
+            GeneralProductCollection.AddRange(productItemCollection.Where(p => p.DisplayName.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase)));
+
+            ShelfGapCollection.Clear();
+            ShelfGapCollection.AddRange(productItemCollection.Where(p => p.DisplayName.Equals(Util.EmptyGapName, StringComparison.OrdinalIgnoreCase)));
+
+            var unknownItems = GeneralProductCollection.Concat(ShelfGapCollection).Select(p => p.Id);
             LowConfidenceCollection.Clear();
-            LowConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability < MinMediumProbability));
+            LowConfidenceCollection.AddRange(productItemCollection.Where(p => p.Model.Probability < MinMediumProbability && !unknownItems.Contains(p.Id)));
 
             MediumConfidenceCollection.Clear();
-            MediumConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability >= MinMediumProbability && x.Model.Probability < MinHighProbability));
+            MediumConfidenceCollection.AddRange(productItemCollection.Where(p => p.Model.Probability >= MinMediumProbability && p.Model.Probability < MinHighProbability && !unknownItems.Contains(p.Id)));
 
             HighConfidenceCollection.Clear();
-            HighConfidenceCollection.AddRange(productItemCollection.Where(x => x.Model.Probability >= MinHighProbability));
+            HighConfidenceCollection.AddRange(productItemCollection.Where(p => p.Model.Probability >= MinHighProbability && !unknownItems.Contains(p.Id)));
 
             this.chartControl.UpdateChart(productItemCollection);
 
-            LoadResultsDataGrid();
+            LoadResultsDataGrid(productItemCollection);
 
             this.image.SelectedRegions.Clear();
             this.image.ShowObjectDetectionBoxes(productItemCollection);
@@ -460,9 +473,9 @@ namespace ObjectCountingExplorer
 
         private void OnAddOrEditProductButtonClick(object sender, RoutedEventArgs e)
         {
-            string tag = ((Button)sender).Tag as string ?? string.Empty;
+            string buttonTag = ((Button)sender).Tag as string ?? string.Empty;
 
-            if (tag == "Add")
+            if (buttonTag == "Add")
             {
                 this.productEditorControl.EditorState = EditorState.Add;
                 this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
@@ -476,20 +489,20 @@ namespace ObjectCountingExplorer
                 this.image.ToggleEditState(SelectedProductItemCollection);
             }
 
-            RecentlyUsedProductCollection.Clear();
+            RecentlyUsedTagCollection.Clear();
             foreach (var tagId in SettingsHelper.Instance.RecentlyUsedProducts)
             {
-                var product = UniqueProductItemCollection.FirstOrDefault(p => p.Model.TagId.ToString() == tagId);
-                if (product != null)
+                var tag = ProjectTagCollection.FirstOrDefault(p => p.Tag.Id.ToString() == tagId);
+                if (tag != null)
                 {
-                    RecentlyUsedProductCollection.Add(product);
+                    RecentlyUsedTagCollection.Add(tag);
                 }
             }
 
             AppViewState = AppViewState.ImageAddOrUpdateProduct;
         }
 
-        private async void OnProductEditorControlProductUpdated(object sender, Tuple<UpdateMode, ProductItemViewModel> args)
+        private async void OnProductEditorControlProductUpdated(object sender, Tuple<UpdateMode, ProductTag> args)
         {
             if (args != null)
             {
@@ -498,7 +511,7 @@ namespace ObjectCountingExplorer
                     case UpdateMode.UpdateExistingProduct:
                         foreach (var item in SelectedProductItemCollection)
                         {
-                            item.DisplayName = args.Item2.DisplayName;
+                            item.DisplayName = args.Item2.Tag.Name;
                             item.Model = new PredictionModel(probability: 1.0, item.Model.TagId, item.Model.TagName, item.Model.BoundingBox);
                         }
 
@@ -506,7 +519,13 @@ namespace ObjectCountingExplorer
                         break;
 
                     case UpdateMode.UpdateNewProduct:
-                        this.image.ShowNewObjects(args.Item2);
+                        var productTag = args.Item2;
+                        var newProduct = new ProductItemViewModel()
+                        {
+                            DisplayName = productTag.Tag.Name,
+                            Model = new PredictionModel(tagId: productTag.Tag.Id, tagName: productTag.Tag.Name)
+                        };
+                        this.image.ShowNewObjects(newProduct);
                         break;
 
                     case UpdateMode.SaveExistingProduct:
@@ -556,7 +575,7 @@ namespace ObjectCountingExplorer
                                     if (isNewProduct)
                                     {
                                         BoundingBox boundingBox = item.Model.BoundingBox;
-                                        item.DisplayName = args.Item2.DisplayName;
+                                        item.DisplayName = args.Item2.Tag.Name;
 
                                         var rect = new Rect(imageWidth * boundingBox.Left, imageHeight * boundingBox.Top, imageWidth * boundingBox.Width, imageHeight * boundingBox.Height);
                                         item.Image = await Util.GetCroppedBitmapAsync(stream, rect);
@@ -581,7 +600,7 @@ namespace ObjectCountingExplorer
             bool anyResults = AddedProductItems.Any() || EditedProductItems.Any() || DeletedProductItems.Any();
             if (anyResults)
             {
-                LoadResultsDataGrid();
+                LoadResultsDataGrid(currentDetectedObjects);
 
                 this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
                 AppViewState = AppViewState.ImageAnalysisReview;
@@ -592,22 +611,25 @@ namespace ObjectCountingExplorer
             }
         }
 
-        private void LoadResultsDataGrid()
+        private void LoadResultsDataGrid(IEnumerable<ProductItemViewModel> productlist)
         {
             ResultDataGridCollection.Clear();
 
-            foreach (var item in UniqueProductItemCollection)
+            var productListGroupedByName = productlist.GroupBy(p => p.DisplayName).OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.ToList());
+            foreach (var item in productListGroupedByName)
             {
-                int lowConfCount = LowConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
-                int medConfCount = MediumConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
-                int highConfCount = HighConfidenceCollection.Count(p => p.DisplayName == item.DisplayName);
+                string productName = item.Key;
+                int totalCount = item.Value.Count;
+                int lowConfCount = LowConfidenceCollection.Count(p => p.DisplayName == productName);
+                int medConfCount = MediumConfidenceCollection.Count(p => p.DisplayName == productName);
+                int highConfCount = HighConfidenceCollection.Count(p => p.DisplayName == productName);
                 ResultDataGridCollection.Add(new ResultDataGridViewModel()
                 {
-                    Name = item.DisplayName,
+                    Name = productName,
                     LowConfidenceCount = lowConfCount,
                     MediumConfidenceCount = medConfCount,
                     HighConfidenceCount = highConfCount,
-                    TotalCount = lowConfCount + medConfCount + highConfCount
+                    TotalCount = totalCount
                 });
             }
             var totalRow = new ResultDataGridViewModel()
@@ -656,8 +678,6 @@ namespace ObjectCountingExplorer
                 this.correctionsTextBlock.Text = string.Join(", ", corrections.Where(x => x.Length > 0));
                 AppViewState = AppViewState.ImageAnalysisPublish;
 
-                // TODO: sync result data with detection project
-                await Task.Delay(2000);
                 await CustomVisionServiceHelper.AddImageRegionsAsync(trainingApi, currentProject.Id, this.image.ImageFile, currentDetectedObjects);
 
                 this.publishStatus.Text = "Results published";
@@ -724,6 +744,14 @@ namespace ObjectCountingExplorer
                             tempData.AddRange(currentDetectedObjects.Where(p => p.Model.Probability < MinMediumProbability));
                             break;
 
+                        case FilterType.UnknownProduct:
+                            tempData.AddRange(currentDetectedObjects.Where(p => p.DisplayName.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase)));
+                            break;
+
+                        case FilterType.ShelfGap:
+                            tempData.AddRange(currentDetectedObjects.Where(p => p.DisplayName.Equals(Util.EmptyGapName, StringComparison.OrdinalIgnoreCase)));
+                            break;
+
                         case FilterType.ProductName:
                             tempData.AddRange(currentDetectedObjects.Where(p => p.DisplayName == filter.Name));
                             break;
@@ -745,8 +773,8 @@ namespace ObjectCountingExplorer
             MediumConfidenceCollection.Clear();
             HighConfidenceCollection.Clear();
             SelectedProductItemCollection.Clear();
-            UniqueProductItemCollection.Clear();
-            RecentlyUsedProductCollection.Clear();
+            ProjectTagCollection.Clear();
+            RecentlyUsedTagCollection.Clear();
             GroupedProductCollection.Clear();
             AddedProductItems.Clear();
             EditedProductItems.Clear();

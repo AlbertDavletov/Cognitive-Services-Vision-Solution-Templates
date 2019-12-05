@@ -1,4 +1,5 @@
-﻿using Microsoft.Rest;
+﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
+using Microsoft.Rest;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,27 +19,50 @@ namespace ObjectCountingExplorer
 {
     internal static class Util
     {
+        public const string EmptyGapName = "Gap";
+        public const string UnknownProductName = "Product";
         public static readonly Color HighConfidenceColor = Color.FromArgb(255, 36, 143, 255);
         public static readonly Color MediumConfidenceColor = Color.FromArgb(255, 250, 190, 20);
         public static readonly Color LowConfidenceColor = Color.FromArgb(255, 228, 19, 35);
         public static readonly Color UnknownProductColor = Color.FromArgb(255, 180, 0, 158);
         public static readonly Color EmptyGapColor = Color.FromArgb(255, 0, 158, 179);
 
-        public static Color GetObjectRegionColor(double probability)
+        public static Color GetObjectRegionColor(PredictionModel model)
         {
             double minHigh = MainPage.MinHighProbability;
             double minMed = MainPage.MinMediumProbability;
 
-            if (probability >= minHigh)
+            if (model.TagName.Equals(UnknownProductName, StringComparison.OrdinalIgnoreCase))
+            {
+                return UnknownProductColor;
+            }
+            else if (model.TagName.Equals(EmptyGapName, StringComparison.OrdinalIgnoreCase))
+            {
+                return EmptyGapColor;
+            }
+            else if (model.Probability >= minHigh)
             {
                 return HighConfidenceColor;
             }
-            else if (probability < minMed)
+            else if (model.Probability < minMed)
             {
                 return LowConfidenceColor;
             }
 
             return MediumConfidenceColor;
+        }
+
+        public static async Task<bool> CheckAssetsFile(string fileName)
+        {
+            // Get the path to the app's Assets folder.
+            string root = Windows.ApplicationModel.Package.Current.InstalledLocation.Path;
+            string path = root + @"\Assets\ProductSamples";
+
+            // Get the app's Assets folder.
+            StorageFolder assetsFolder = await StorageFolder.GetFolderFromPathAsync(path);
+
+            // Check whether an image with the specified scale exists.
+            return await assetsFolder.TryGetItemAsync(fileName) != null;
         }
 
         public static double EnsureValidNormalizedValue(double value)

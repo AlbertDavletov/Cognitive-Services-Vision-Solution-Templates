@@ -1,4 +1,5 @@
-﻿using ObjectCountingExplorer.Helpers;
+﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
+using ObjectCountingExplorer.Helpers;
 using ObjectCountingExplorer.Models;
 using System;
 using System.Collections.ObjectModel;
@@ -15,30 +16,30 @@ namespace ObjectCountingExplorer.Controls
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public static readonly DependencyProperty ProductCollectionProperty =
+        public static readonly DependencyProperty ProjectTagCollectionProperty =
             DependencyProperty.Register(
-                "ProductCollection",
-                typeof(ObservableCollection<ProductItemViewModel>),
+                "ProjectTagCollection",
+                typeof(ObservableCollection<ProductTag>),
                 typeof(ProductEditorControl),
                 new PropertyMetadata(null));
 
-        public static readonly DependencyProperty RecentlyUsedProductCollectionProperty =
+        public static readonly DependencyProperty RecentlyUsedTagCollectionProperty =
             DependencyProperty.Register(
-                "RecentlyUsedProductCollection",
-                typeof(ObservableCollection<ProductItemViewModel>),
+                "RecentlyUsedTagCollection",
+                typeof(ObservableCollection<ProductTag>),
                 typeof(ProductEditorControl),
                 new PropertyMetadata(null));
 
-        public ObservableCollection<ProductItemViewModel> ProductCollection
+        public ObservableCollection<ProductTag> ProjectTagCollection
         {
-            get { return (ObservableCollection<ProductItemViewModel>)GetValue(ProductCollectionProperty); }
-            set { SetValue(ProductCollectionProperty, value); }
+            get { return (ObservableCollection<ProductTag>)GetValue(ProjectTagCollectionProperty); }
+            set { SetValue(ProjectTagCollectionProperty, value); }
         }
 
-        public ObservableCollection<ProductItemViewModel> RecentlyUsedProductCollection
+        public ObservableCollection<ProductTag> RecentlyUsedTagCollection
         {
-            get { return (ObservableCollection<ProductItemViewModel>)GetValue(RecentlyUsedProductCollectionProperty); }
-            set { SetValue(RecentlyUsedProductCollectionProperty, value); }
+            get { return (ObservableCollection<ProductTag>)GetValue(RecentlyUsedTagCollectionProperty); }
+            set { SetValue(RecentlyUsedTagCollectionProperty, value); }
         }
 
         private EditorState editorState;
@@ -52,20 +53,20 @@ namespace ObjectCountingExplorer.Controls
             }
         }
 
-        private ProductItemViewModel currentProduct;
-        public ProductItemViewModel CurrentProduct
+        private ProductTag currentTag;
+        public ProductTag CurrentTag
         {
-            get { return currentProduct; }
+            get { return currentTag; }
             set
             {
-                currentProduct = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentProduct"));
+                currentTag = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentTag"));
                 CurrentProductChanged();
             }
         }
 
         public event EventHandler EditorClosed;
-        public event EventHandler<Tuple<UpdateMode, ProductItemViewModel>> ProductUpdated; 
+        public event EventHandler<Tuple<UpdateMode, ProductTag>> ProductTagUpdated; 
 
         public ProductEditorControl()
         {
@@ -74,7 +75,7 @@ namespace ObjectCountingExplorer.Controls
 
         private void CurrentProductChanged()
         {
-            string tagId = CurrentProduct?.Model?.TagId.ToString();
+            string tagId = CurrentTag?.Tag?.Id.ToString();
             if (tagId != null && !isQuickAccess)
             {
                 var recentProductList = SettingsHelper.Instance.RecentlyUsedProducts;
@@ -94,41 +95,41 @@ namespace ObjectCountingExplorer.Controls
         private void OnFindProductTextBoxChanged(object sender, TextChangedEventArgs e)
         {
             string filter = (this.findProductTextBox?.Text ?? string.Empty).ToLower();
-            this.productGridView.ItemsSource = string.IsNullOrEmpty(filter) ? ProductCollection : ProductCollection.Where(x => x.DisplayName.ToLower().Contains(filter));
+            this.productGridView.ItemsSource = string.IsNullOrEmpty(filter) ? ProjectTagCollection : ProjectTagCollection.Where(x => x.Tag.Name.ToLower().Contains(filter));
         }
 
         private void OnProductClick(object sender, ItemClickEventArgs e)
         {
             string tag = ((GridView)sender).Tag?.ToString() ?? string.Empty;
-            if (e.ClickedItem is ProductItemViewModel productEntry)
+            if (e.ClickedItem is ProductTag tagEntry)
             {
                 isQuickAccess = tag.Equals("QuickAccess", StringComparison.OrdinalIgnoreCase);
-                CurrentProduct = productEntry;
-                this.ProductUpdated?.Invoke(this, new Tuple<UpdateMode, ProductItemViewModel>(
-                    EditorState == EditorState.Add ? UpdateMode.UpdateNewProduct : UpdateMode.UpdateExistingProduct, 
-                    CurrentProduct));
+                CurrentTag = tagEntry;
+                this.ProductTagUpdated?.Invoke(this, new Tuple<UpdateMode, ProductTag>(
+                    EditorState == EditorState.Add ? UpdateMode.UpdateNewProduct : UpdateMode.UpdateExistingProduct,
+                    CurrentTag));
             }
         }
 
         private void OnEditorUpdateButtonClick(object sender, RoutedEventArgs e)
         {
-            if (CurrentProduct != null)
+            if (CurrentTag != null)
             {
-                this.ProductUpdated?.Invoke(this, new Tuple<UpdateMode, ProductItemViewModel>(
+                this.ProductTagUpdated?.Invoke(this, new Tuple<UpdateMode, ProductTag>(
                     EditorState == EditorState.Add ? UpdateMode.SaveNewProduct : UpdateMode.SaveExistingProduct,
-                    CurrentProduct));
+                    CurrentTag));
             }
         }
 
         private void UpdateRecentlyUsedProducts()
         {
-            RecentlyUsedProductCollection.Clear();
+            RecentlyUsedTagCollection.Clear();
             foreach (var tagId in SettingsHelper.Instance.RecentlyUsedProducts)
             {
-                var product = ProductCollection.FirstOrDefault(p => p.Model.TagId.ToString() == tagId);
-                if (product != null)
+                var productTag = ProjectTagCollection.FirstOrDefault(p => p.Tag.Id.ToString() == tagId);
+                if (productTag != null)
                 {
-                    RecentlyUsedProductCollection.Add(product);
+                    RecentlyUsedTagCollection.Add(productTag);
                 }
             }
         }

@@ -22,6 +22,11 @@ namespace ObjectCountingExplorer
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            this.UnhandledException += async (sender, e) =>
+            {
+                e.Handled = true;
+                await Util.GenericApiCallExceptionHandler(e.Exception, "Exception");
+            };
         }
 
         /// <summary>
