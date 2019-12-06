@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Rest;
+using ObjectCountingExplorer.Views;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +22,9 @@ namespace ObjectCountingExplorer
     {
         public const string EmptyGapName = "Gap";
         public const string UnknownProductName = "Product";
+        public const double MinHighProbability = 0.6;
+        public const double MinMediumProbability = 0.3;
+
         public static readonly Color HighConfidenceColor = Color.FromArgb(255, 36, 143, 255);
         public static readonly Color MediumConfidenceColor = Color.FromArgb(255, 250, 190, 20);
         public static readonly Color LowConfidenceColor = Color.FromArgb(255, 228, 19, 35);
@@ -29,8 +33,8 @@ namespace ObjectCountingExplorer
 
         public static Color GetObjectRegionColor(PredictionModel model)
         {
-            double minHigh = MainPage.MinHighProbability;
-            double minMed = MainPage.MinMediumProbability;
+            double minHigh = MinHighProbability;
+            double minMed = MinMediumProbability;
 
             if (model.TagName.Equals(UnknownProductName, StringComparison.OrdinalIgnoreCase))
             {

@@ -124,7 +124,8 @@ namespace ObjectCountingExplorer.Models
         Disabled,
         Active,
         Selected,
-        Edit
+        Edit,
+        Collapsed
     }
 
     public enum SummaryViewState
@@ -151,7 +152,7 @@ namespace ObjectCountingExplorer.Models
         Edit
     }
 
-    public enum UpdateMode
+    public enum UpdateStatus
     {
         UpdateNewProduct,
         UpdateExistingProduct,

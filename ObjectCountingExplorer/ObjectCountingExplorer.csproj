@@ -132,8 +132,8 @@
     <Compile Include="Controls\ImageWithRegionEditorsControl.xaml.cs">
       <DependentUpon>ImageWithRegionEditorsControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\InitialView.xaml.cs">
-      <DependentUpon>InitialView.xaml</DependentUpon>
+    <Compile Include="Views\InputView.xaml.cs">
+      <DependentUpon>InputView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\LeftRightScrollViewer.xaml.cs">
       <DependentUpon>LeftRightScrollViewer.xaml</DependentUpon>
@@ -144,7 +144,7 @@
     <Compile Include="Controls\ProductCollectionControl.xaml.cs">
       <DependentUpon>ProductCollectionControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ProductEditorControl.xaml.cs">
+    <Compile Include="Views\ProductEditorControl.xaml.cs">
       <DependentUpon>ProductEditorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\RegionEditorControl.xaml.cs">
@@ -152,8 +152,8 @@
     </Compile>
     <Compile Include="Helpers\CustomVisionServiceHelper.cs" />
     <Compile Include="Helpers\SettingsHelper.cs" />
-    <Compile Include="MainPage.xaml.cs">
-      <DependentUpon>MainPage.xaml</DependentUpon>
+    <Compile Include="Views\ObjectCountingExplorerPage.xaml.cs">
+      <DependentUpon>ObjectCountingExplorerPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\DataModel.cs" />
     <Compile Include="Models\ImageAnalyzer.cs" />
@@ -280,7 +280,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\InitialView.xaml">
+    <Page Include="Views\InputView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -296,7 +296,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\ProductEditorControl.xaml">
+    <Page Include="Views\ProductEditorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -304,7 +304,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainPage.xaml">
+    <Page Include="Views\ObjectCountingExplorerPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

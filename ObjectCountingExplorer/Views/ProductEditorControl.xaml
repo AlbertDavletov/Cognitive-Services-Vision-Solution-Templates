@@ -1,9 +1,10 @@
 ﻿<UserControl
-    x:Class="ObjectCountingExplorer.Controls.ProductEditorControl"
+    x:Class="ObjectCountingExplorer.Views.ProductEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:ObjectCountingExplorer.Controls"
+    xmlns:local="using:ObjectCountingExplorer.Views"
     xmlns:models="using:ObjectCountingExplorer.Models"
+    xmlns:ctl="using:ObjectCountingExplorer.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -12,8 +13,8 @@
     x:Name="userControl">
 
     <UserControl.Resources>
-        <local:EnumMatchToVisibilityConverter x:Key="enumMatchToVisibilityConverter"/>
-        <local:CollectionCountToVisibilityConverter x:Key="collectionCountToVisibilityConverter"/>
+        <ctl:EnumMatchToVisibilityConverter x:Key="enumMatchToVisibilityConverter"/>
+        <ctl:CollectionCountToVisibilityConverter x:Key="collectionCountToVisibilityConverter"/>
 
         <Style x:Key="GridViewItemContainerStyle" TargetType="FrameworkElement">
             <Setter Property="Margin" Value="0,0,8,8"/>

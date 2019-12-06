@@ -1,5 +1,4 @@
-﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
-using ObjectCountingExplorer.Helpers;
+﻿using ObjectCountingExplorer.Helpers;
 using ObjectCountingExplorer.Models;
 using System;
 using System.Collections.ObjectModel;
@@ -8,7 +7,7 @@ using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace ObjectCountingExplorer.Controls
+namespace ObjectCountingExplorer.Views
 {
     public sealed partial class ProductEditorControl : UserControl, INotifyPropertyChanged
     {
@@ -66,7 +65,7 @@ namespace ObjectCountingExplorer.Controls
         }
 
         public event EventHandler EditorClosed;
-        public event EventHandler<Tuple<UpdateMode, ProductTag>> ProductTagUpdated; 
+        public event EventHandler<Tuple<UpdateStatus, ProductTag>> ProductTagUpdated; 
 
         public ProductEditorControl()
         {
@@ -105,8 +104,8 @@ namespace ObjectCountingExplorer.Controls
             {
                 isQuickAccess = tag.Equals("QuickAccess", StringComparison.OrdinalIgnoreCase);
                 CurrentTag = tagEntry;
-                this.ProductTagUpdated?.Invoke(this, new Tuple<UpdateMode, ProductTag>(
-                    EditorState == EditorState.Add ? UpdateMode.UpdateNewProduct : UpdateMode.UpdateExistingProduct,
+                this.ProductTagUpdated?.Invoke(this, new Tuple<UpdateStatus, ProductTag>(
+                    EditorState == EditorState.Add ? UpdateStatus.UpdateNewProduct : UpdateStatus.UpdateExistingProduct,
                     CurrentTag));
             }
         }
@@ -115,8 +114,8 @@ namespace ObjectCountingExplorer.Controls
         {
             if (CurrentTag != null)
             {
-                this.ProductTagUpdated?.Invoke(this, new Tuple<UpdateMode, ProductTag>(
-                    EditorState == EditorState.Add ? UpdateMode.SaveNewProduct : UpdateMode.SaveExistingProduct,
+                this.ProductTagUpdated?.Invoke(this, new Tuple<UpdateStatus, ProductTag>(
+                    EditorState == EditorState.Add ? UpdateStatus.SaveNewProduct : UpdateStatus.SaveExistingProduct,
                     CurrentTag));
             }
         }

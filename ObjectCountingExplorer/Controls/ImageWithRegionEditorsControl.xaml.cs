@@ -18,8 +18,11 @@ namespace ObjectCountingExplorer.Controls
     public sealed partial class ImageWithRegionEditorsControl : UserControl, INotifyPropertyChanged
     {
         private bool enableRemoveMode = false;
+        private bool addNewRegionMode = false;
+
+        private List<ProductItemViewModel> currentEditableObjects;
         private Tuple<RegionState, List<ProductItemViewModel>> currentDetectedObjects;
-        private Tuple<bool, List<ProductItemViewModel>> selectedObjects;
+        private List<ProductItemViewModel> selectedRegions = new List<ProductItemViewModel>();
 
         public event EventHandler<Tuple<RegionState, ProductItemViewModel>> RegionSelected;
 
@@ -28,8 +31,6 @@ namespace ObjectCountingExplorer.Controls
         public int PixelHeight { get; private set; }
 
         public StorageFile ImageFile { get; private set; }
-
-        public List<ProductItemViewModel> SelectedRegions { get; set; } = new List<ProductItemViewModel>();
 
         public List<ProductItemViewModel> AddedNewObjects { get; set; } = new List<ProductItemViewModel>();
 
@@ -86,16 +87,20 @@ namespace ObjectCountingExplorer.Controls
 
         public void ClearSource()
         {
-            SelectedRegions.Clear();
             this.objectDetectionVisualizationCanvas.Children.Clear();
+
+            currentEditableObjects = null;
+            currentDetectedObjects = null;
+            selectedRegions.Clear();
 
             ImageFile = null;
             this.image.Source = null;
             this.imageCropper.Source = null;
-            currentDetectedObjects = null;
-            selectedObjects = null;
+
             EnableCropFeature = false;
             this.cropImageButton.IsEnabled = true;
+
+            ToggleEditState(enable: false);
         }
 
         private async void ImageViewChanged()
@@ -123,9 +128,9 @@ namespace ObjectCountingExplorer.Controls
 
         private void OnEditObjectVisualizationCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (this.selectedObjects != null && this.editObjectVisualizationCanvas.Children.Any())
+            if (this.currentEditableObjects != null && this.editObjectVisualizationCanvas.Children.Any())
             {
-                this.ToggleEditState(selectedObjects.Item2, selectedObjects.Item1);
+                this.ShowEditableObjectDetectionBoxes(currentEditableObjects, this.enableRemoveMode);
             }
         }
 
@@ -139,11 +144,18 @@ namespace ObjectCountingExplorer.Controls
             double canvasHeight = objectDetectionVisualizationCanvas.ActualHeight;
 
             var existingObjects = this.objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList();
+            var objectsToRemove = existingObjects.Where(p => !detectedObjects.Select(d => d.Id).Contains(p.ProductItemViewModel.Id)).ToList();
+            foreach (var objToRemove in objectsToRemove)
+            {
+                // this.objectDetectionVisualizationCanvas.Children.Remove(objToRemove);
+                objToRemove.State = RegionState.Collapsed;
+            }
+
             foreach (var detectedObj in detectedObjects)
             {
                 var model = detectedObj.Model;
                 var state = regionState == RegionState.Disabled ? RegionState.Disabled
-                                                                : SelectedRegions.Any() && SelectedRegions.Any(x => x.Id == detectedObj.Id)
+                                                                : selectedRegions.Any(x => x.Id == detectedObj.Id)
                                                                 ? RegionState.Selected : RegionState.Active;
 
                 ObjectRegionControl region = existingObjects.FirstOrDefault(d => d.ProductItemViewModel.Id == detectedObj.Id);
@@ -170,7 +182,6 @@ namespace ObjectCountingExplorer.Controls
                         ProductItemViewModel = detectedObj,
                         Color = Util.GetObjectRegionColor(model)
                     };
-
                     objectDetectionVisualizationCanvas.Children.Add(region);
                 }
 
@@ -184,96 +195,78 @@ namespace ObjectCountingExplorer.Controls
                 }
             }
 
-            var objectsToRemove = existingObjects.Where(p => !detectedObjects.Select(d => d.Id).Contains(p.ProductItemViewModel.Id)).ToList();
-            foreach (var objToRemove in objectsToRemove)
-            {
-                this.objectDetectionVisualizationCanvas.Children.Remove(objToRemove);
-            }
-
             if (regionState != RegionState.Disabled)
             {
                 this.scrollViewerMain.ChangeView(null, null, 1f);
             }
         }
 
-        public void ToggleEditState(IEnumerable<ProductItemViewModel> detectedObjects = null, bool enableRemoveOption = false)
+        public void ShowEditableObjectDetectionBoxes(IEnumerable<ProductItemViewModel> detectedObjects, bool removeOption = false)
         {
-            this.enableRemoveMode = enableRemoveOption;
-            selectedObjects = new Tuple<bool, List<ProductItemViewModel>>(enableRemoveOption, detectedObjects?.ToList() ?? new List<ProductItemViewModel>());
+            this.enableRemoveMode = removeOption;
+            currentEditableObjects = detectedObjects?.ToList();
 
-            this.overlayCanvas.Children.Clear();
+            this.imageGrid.Padding = new Thickness(0, 48, 0, 48);
             this.editObjectVisualizationCanvas.Children.Clear();
+            this.editObjectVisualizationCanvas.Visibility = Visibility.Visible;
+            double canvasWidth = editObjectVisualizationCanvas.ActualWidth;
+            double canvasHeight = editObjectVisualizationCanvas.ActualHeight;
 
-            bool isVisibleCanvas = enableRemoveOption || (detectedObjects != null && detectedObjects.Any());
-            this.overlayCanvas.Visibility = isVisibleCanvas ? Visibility.Visible : Visibility.Collapsed;
-            this.editObjectVisualizationCanvas.Visibility = isVisibleCanvas ? Visibility.Visible : Visibility.Collapsed;
-
-            if (detectedObjects != null && detectedObjects.Any())
+            foreach (ProductItemViewModel obj in detectedObjects)
             {
-                double canvasWidth = editObjectVisualizationCanvas.ActualWidth;
-                double canvasHeight = editObjectVisualizationCanvas.ActualHeight;
-
-                foreach (ProductItemViewModel obj in detectedObjects)
+                var model = obj.Model;
+                var editor = new RegionEditorControl
                 {
-                    var model = obj.Model;
-                    var editor = new RegionEditorControl
+                    Width = model.BoundingBox.Width * canvasWidth,
+                    Height = model.BoundingBox.Height * canvasHeight,
+                    Margin = new Thickness(model.BoundingBox.Left * canvasWidth, model.BoundingBox.Top * canvasHeight, 0, 0),
+                    DataContext = new RegionEditorViewModel
                     {
-                        Width = model.BoundingBox.Width * canvasWidth,
-                        Height = model.BoundingBox.Height * canvasHeight,
-                        Margin = new Thickness(model.BoundingBox.Left * canvasWidth, model.BoundingBox.Top * canvasHeight, 0, 0),
-                        DataContext = new RegionEditorViewModel
-                        {
-                            ProductId = obj.Id,
-                            Title = obj.DisplayName,
-                            Model = model,
-                            EnableRemove = enableRemoveOption,
-                            ZoomValue = this.scrollViewerMain.ZoomFactor
-                        }
-                    };
+                        ProductId = obj.Id,
+                        Title = obj.DisplayName,
+                        Model = model,
+                        EnableRemove = removeOption,
+                        ZoomValue = this.scrollViewerMain.ZoomFactor
+                    }
+                };
 
-                    editor.RegionChanged += OnRegionChanged;
-                    editor.RegionDeleted += OnRegionDeleted;
+                editor.RegionChanged += OnRegionChanged;
+                editor.RegionDeleted += OnRegionDeleted;
 
-                    this.editObjectVisualizationCanvas.Children.Add(editor);
-                }
+                this.editObjectVisualizationCanvas.Children.Add(editor);
             }
         }
 
-        public void ShowNewObjects(ProductItemViewModel product)
+        public void ToggleEditState(bool enable)
+        {
+            this.addNewRegionMode = enable;
+            this.imageGrid.Padding = enable ? new Thickness(0, 48, 0, 48) : new Thickness(0);
+            this.editObjectVisualizationCanvas.Children.Clear();
+            this.editObjectVisualizationCanvas.Visibility = enable ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public void UpdateNewObject(ProductTag tag)
         {
             foreach (var item in AddedNewObjects)
             {
-                item.DisplayName = product.DisplayName;
-                item.Model = new PredictionModel(item.Model.Probability, product.Model.TagId, product.Model.TagName, item.Model.BoundingBox);
+                item.DisplayName = tag.Tag.Name;
+                item.Model = new PredictionModel(item.Model.Probability, tag.Tag.Id, tag.Tag.Name, item.Model.BoundingBox);
             }
-            this.ToggleEditState(AddedNewObjects, true);
-        }
-
-        private void OnRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> item)
-        {
-            if (item.Item1 == RegionState.Selected)
-            {
-                SelectedRegions.Add(item.Item2);
-            }
-            else
-            {
-                bool isRemoved = SelectedRegions.Remove(item.Item2);
-            }
-            this.RegionSelected?.Invoke(this, item);
+            this.ShowEditableObjectDetectionBoxes(AddedNewObjects, true);
         }
 
         public void ClearSelectedRegions()
         {
-            if (SelectedRegions.Any())
+            if (selectedRegions.Any())
             {
                 foreach (ObjectRegionControl region in objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList())
                 {
-                    if (SelectedRegions.Any(x => x.Id == region.ProductItemViewModel.Id))
+                    if (selectedRegions.Any(x => x.Id == region.ProductItemViewModel.Id))
                     {
                         region.State = RegionState.Active;
                     }
                 }
-                SelectedRegions.Clear();
+                selectedRegions.Clear();
             }
         }
 
@@ -283,39 +276,27 @@ namespace ObjectCountingExplorer.Controls
             if (objectRegion != null && objectRegion.State == RegionState.Selected)
             {
                 objectRegion.State = RegionState.Active;
-                SelectedRegions.Remove(item);
+                selectedRegions.Remove(item);
             }
         }
 
-        private void OnCropImageButtonClicked(object sender, RoutedEventArgs e)
+        private void OnRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> item)
         {
-            EnableCropFeature = !EnableCropFeature;
-        }
-
-        private void OnCancelCropImageButtonClicked(object sender, RoutedEventArgs e)
-        {
-            this.imageCropper.Reset();
-            EnableCropFeature = false;
-        }
-
-        private async void OnSaveImageButtonClicked(object sender, RoutedEventArgs e)
-        {
-            await SaveImageToFileAsync(ImageFile);
-            EnableCropFeature = false;
-        }
-
-        private async Task SaveImageToFileAsync(StorageFile file)
-        {
-            using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.None))
+            if (item.Item1 == RegionState.Selected)
             {
-                await imageCropper.SaveAsync(fileStream, BitmapFileFormat.Jpeg);
+                selectedRegions.Add(item.Item2);
             }
+            else
+            {
+                bool isRemoved = selectedRegions.Remove(item.Item2);
+            }
+            this.RegionSelected?.Invoke(this, item);
         }
 
         private void OnPointerReleasedOverImage(object sender, PointerRoutedEventArgs e)
         {
             bool isAnyRegionsOnCanvas = this.editObjectVisualizationCanvas.Children.Any();
-            if (enableRemoveMode && !isAnyRegionsOnCanvas)
+            if (addNewRegionMode && !isAnyRegionsOnCanvas)
             {
                 AddedNewObjects.Clear();
 
@@ -366,7 +347,7 @@ namespace ObjectCountingExplorer.Controls
 
             this.editObjectVisualizationCanvas.Children.Add(editor);
             AddedNewObjects.Add(product);
-            selectedObjects.Item2?.Add(product);
+            currentEditableObjects?.Add(product);
         }
 
         private void OnRegionChanged(object sender, Guid productId)
@@ -403,7 +384,7 @@ namespace ObjectCountingExplorer.Controls
                 if (product != null)
                 {
                     AddedNewObjects.Remove(product);
-                    selectedObjects.Item2?.Remove(product);
+                    currentEditableObjects?.Remove(product);
                 }
 
                 bool isRemoved = this.editObjectVisualizationCanvas.Children.Remove(regionControl);
@@ -428,6 +409,33 @@ namespace ObjectCountingExplorer.Controls
             }
         }
 
+
+        #region Crop and Zoom Image
+        private void OnCropImageButtonClicked(object sender, RoutedEventArgs e)
+        {
+            EnableCropFeature = !EnableCropFeature;
+        }
+
+        private void OnCancelCropImageButtonClicked(object sender, RoutedEventArgs e)
+        {
+            this.imageCropper.Reset();
+            EnableCropFeature = false;
+        }
+
+        private async void OnSaveImageButtonClicked(object sender, RoutedEventArgs e)
+        {
+            await SaveImageToFileAsync(ImageFile);
+            EnableCropFeature = false;
+        }
+
+        private async Task SaveImageToFileAsync(StorageFile file)
+        {
+            using (var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.None))
+            {
+                await imageCropper.SaveAsync(fileStream, BitmapFileFormat.Jpeg);
+            }
+        }
+
         private void ZoomFlyoutOpened(object sender, object e)
         {
             this.zoomSlider.Value = this.scrollViewerMain.ZoomFactor;
@@ -440,5 +448,6 @@ namespace ObjectCountingExplorer.Controls
                 this.scrollViewerMain.ChangeView(null, null, (float)this.zoomSlider.Value, true);
             }
         }
+        #endregion
     }
 }

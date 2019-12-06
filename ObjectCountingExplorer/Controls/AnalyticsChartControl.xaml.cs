@@ -1,4 +1,5 @@
 ﻿using ObjectCountingExplorer.Models;
+using ObjectCountingExplorer.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -34,9 +35,9 @@ namespace ObjectCountingExplorer.Controls
             var emptyGapList =       productCollection.Where(p => p.DisplayName.Equals(Util.EmptyGapName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Id).ToList();
             var unknownProductList = productCollection.Where(p => p.DisplayName.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase)).Select(p => p.Id).ToList();
             
-            var highConfidenceList =   productCollection.Where(p => p.Model.Probability >= MainPage.MinHighProbability && !emptyGapList.Contains(p.Id) && !unknownProductList.Contains(p.Id)).ToList();
-            var mediumConfidenceList = productCollection.Where(p => p.Model.Probability >= MainPage.MinMediumProbability && p.Model.Probability < MainPage.MinHighProbability && !emptyGapList.Contains(p.Id) && !unknownProductList.Contains(p.Id)).ToList();
-            var lowConfidenceList =    productCollection.Where(p => p.Model.Probability < MainPage.MinMediumProbability && !emptyGapList.Contains(p.Id) && !unknownProductList.Contains(p.Id)).ToList();
+            var highConfidenceList =   productCollection.Where(p => p.Model.Probability >= Util.MinHighProbability && !emptyGapList.Contains(p.Id) && !unknownProductList.Contains(p.Id)).ToList();
+            var mediumConfidenceList = productCollection.Where(p => p.Model.Probability >= Util.MinMediumProbability && p.Model.Probability < Util.MinHighProbability && !emptyGapList.Contains(p.Id) && !unknownProductList.Contains(p.Id)).ToList();
+            var lowConfidenceList =    productCollection.Where(p => p.Model.Probability < Util.MinMediumProbability && !emptyGapList.Contains(p.Id) && !unknownProductList.Contains(p.Id)).ToList();
 
             int maxProductCount = (int)Util.Max(emptyGapList.Count, unknownProductList.Count, highConfidenceList.Count, mediumConfidenceList.Count, lowConfidenceList.Count);
             int maxBarCharValue = maxProductCount > 6 ? maxProductCount : 6;

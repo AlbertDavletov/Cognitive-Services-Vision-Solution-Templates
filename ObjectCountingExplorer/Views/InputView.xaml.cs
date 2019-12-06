@@ -5,15 +5,15 @@ using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace ObjectCountingExplorer.Controls
+namespace ObjectCountingExplorer.Views
 {
-    public sealed partial class InitialView : UserControl
+    public sealed partial class InputView : UserControl
     {
         public static readonly DependencyProperty ProjectsProperty =
             DependencyProperty.Register(
                 "Projects",
                 typeof(ObservableCollection<ProjectViewModel>),
-                typeof(InitialView),
+                typeof(InputView),
                 new PropertyMetadata(null));
 
         public ObservableCollection<ProjectViewModel> Projects
@@ -24,7 +24,7 @@ namespace ObjectCountingExplorer.Controls
 
         public event EventHandler<Tuple<ProjectViewModel, StorageFile>> ImageSelected;
 
-        public InitialView()
+        public InputView()
         {
             this.InitializeComponent();
 

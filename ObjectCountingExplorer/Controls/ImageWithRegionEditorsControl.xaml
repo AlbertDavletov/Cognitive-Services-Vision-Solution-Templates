@@ -11,11 +11,17 @@
     d:DesignWidth="400">
 
     <UserControl.Resources>
-        <SolidColorBrush x:Key="CanvasDarkBackground" Color="Black" Opacity="0.6"/>
         <SolidColorBrush x:Key="CropImageMask" Color="#1F1F1F" Opacity="0.7"/>
-        
+        <SolidColorBrush x:Key="CanvasDarkBackground" Color="Black" Opacity="0.6"/>
+
         <local:BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
         <local:ReverseBooleanToVisibilityConverter x:Key="reverseBooleanToVisibilityConverter"/>
+
+        <Style x:Key="ImageButtonStyle" BasedOn="{StaticResource ControlButtonStyle}" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Width" Value="100"/>
+        </Style>
     </UserControl.Resources>
 
     <Grid>
@@ -29,7 +35,7 @@
 
             <!-- Zoom, Crop and Rotate -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Visibility="{Binding EnableImageControls, Converter={StaticResource booleanToVisibilityConverter}}">
-                <Button Background="Transparent" Padding="6" Width="100">
+                <Button Style="{StaticResource ImageButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8A3;"/>
                         <TextBlock Text="Zoom"/>
@@ -40,13 +46,13 @@
                         </Flyout>
                     </Button.Flyout>
                 </Button>
-                <Button x:Name="cropImageButton" Background="Transparent" Padding="6" Width="100" Click="OnCropImageButtonClicked" Style="{StaticResource ControlButtonStyle}">
+                <Button x:Name="cropImageButton" Click="OnCropImageButtonClicked" Style="{StaticResource ImageButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7A8;"/>
                         <TextBlock Text="Crop"/>
                     </StackPanel>
                 </Button>
-                <Button Background="Transparent" Padding="6" Width="100" IsEnabled="False" Visibility="Collapsed" Style="{StaticResource ControlButtonStyle}">
+                <Button IsEnabled="False" Visibility="Collapsed" Style="{StaticResource ImageButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7AD;"/>
                         <TextBlock Text="Rotate"/>
@@ -55,15 +61,11 @@
             </StackPanel>
 
             <ScrollViewer Grid.Row="1" Name="scrollViewerMain" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" MinZoomFactor="1" ZoomMode="Enabled">
-                <Grid MaxWidth="{Binding Path=ViewportWidth, ElementName=scrollViewerMain}" MaxHeight="{Binding Path=ViewportHeight, ElementName=scrollViewerMain}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid x:Name="imageGrid" MaxWidth="{Binding Path=ViewportWidth, ElementName=scrollViewerMain}" MaxHeight="{Binding Path=ViewportHeight, ElementName=scrollViewerMain}" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Image x:Name="image" Stretch="Uniform"/>
 
                     <Canvas x:Name="objectDetectionVisualizationCanvas" SizeChanged="OnObjectDetectionVisualizationCanvasSizeChanged"/>
-
-                    <Grid>
-                        <Canvas x:Name="overlayCanvas" Background="{StaticResource CanvasDarkBackground}" Visibility="Collapsed" PointerReleased="OnPointerReleasedOverImage"/>
-                        <Canvas x:Name="editObjectVisualizationCanvas" Visibility="Collapsed" SizeChanged="OnEditObjectVisualizationCanvasSizeChanged" />
-                    </Grid>
+                    <Canvas x:Name="editObjectVisualizationCanvas" Background="{StaticResource CanvasDarkBackground}" Visibility="Collapsed" SizeChanged="OnEditObjectVisualizationCanvasSizeChanged" PointerReleased="OnPointerReleasedOverImage"/>
                 </Grid>
             </ScrollViewer>
         </Grid>
@@ -76,13 +78,13 @@
             </Grid.RowDefinitions>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Background="Transparent" Padding="6" Width="100" Click="OnCancelCropImageButtonClicked">
+                <Button Click="OnCancelCropImageButtonClicked" Style="{StaticResource ImageButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE711;"/>
                         <TextBlock Text="Reset"/>
                     </StackPanel>
                 </Button>
-                <Button Background="Transparent" Padding="6" Width="100" Click="OnSaveImageButtonClicked">
+                <Button Click="OnSaveImageButtonClicked" Style="{StaticResource ImageButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74E;"/>
                         <TextBlock Text="Apply"/>
