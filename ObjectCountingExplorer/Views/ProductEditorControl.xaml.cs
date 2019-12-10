@@ -103,6 +103,14 @@ namespace ObjectCountingExplorer.Views
             if (e.ClickedItem is ProductTag tagEntry)
             {
                 isQuickAccess = tag.Equals("QuickAccess", StringComparison.OrdinalIgnoreCase);
+                if (isQuickAccess)
+                {
+                    this.productGridView.SelectedItem = null;
+                }
+                else
+                {
+                    this.quickAccessProductGridView.SelectedItem = null;
+                }
                 CurrentTag = tagEntry;
                 this.ProductTagUpdated?.Invoke(this, new Tuple<UpdateStatus, ProductTag>(
                     EditorState == EditorState.Add ? UpdateStatus.UpdateNewProduct : UpdateStatus.UpdateExistingProduct,

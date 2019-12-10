@@ -84,7 +84,7 @@ namespace ObjectCountingExplorer.Controls
                 var singleFile = await fileOpenPicker.PickSingleFileAsync();
                 if (singleFile != null)
                 {
-                    StorageFile imageFile = await singleFile.CopyAsync(ApplicationData.Current.LocalFolder, "Image.jpg", NameCollisionOption.ReplaceExisting);
+                    StorageFile imageFile = await singleFile.CopyAsync(ApplicationData.Current.LocalFolder, singleFile.Name, NameCollisionOption.ReplaceExisting);
 
                     ProcessImageSelection(imageFile);
                 }
@@ -177,7 +177,7 @@ namespace ObjectCountingExplorer.Controls
                     if (img.ImageUrl.Contains("ms-appx"))
                     {
                         var projectFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(img.ImageUrl));
-                        imageFile = await projectFile.CopyAsync(ApplicationData.Current.LocalFolder, "Image.jpg", NameCollisionOption.ReplaceExisting);
+                        imageFile = await projectFile.CopyAsync(ApplicationData.Current.LocalFolder, projectFile.Name, NameCollisionOption.ReplaceExisting);
                     }
                     else
                     {

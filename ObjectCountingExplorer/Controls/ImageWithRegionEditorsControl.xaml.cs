@@ -19,6 +19,8 @@ namespace ObjectCountingExplorer.Controls
     {
         private bool enableRemoveMode = false;
         private bool addNewRegionMode = false;
+        private readonly static int DefaultBoxSize = 50;
+        private readonly static Thickness ImagePadding = new Thickness(0, 50, 0, 50);
 
         private List<ProductItemViewModel> currentEditableObjects;
         private Tuple<RegionState, List<ProductItemViewModel>> currentDetectedObjects;
@@ -98,7 +100,7 @@ namespace ObjectCountingExplorer.Controls
             this.imageCropper.Source = null;
 
             EnableCropFeature = false;
-            this.cropImageButton.IsEnabled = true;
+            this.cropImageButton.Visibility = Visibility.Visible;
 
             ToggleEditState(enable: false);
         }
@@ -136,7 +138,7 @@ namespace ObjectCountingExplorer.Controls
 
         public void ShowObjectDetectionBoxes(IEnumerable<ProductItemViewModel> detectedObjects, RegionState regionState = RegionState.Active)
         {
-            this.cropImageButton.IsEnabled = false;
+            this.cropImageButton.Visibility = Visibility.Collapsed;
 
             currentDetectedObjects = new Tuple<RegionState, List<ProductItemViewModel>>(regionState, detectedObjects.ToList());
 
@@ -206,7 +208,7 @@ namespace ObjectCountingExplorer.Controls
             this.enableRemoveMode = removeOption;
             currentEditableObjects = detectedObjects?.ToList();
 
-            this.imageGrid.Padding = new Thickness(0, 48, 0, 48);
+            this.imageGrid.Padding = ImagePadding;
             this.editObjectVisualizationCanvas.Children.Clear();
             this.editObjectVisualizationCanvas.Visibility = Visibility.Visible;
             double canvasWidth = editObjectVisualizationCanvas.ActualWidth;
@@ -240,7 +242,7 @@ namespace ObjectCountingExplorer.Controls
         public void ToggleEditState(bool enable)
         {
             this.addNewRegionMode = enable;
-            this.imageGrid.Padding = enable ? new Thickness(0, 48, 0, 48) : new Thickness(0);
+            this.imageGrid.Padding = enable ? ImagePadding : new Thickness(0);
             this.editObjectVisualizationCanvas.Children.Clear();
             this.editObjectVisualizationCanvas.Visibility = enable ? Visibility.Visible : Visibility.Collapsed;
         }
@@ -253,6 +255,12 @@ namespace ObjectCountingExplorer.Controls
                 item.Model = new PredictionModel(item.Model.Probability, tag.Tag.Id, tag.Tag.Name, item.Model.BoundingBox);
             }
             this.ShowEditableObjectDetectionBoxes(AddedNewObjects, true);
+        }
+
+        public void UpdateSelectedRegions(IEnumerable<ProductItemViewModel> products)
+        {
+            selectedRegions.Clear();
+            selectedRegions.AddRange(products);
         }
 
         public void ClearSelectedRegions()
@@ -304,8 +312,8 @@ namespace ObjectCountingExplorer.Controls
 
                 double normalizedPosX = clickPosition.Position.X / editObjectVisualizationCanvas.ActualWidth;
                 double normalizedPosY = clickPosition.Position.Y / editObjectVisualizationCanvas.ActualHeight;
-                double normalizedWidth = 50 / editObjectVisualizationCanvas.ActualWidth;
-                double normalizedHeight = 50 / editObjectVisualizationCanvas.ActualHeight;
+                double normalizedWidth = DefaultBoxSize / editObjectVisualizationCanvas.ActualWidth;
+                double normalizedHeight = DefaultBoxSize / editObjectVisualizationCanvas.ActualHeight;
 
                 PredictionModel obj = new PredictionModel(probability: 1.0,
                     boundingBox: new BoundingBox(normalizedPosX, normalizedPosY,

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Rest;
-using ObjectCountingExplorer.Views;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -185,15 +184,6 @@ namespace ObjectCountingExplorer
             return new Tuple<byte[], BitmapTransform>(pix.DetachPixelData(), transform);
         }
 
-        public static async Task<ImageSource> DownloadAndCropBitmapAsync(string imageUrl, Rect rectangle)
-        {
-            byte[] imgBytes = await new System.Net.Http.HttpClient().GetByteArrayAsync(imageUrl);
-            using (Stream stream = new MemoryStream(imgBytes))
-            {
-                return await GetCroppedBitmapAsync(stream.AsRandomAccessStream(), rectangle);
-            }
-        }
-
         public static async Task<ImageSource> GetCroppedBitmapAsync(IRandomAccessStream stream, Rect rectangle)
         {
             var pixels = await GetCroppedPixelsAsync(stream, rectangle);
@@ -232,6 +222,5 @@ namespace ObjectCountingExplorer
 
             return new Tuple<byte[], BitmapBounds>(pix.DetachPixelData(), transform.Bounds);
         }
-
     }
 }

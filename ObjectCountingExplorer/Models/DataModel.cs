@@ -12,8 +12,8 @@ namespace ObjectCountingExplorer.Models
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private bool? isChecked = false;
-        public bool? IsChecked
+        private bool isChecked = false;
+        public bool IsChecked
         {
             get { return isChecked; }
             set
@@ -26,7 +26,7 @@ namespace ObjectCountingExplorer.Models
 
         public FilterType FilterType { get; set; }
 
-        public ProductFilter(string name, FilterType filterType, bool? isChecked = false)
+        public ProductFilter(string name, FilterType filterType, bool isChecked = false)
         {
             Name = name;
             IsChecked = isChecked;
@@ -49,12 +49,6 @@ namespace ObjectCountingExplorer.Models
             string tagImageName = isTagImageExist ? $"{tagName}.jpg" : "product.jpg";
             return new BitmapImage(new Uri($"ms-appx:///Assets/ProductSamples/{tagImageName}"));
         }
-    }
-
-    public class SummaryGroupItem
-    {
-        public string Name { get; set; }
-        public SummaryViewState State { get; set; }
     }
 
     public class ProjectViewModel
@@ -103,10 +97,8 @@ namespace ObjectCountingExplorer.Models
     public class ResultDataGridViewModel
     {
         public string Name { get; set; }
-        public int LowConfidenceCount { get; set; }
-        public int MediumConfidenceCount { get; set; }
-        public int HighConfidenceCount { get; set; }
         public int TotalCount { get; set; }
+        public bool IsAggregateColumn { get; set; } = false;
     }
 
     public enum AppViewState
@@ -131,9 +123,8 @@ namespace ObjectCountingExplorer.Models
     public enum SummaryViewState
     {
         GroupedByCategory,
-        CategorySelected,
         GroupedByTag,
-        TagSelected
+        SelectedItems
     }
 
     public enum FilterType

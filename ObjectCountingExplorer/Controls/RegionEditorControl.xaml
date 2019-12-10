@@ -11,22 +11,22 @@
 
     <UserControl.Resources>
         <local:BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
+
+        <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="Black" Opacity="0.7"/>
+        <SolidColorBrush x:Key="ButtonForegroundPressed" Color="Black" Opacity="0.5"/>
+
         <Style x:Key="ThumbStyle" BasedOn="{StaticResource CustomThumbStyle}" TargetType="Thumb">
-            <Setter Property="Width" Value="24"/>
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="Margin" Value="-11"/>
-            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Margin" Value="-15"/>
+            <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="ManipulationMode" Value="All"/>
         </Style>
     </UserControl.Resources>
 
     <Grid>
-        <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-45,0,0">
+        <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-50,0,0">
             <StackPanel x:Name="labelPanel" Orientation="Horizontal" CornerRadius="1" Spacing="4">
-                <StackPanel.Resources>
-                    <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="Black" Opacity="0.7"/>
-                    <SolidColorBrush x:Key="ButtonForegroundPressed" Color="Black" Opacity="0.5"/>
-                </StackPanel.Resources>
                 <StackPanel.Background>
                     <SolidColorBrush Color="{Binding Color}"/>
                 </StackPanel.Background>
