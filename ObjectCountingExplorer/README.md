@@ -21,7 +21,7 @@ This sample illustrates how Custom Vision can identify the items of each brand o
 | [Controls\CameraControl](Controls/CameraControl.xaml.cs) | The code that contains the camera feed and enables camera captures.|
 | [Controls\ImagePickerControl](Controls/ImagePickerControl.xaml.cs) | A control used for providing input images. It allows you to provide images from local images, the web camera or suggested images.|
 | [Controls\LeftRightScrollViewer](Controls/LeftRightScrollViewer.xaml.cs) | A control used for providing scrolls to the ImagePickerControl.|
-| [Controls\ImageWithRegionEditorsControls](Controls/ImageWithRegionEditorsControls.xaml.cs) | A control used for managing model input images. It allows to display all detected objects in the image.|
+| [Controls\ImageWithRegionEditorsControl](Controls/ImageWithRegionEditorsControl.xaml.cs) | A control used for managing model input images. It allows to display all detected objects in the image.|
 | [Controls\ObjectRegionControl](Controls/ObjectRegionControl.xaml.cs) | A control used for drawing regions in the image.|
 | [Controls\RegionEditorControl](Controls/RegionEditorControl.xaml.cs) | A control used for drawing editable regions in the image.|
 | [Controls\ProductCollectionControl](Controls/ProductCollectionControl.xaml.cs) | The code that contains custom expander control with collection of product items.|
