@@ -83,6 +83,19 @@ namespace ObjectCountingExplorer.Controls
         }
     }
 
+    public class CollectionCountToBooleanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            return System.Convert.ToInt32(value) > 0;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            return value;
+        }
+    }
+
     public class EnumMatchToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)

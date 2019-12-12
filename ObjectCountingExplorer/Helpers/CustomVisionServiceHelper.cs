@@ -15,8 +15,9 @@ namespace ObjectCountingExplorer.Helpers
 {
     public static class CustomVisionServiceHelper
     {
-        public static int RetryCountOnQuotaLimitError = 6;
-        public static int RetryDelayOnQuotaLimitError = 500;
+        public const int MaxRegionsInBatch = 64;
+        public const int RetryCountOnQuotaLimitError = 6;
+        public const int RetryDelayOnQuotaLimitError = 500;
 
         public static async Task<ImagePrediction> AnalyzeImageAsync(ICustomVisionTrainingClient trainingApi, ICustomVisionPredictionClient predictionApi, Guid projectId, StorageFile file)
         {
@@ -77,13 +78,17 @@ namespace ObjectCountingExplorer.Helpers
 
                 if (addedImage != null)
                 {
-                    // add any new regions to the image 
-                    await trainingApi.CreateImageRegionsAsync(projectId,
-                        new TrainingModels.ImageRegionCreateBatch(
-                            regions.Select(r => new TrainingModels.ImageRegionCreateEntry(
-                                addedImage.Image.Id, r.TagId, r.BoundingBox.Left, r.BoundingBox.Top, r.BoundingBox.Width, r.BoundingBox.Height)).ToArray())
-                    );
+                    for (int k = 0; k < regions.Count; k += MaxRegionsInBatch)
+                    {
+                        var curRegions = regions.Skip(k).Take(MaxRegionsInBatch);
 
+                        // add any new regions to the image 
+                        var result = await trainingApi.CreateImageRegionsAsync(projectId,
+                            new TrainingModels.ImageRegionCreateBatch(
+                                curRegions.Select(r => new TrainingModels.ImageRegionCreateEntry(
+                                    addedImage.Image.Id, r.TagId, r.BoundingBox.Left, r.BoundingBox.Top, r.BoundingBox.Width, r.BoundingBox.Height)).ToArray())
+                        );
+                    }
                 }
             }
         }

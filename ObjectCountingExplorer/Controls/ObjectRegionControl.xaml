@@ -56,6 +56,5 @@
                 </Grid.BorderBrush>
             </Grid>
         </Grid>
-
     </Grid>
 </UserControl>

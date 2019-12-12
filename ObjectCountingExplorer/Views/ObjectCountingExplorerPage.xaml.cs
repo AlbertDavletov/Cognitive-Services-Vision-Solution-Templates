@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training;
+using ObjectCountingExplorer.Controls;
 using ObjectCountingExplorer.Helpers;
 using ObjectCountingExplorer.Models;
 using System;
@@ -12,11 +13,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
-using Windows.UI;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 namespace ObjectCountingExplorer.Views
@@ -28,9 +27,9 @@ namespace ObjectCountingExplorer.Views
         private static readonly string PredictionApiKey = "";         // CUSTOM VISION PREDICTION API KEY
         private static readonly string PredictionApiKeyEndpoint = ""; // CUSTOM VISION PREDICTION API ENDPOINT
 
-        private SummaryViewState currentSummaryViewState;
         private ProjectViewModel currentProject;
         private List<ProductItemViewModel> currentDetectedObjects;
+        private SummaryViewState currentSummaryViewState = SummaryViewState.GroupedByCategory;
         private List<ProductItemViewModel> addedProductItems = new List<ProductItemViewModel>();
         private List<ProductItemViewModel> editedProductItems = new List<ProductItemViewModel>();
         private List<ProductItemViewModel> deletedProductItems = new List<ProductItemViewModel>();
@@ -83,18 +82,6 @@ namespace ObjectCountingExplorer.Views
             }
         }
 
-        private SummaryViewState summaryViewState = SummaryViewState.GroupedByCategory;
-        public SummaryViewState SummaryViewState
-        {
-            get { return summaryViewState; }
-            set
-            {
-                summaryViewState = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SummaryViewState"));
-                SummaryViewStateChanged();
-            }
-        }
-
         public ObjectCountingExplorerPage()
         {
             this.InitializeComponent();
@@ -121,7 +108,7 @@ namespace ObjectCountingExplorer.Views
 
         private void AppViewStateChanged()
         {
-            this.statusRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
+            this.headerRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
             this.imageRowDefinition.Height = new GridLength(0.6, GridUnitType.Star);
             this.footerRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
 
@@ -131,7 +118,7 @@ namespace ObjectCountingExplorer.Views
             this.leftOffsetColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
             this.rightOffsetColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
 
-            this.image.EnableImageControls = AppViewState != AppViewState.ImageAnalysisReview && AppViewState != AppViewState.ImageAnalysisPublish;
+            this.image.EnableImageControls = AppViewState != AppViewState.ImageAnalysisPublish && AppViewState != AppViewState.ImageAnalysisPublishing;
 
             switch (AppViewState)
             {
@@ -145,13 +132,13 @@ namespace ObjectCountingExplorer.Views
 
                 case AppViewState.ImageAddOrUpdateProduct:
                 case AppViewState.ImageAnalysisReview:
+                case AppViewState.ImageAnalysisPublish:
                     this.resultRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
                     this.resultColumnDefinition.Width = new GridLength(0.3, GridUnitType.Star);
-                    this.reviewGrid.Background = new SolidColorBrush(Color.FromArgb(255, 43, 43, 43));
                     break;
 
-                case AppViewState.ImageAnalysisPublish:
-                    this.statusRowDefinition.Height = new GridLength(0.4, GridUnitType.Star);
+                case AppViewState.ImageAnalysisPublishing:
+                    this.headerRowDefinition.Height = new GridLength(0.4, GridUnitType.Star);
                     this.imageRowDefinition.Height = new GridLength(0.5, GridUnitType.Star);
                     this.resultRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
                     this.footerRowDefinition.Height = new GridLength(0.15, GridUnitType.Star);
@@ -160,18 +147,8 @@ namespace ObjectCountingExplorer.Views
                     this.resultColumnDefinition.Width = new GridLength(0.2, GridUnitType.Star);
                     this.leftOffsetColumnDefinition.Width = new GridLength(0.2, GridUnitType.Star);
                     this.rightOffsetColumnDefinition.Width = new GridLength(0.2, GridUnitType.Star);
-
-                    this.reviewGrid.Background = new SolidColorBrush(Colors.Transparent);
                     break;
             }
-        }
-
-        private void SummaryViewStateChanged()
-        {
-            bool isAnySelectedProduct = SelectedProductItemCollection.Any();
-            this.editRegionButton.IsEnabled = isAnySelectedProduct;
-            this.clearSelectionButton.IsEnabled = isAnySelectedProduct;
-            this.removeRegionButton.IsEnabled = isAnySelectedProduct;
         }
 
         private async void OnCloseImageViewButtonClicked(object sender, RoutedEventArgs e)
@@ -236,12 +213,12 @@ namespace ObjectCountingExplorer.Views
                     }
                 }
 
-                UpdateImageDetectedBoxes(currentDetectedObjects);
+                UpdateImageDetectedBoxes(currentDetectedObjects, useAllColors: false);
                 this.chartControl.UpdateChart(currentDetectedObjects);
-                SummaryViewState = SummaryViewState.GroupedByCategory;
-                UpdateGroupedProductCollection(SummaryViewState, currentDetectedObjects);
+                UpdateDataGrid(currentDetectedObjects);
+                UpdateGroupedProductCollection(SummaryViewState.GroupedByTag, currentDetectedObjects);
 
-                AppViewState = AppViewState.ImageAnalyzed;
+                AppViewState = AppViewState.ImageAnalysisReview;
             }
             catch (Exception ex)
             {
@@ -272,8 +249,6 @@ namespace ObjectCountingExplorer.Views
                     }
                 }
             }
-
-            SummaryViewState = SelectedProductItemCollection.Any() ? SummaryViewState.SelectedItems : currentSummaryViewState;
         }
 
         private void OnClearSelectionButtonClick(object sender, RoutedEventArgs e)
@@ -284,7 +259,6 @@ namespace ObjectCountingExplorer.Views
             {
                 filter.IsChecked = false;
             }
-            SummaryViewState = currentSummaryViewState;
         }
 
         private void OnCancelProductSelectionButtonClick(object sender, RoutedEventArgs e)
@@ -293,11 +267,6 @@ namespace ObjectCountingExplorer.Views
             {
                 this.image.UnSelectRegion(productItem);
                 SelectedProductItemCollection.Remove(productItem);
-
-                if (!SelectedProductItemCollection.Any())
-                {
-                    SummaryViewState = currentSummaryViewState;
-                }
             }
         }
 
@@ -341,7 +310,16 @@ namespace ObjectCountingExplorer.Views
                     SelectedProductItemCollection.Clear();
                     UpdateImageDetectedBoxes(currentDetectedObjects);
 
-                    SummaryViewState = SummaryViewState.GroupedByCategory;
+                    if (this.currentSummaryViewState == SummaryViewState.GroupedByCategory)
+                    {
+                        this.chartControl.UpdateChart(currentDetectedObjects);
+                        UpdateGroupedProductCollection(SummaryViewState.GroupedByCategory, currentDetectedObjects);
+                    }
+                    else if (this.currentSummaryViewState == SummaryViewState.GroupedByTag)
+                    {
+                        UpdateDataGrid(currentDetectedObjects);
+                        UpdateGroupedProductCollection(SummaryViewState.GroupedByTag, currentDetectedObjects);
+                    }
                     AppViewState = AppViewState.ImageAnalyzed;
                 }
             }
@@ -413,7 +391,7 @@ namespace ObjectCountingExplorer.Views
                     foreach (var item in SelectedProductItemCollection)
                     {
                         item.DisplayName = tag.Tag.Name;
-                        item.Model = new PredictionModel(probability: 1.0, item.Model.TagId, item.Model.TagName, item.Model.BoundingBox);
+                        item.Model = new PredictionModel(probability: 1.0, tag.Tag.Id, tag.Tag.Name, item.Model.BoundingBox);
                     }
                     this.image.ShowEditableObjectDetectionBoxes(SelectedProductItemCollection);
                     break;
@@ -423,20 +401,30 @@ namespace ObjectCountingExplorer.Views
                     break;
 
                 case UpdateStatus.SaveExistingProduct:
-                    await UpdateProducts(SelectedProductItemCollection.Select(p => p.DeepCopy()));
-                    SelectedProductItemCollection.Clear();
-
-                    UpdateImageDetectedBoxes(currentDetectedObjects);
-                    SummaryViewState = currentSummaryViewState;
-                    AppViewState = AppViewState.ImageAnalyzed;
-                    break;
-
                 case UpdateStatus.SaveNewProduct:
-                    await UpdateProducts(this.image.AddedNewObjects, newProducts: true);
-                    this.image.AddedNewObjects.Clear();
+
+                    if (updateStatus == UpdateStatus.SaveExistingProduct)
+                    {
+                        await UpdateProducts(SelectedProductItemCollection.Select(p => p.DeepCopy()));
+                        SelectedProductItemCollection.Clear();
+                    }
+                    else
+                    {
+                        await UpdateProducts(this.image.AddedNewObjects, newProducts: true);
+                        this.image.AddedNewObjects.Clear();
+                    }
 
                     UpdateImageDetectedBoxes(currentDetectedObjects);
-                    SummaryViewState = currentSummaryViewState;
+                    if (this.currentSummaryViewState == SummaryViewState.GroupedByCategory)
+                    {
+                        this.chartControl.UpdateChart(currentDetectedObjects);
+                        UpdateGroupedProductCollection(SummaryViewState.GroupedByCategory, currentDetectedObjects);
+                    }
+                    else if (this.currentSummaryViewState == SummaryViewState.GroupedByTag)
+                    {
+                        UpdateDataGrid(currentDetectedObjects);
+                        UpdateGroupedProductCollection(SummaryViewState.GroupedByTag, currentDetectedObjects);
+                    }
                     AppViewState = AppViewState.ImageAnalyzed;
                     break;
             }
@@ -459,11 +447,11 @@ namespace ObjectCountingExplorer.Views
                         UpdateGroupedProductCollection(SummaryViewState.GroupedByTag, currentDetectedObjects);
                         break;
                 }
-                this.chartControl.Visibility = selectedSummaryGroupState == SummaryViewState.GroupedByCategory ? Visibility.Visible : Visibility.Collapsed;
-                this.resultsGrid.Visibility = selectedSummaryGroupState == SummaryViewState.GroupedByTag ? Visibility.Visible : Visibility.Collapsed;
+                this.chartControl.Visibility =   selectedSummaryGroupState == SummaryViewState.GroupedByCategory ? Visibility.Visible : Visibility.Collapsed;
+                this.filterListView.Visibility = selectedSummaryGroupState == SummaryViewState.GroupedByCategory ? Visibility.Visible : Visibility.Collapsed;
+                this.resultsGrid.Visibility =    selectedSummaryGroupState == SummaryViewState.GroupedByTag ? Visibility.Visible : Visibility.Collapsed;
 
                 this.currentSummaryViewState = selectedSummaryGroupState;
-                SummaryViewState = selectedSummaryGroupState;
             }
         }
 
@@ -472,7 +460,7 @@ namespace ObjectCountingExplorer.Views
             if (this.summaryDataGrid.SelectedItem is ResultDataGridViewModel selectedRow)
             {
                 var filterData = selectedRow.IsAggregateColumn ? currentDetectedObjects : currentDetectedObjects.Where(p => p.DisplayName.Equals(selectedRow.Name, StringComparison.OrdinalIgnoreCase));
-                UpdateGroupedProductCollection(SummaryViewState, filterData);
+                UpdateGroupedProductCollection(currentSummaryViewState, filterData);
                 UpdateImageDetectedBoxes(filterData);
             }
         }
@@ -487,7 +475,7 @@ namespace ObjectCountingExplorer.Views
                 UpdateDataGrid(currentDetectedObjects);
 
                 this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
-                AppViewState = AppViewState.ImageAnalysisReview;
+                AppViewState = AppViewState.ImageAnalysisPublish;
             }
             else
             {
@@ -495,13 +483,31 @@ namespace ObjectCountingExplorer.Views
             }
         }
 
-        private void OnPublishResultsCloseButtonClick(object sender, RoutedEventArgs e)
+        private async void OnReviewPanelControlPublishResults(object sender, EventArgs e)
+        {
+            this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
+            await PublishResultsAsync();
+        }
+
+        private void OnReviewPanelControlClosed(object sender, EventArgs e)
         {
             this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
             AppViewState = AppViewState.ImageAnalyzed;
         }
 
-        private async void OnPublishResultsButtonClick(object sender, RoutedEventArgs e)
+        private void OnReviewPanelControlDataGridSelected(object sender, ResultDataGridViewModel selectedRow)
+        {
+            var filterData = selectedRow.IsAggregateColumn ? currentDetectedObjects : currentDetectedObjects.Where(p => p.DisplayName.Equals(selectedRow.Name, StringComparison.OrdinalIgnoreCase));
+            UpdateImageDetectedBoxes(filterData, useAllColors: false);
+        }
+
+        private void OnTryAnotherImageButtonClick(object sender, RoutedEventArgs e)
+        {
+            this.image.ClearSource();
+            AppViewState = AppViewState.ImageSelection;
+        }
+
+        private async Task PublishResultsAsync()
         {
             try
             {
@@ -529,10 +535,14 @@ namespace ObjectCountingExplorer.Views
                     addedProductItems.Any() ? $"{addedProductItems.Count} item(s) added" : string.Empty,
                     deletedProductItems.Any() ? $"{deletedProductItems.Count} item(s) deleted" : string.Empty
                 };
-                this.correctionsTextBlock.Text = string.Join(", ", corrections.Where(x => x.Length > 0));
-                AppViewState = AppViewState.ImageAnalysisPublish;
+                bool isAnyCorrections = corrections.Any(x => x.Length > 0);
+                this.correctionsTextBlock.Text = isAnyCorrections ? string.Join(", ", corrections.Where(x => x.Length > 0)) : "N/A";
+                AppViewState = AppViewState.ImageAnalysisPublishing;
 
-                await CustomVisionServiceHelper.AddImageRegionsAsync(trainingApi, currentProject.Id, this.image.ImageFile, currentDetectedObjects);
+                if (isAnyCorrections)
+                {
+                    await CustomVisionServiceHelper.AddImageRegionsAsync(trainingApi, currentProject.Id, this.image.ImageFile, currentDetectedObjects);
+                }
 
                 this.publishStatus.Text = "Results published";
                 this.publishDetails.Text = "The image, results and corrections are now available in your Custom Vision portal.";
@@ -548,17 +558,11 @@ namespace ObjectCountingExplorer.Views
                 this.progressRing.IsActive = false;
             }
         }
-
-        private void OnTryAnotherImageButtonClick(object sender, RoutedEventArgs e)
-        {
-            this.image.ClearSource();
-            AppViewState = AppViewState.ImageSelection;
-        }
         #endregion
 
 
         #region Update Image, DataGrid, Collections, Products
-        private void UpdateImageDetectedBoxes(IEnumerable<ProductItemViewModel> productItemCollection, IEnumerable<ProductItemViewModel> selectedItems = null)
+        private void UpdateImageDetectedBoxes(IEnumerable<ProductItemViewModel> productItemCollection, IEnumerable<ProductItemViewModel> selectedItems = null, bool useAllColors = true)
         {
             if (selectedItems != null && selectedItems.Any())
             {
@@ -569,7 +573,7 @@ namespace ObjectCountingExplorer.Views
                 this.image.ClearSelectedRegions();
             }
 
-            this.image.ShowObjectDetectionBoxes(productItemCollection);
+            this.image.ShowObjectDetectionBoxes(productItemCollection, useAllColors: useAllColors);
             this.image.ToggleEditState(enable: false);
         }
 
@@ -728,7 +732,6 @@ namespace ObjectCountingExplorer.Views
             }
 
             UpdateImageDetectedBoxes(currentDetectedObjects, SelectedProductItemCollection);
-            SummaryViewState = SelectedProductItemCollection.Any() ? SummaryViewState.SelectedItems : currentSummaryViewState;
         }
         #endregion
 

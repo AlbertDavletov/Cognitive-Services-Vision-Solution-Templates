@@ -25,7 +25,6 @@
     </UserControl.Resources>
 
     <Grid>
-
         <!-- Image with Canvas -->
         <Grid Visibility="{Binding EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
             <Grid.RowDefinitions>

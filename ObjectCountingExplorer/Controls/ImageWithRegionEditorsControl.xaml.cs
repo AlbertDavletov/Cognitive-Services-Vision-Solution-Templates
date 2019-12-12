@@ -17,6 +17,7 @@ namespace ObjectCountingExplorer.Controls
 {
     public sealed partial class ImageWithRegionEditorsControl : UserControl, INotifyPropertyChanged
     {
+        private bool useAllColors = true;
         private bool enableRemoveMode = false;
         private bool addNewRegionMode = false;
         private readonly static int DefaultBoxSize = 50;
@@ -124,7 +125,7 @@ namespace ObjectCountingExplorer.Controls
         {
             if (this.currentDetectedObjects != null && this.objectDetectionVisualizationCanvas.Children.Any())
             {
-                this.ShowObjectDetectionBoxes(currentDetectedObjects.Item2, currentDetectedObjects.Item1);
+                this.ShowObjectDetectionBoxes(currentDetectedObjects.Item2, currentDetectedObjects.Item1, this.useAllColors);
             }
         }
 
@@ -136,10 +137,11 @@ namespace ObjectCountingExplorer.Controls
             }
         }
 
-        public void ShowObjectDetectionBoxes(IEnumerable<ProductItemViewModel> detectedObjects, RegionState regionState = RegionState.Active)
+        public void ShowObjectDetectionBoxes(IEnumerable<ProductItemViewModel> detectedObjects, RegionState regionState = RegionState.Active, bool useAllColors = true)
         {
             this.cropImageButton.Visibility = Visibility.Collapsed;
 
+            this.useAllColors = useAllColors;
             currentDetectedObjects = new Tuple<RegionState, List<ProductItemViewModel>>(regionState, detectedObjects.ToList());
 
             double canvasWidth = objectDetectionVisualizationCanvas.ActualWidth;
@@ -169,7 +171,7 @@ namespace ObjectCountingExplorer.Controls
                     region.Title = detectedObj.DisplayName;
                     region.State = state;
                     region.ProductItemViewModel = detectedObj;
-                    region.Color = Util.GetObjectRegionColor(model);
+                    region.Color = Util.GetObjectRegionColor(model, useAllColors);
                     region.RegionSelected -= OnRegionSelected;
                 }
                 else
@@ -182,7 +184,7 @@ namespace ObjectCountingExplorer.Controls
                         Title = detectedObj.DisplayName,
                         State = state,
                         ProductItemViewModel = detectedObj,
-                        Color = Util.GetObjectRegionColor(model)
+                        Color = Util.GetObjectRegionColor(model, useAllColors)
                     };
                     objectDetectionVisualizationCanvas.Children.Add(region);
                 }

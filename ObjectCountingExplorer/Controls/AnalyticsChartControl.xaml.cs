@@ -1,5 +1,4 @@
 ﻿using ObjectCountingExplorer.Models;
-using ObjectCountingExplorer.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

@@ -30,7 +30,7 @@ namespace ObjectCountingExplorer
         public static readonly Color UnknownProductColor = Color.FromArgb(255, 180, 0, 158);
         public static readonly Color EmptyGapColor = Color.FromArgb(255, 0, 158, 179);
 
-        public static Color GetObjectRegionColor(PredictionModel model)
+        public static Color GetObjectRegionColor(PredictionModel model, bool useAllColors = true)
         {
             double minHigh = MinHighProbability;
             double minMed = MinMediumProbability;
@@ -41,18 +41,24 @@ namespace ObjectCountingExplorer
             }
             else if (model.TagName.Equals(EmptyGapName, StringComparison.OrdinalIgnoreCase))
             {
-                return EmptyGapColor;
-            }
-            else if (model.Probability >= minHigh)
-            {
-                return HighConfidenceColor;
-            }
-            else if (model.Probability < minMed)
-            {
-                return LowConfidenceColor;
+                return useAllColors ? EmptyGapColor : MediumConfidenceColor;
             }
 
-            return MediumConfidenceColor;
+            if (useAllColors)
+            {
+                if (model.Probability >= minHigh)
+                {
+                    return HighConfidenceColor;
+                }
+                else if (model.Probability < minMed)
+                {
+                    return LowConfidenceColor;
+                }
+
+                return MediumConfidenceColor;
+            }
+
+            return HighConfidenceColor;
         }
 
         public static async Task<bool> CheckAssetsFile(string fileName)

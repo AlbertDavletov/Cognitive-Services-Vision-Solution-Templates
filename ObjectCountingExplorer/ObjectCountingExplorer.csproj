@@ -132,6 +132,10 @@
     <Compile Include="Controls\ImageWithRegionEditorsControl.xaml.cs">
       <DependentUpon>ImageWithRegionEditorsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\ProductFilter.cs" />
+    <Compile Include="Models\ProductItemViewModel.cs" />
+    <Compile Include="Models\ProductTag.cs" />
+    <Compile Include="Models\ResultDataGridViewModel.cs" />
     <Compile Include="Views\InputView.xaml.cs">
       <DependentUpon>InputView.xaml</DependentUpon>
     </Compile>
@@ -155,10 +159,13 @@
     <Compile Include="Views\ObjectCountingExplorerPage.xaml.cs">
       <DependentUpon>ObjectCountingExplorerPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Models\DataModel.cs" />
+    <Compile Include="Models\ProjectViewModel.cs" />
     <Compile Include="Models\ImageAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util.cs" />
+    <Compile Include="Views\ReviewPanelControl.xaml.cs">
+      <DependentUpon>ReviewPanelControl.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -306,6 +313,10 @@
     <Page Include="Styles\Styles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ReviewPanelControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>

@@ -13,7 +13,20 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="DefaultLabelPosition" Value="Right"/>
     </Style>
-    
+
+    <Style x:Key="ListViewItemContainerStyle" TargetType="ListViewItem">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="MinHeight" Value="0"/>
+    </Style>
+
+    <Style x:Key="ListViewItemWithMarginContainerStyle" BasedOn="{StaticResource ListViewItemContainerStyle}" TargetType="ListViewItem">
+        <Setter Property="Margin" Value="0,0,0,20" />
+    </Style>
+
     <Style x:Key="CustomThumbStyle" TargetType="Thumb">
         <Setter Property="Background" Value="{ThemeResource ThumbBackground}"/>
         <Setter Property="BorderThickness" Value="1"/>

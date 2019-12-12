@@ -8,6 +8,15 @@ using Windows.UI.Xaml.Media;
 
 namespace ObjectCountingExplorer.Controls
 {
+    public enum RegionState
+    {
+        Disabled,
+        Active,
+        Selected,
+        Edit,
+        Collapsed
+    }
+
     public sealed partial class ObjectRegionControl : UserControl, INotifyPropertyChanged
     {
         public event EventHandler<Tuple<RegionState, ProductItemViewModel>> RegionSelected;

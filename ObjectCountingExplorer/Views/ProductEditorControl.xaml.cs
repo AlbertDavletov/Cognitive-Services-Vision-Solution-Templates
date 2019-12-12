@@ -9,6 +9,20 @@ using Windows.UI.Xaml.Controls;
 
 namespace ObjectCountingExplorer.Views
 {
+    public enum EditorState
+    {
+        Add,
+        Edit
+    }
+
+    public enum UpdateStatus
+    {
+        UpdateNewProduct,
+        UpdateExistingProduct,
+        SaveNewProduct,
+        SaveExistingProduct
+    }
+
     public sealed partial class ProductEditorControl : UserControl, INotifyPropertyChanged
     {
         private bool isQuickAccess = false;

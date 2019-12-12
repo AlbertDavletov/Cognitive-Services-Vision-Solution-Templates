@@ -29,7 +29,7 @@
                 </Grid>
 
                 <Grid Background="#2B2B2B" Height="30">
-                    <TextBlock Text="{Binding DisplayName}" FontSize="12" VerticalAlignment="Center" Margin="8,0"/>
+                    <TextBlock Text="{Binding DisplayName}" FontSize="12" VerticalAlignment="Center" Margin="8,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                 </Grid>
             </StackPanel>
         </DataTemplate>
@@ -58,7 +58,7 @@
 
         <controls:Expander.Header>
             <StackPanel>
-                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8">
+                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis">
                     <Run Text="{Binding ElementName=userControl, Path=Title}"/>
                     <Run Text="("/><Run Text="{Binding ElementName=userControl, Path=ProductCollection.Count}"/>
                     <Run Text="items)"/>
