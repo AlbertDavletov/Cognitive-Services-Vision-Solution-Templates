@@ -182,7 +182,6 @@ namespace ObjectCountingExplorer.Views
             try
             {
                 this.progressRing.IsActive = true;
-                this.analyzeButton.IsEnabled = false;
                 this.imageFileName.Text = this.image.ImageFile.Name;
 
                 // get detected objects
@@ -227,7 +226,6 @@ namespace ObjectCountingExplorer.Views
             finally
             {
                 this.progressRing.IsActive = false;
-                this.analyzeButton.IsEnabled = true;
             }
         }
 

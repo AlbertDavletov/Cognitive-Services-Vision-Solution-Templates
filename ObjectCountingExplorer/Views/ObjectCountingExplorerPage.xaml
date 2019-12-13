@@ -157,8 +157,9 @@
 
             <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,30,24,24" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelected'}">
-                    <Button x:Name="analyzeButton" Content="Identify items" Background="#0078D7" Width="120" Click="OnAnalyzeImageButtonClicked" 
-                            IsEnabled="{Binding ElementName=image, Path=EnableCropFeature, Mode=OneWay, Converter={StaticResource reverseBooleanConverter}}"/>
+                    <Button Content="Identify items" Background="#0078D7" Width="120" Click="OnAnalyzeImageButtonClicked" 
+                            IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}"
+                            Visibility="{Binding ElementName=image, Path=EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}"/>
                     <Button Content="Cancel" Background="{StaticResource GrayColorButton}" Width="120" Click="OnCloseImageViewButtonClicked"/>
                 </StackPanel>
 
@@ -247,11 +248,24 @@
 
                                 <ctl:AnalyticsChartControl Grid.Row="1" x:Name="chartControl" />
                                 <Grid x:Name="resultsGrid" Grid.Row="1" Visibility="Collapsed" VerticalAlignment="Top">
-                                    <controls:DataGrid x:Name="summaryDataGrid" ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal" ColumnWidth="*"
+                                    <controls:DataGrid x:Name="summaryDataGrid" ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal"
                                                        SelectionChanged="DataGridSelectionChanged">
                                         <controls:DataGrid.Columns>
-                                            <controls:DataGridTextColumn Header="Object tag" Binding="{Binding Name}"/>
-                                            <controls:DataGridTextColumn Header="Total" Binding="{Binding TotalCount}"/>
+                                            <controls:DataGridTemplateColumn Header="Object tag" Width="*">
+                                                <controls:DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate x:DataType="models:ResultDataGridViewModel">
+                                                        <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Stretch">
+                                                            <Viewbox Width="48" Height="48" Margin="12" Visibility="{Binding IsAggregateColumn, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
+                                                                <Image Source="{x:Bind models:ResultDataGridViewModel.GetTagImageSource(Name)}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                            </Viewbox>
+
+                                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </controls:DataGridTemplateColumn.CellTemplate>
+                                            </controls:DataGridTemplateColumn>
+
+                                            <controls:DataGridTextColumn Header="Count" Binding="{Binding TotalCount}" Width="Auto"/>
                                         </controls:DataGrid.Columns>
                                     </controls:DataGrid>
                                 </Grid>
