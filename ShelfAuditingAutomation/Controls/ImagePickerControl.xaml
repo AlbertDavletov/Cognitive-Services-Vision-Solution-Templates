@@ -1,0 +1,105 @@
+﻿<UserControl
+    x:Class="ShelfAuditingAutomation.Controls.ImagePickerControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ShelfAuditingAutomation.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <UserControl.Resources>
+        <local:BooleanToVisibilityConverter x:Key="bolleanToVisibilityConverter"/>
+        <local:StringMatchToVisibilityConverter x:Key="stringMatchToVisibilityConverter"/>
+        <local:ReverseStringMatchToVisibilityConverter x:Key="reverseStringMatchToVisibilityConverter"/>
+        <Style x:Key="WideStyle" TargetType="GridViewItem">
+            <Setter Property="VariableSizedWrapGrid.ColumnSpan" Value="2" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style x:Key="DefaultStyle" TargetType="GridViewItem">
+            <Setter Property="VariableSizedWrapGrid.ColumnSpan" Value="1" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        </Style>
+        <local:WideStyleSelector x:Key="wideStyleSelector" WideStyle="{StaticResource WideStyle}" DefaultStyle="{StaticResource DefaultStyle}"/>
+        <DataTemplate x:Key="InputSourceTemplate">
+            <Border BorderBrush="#ff777677" BorderThickness="1" Margin="6" >
+                <Grid>
+                    <Viewbox Width="50" Height="50" Margin="0,0,0,50" VerticalAlignment="Center">
+                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="{Binding Gliph}"/>
+                    </Viewbox>
+                    <TextBlock Text="{Binding Label}" VerticalAlignment="Bottom" Margin="8"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid>
+
+        <!-- Back button to return to input type selection -->
+        <Button x:Name="backToInputTypeSelectionButton" Background="Transparent" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="-310,0,0,0" Click="OnBackToInputSelectionClicked"
+                Visibility="{Binding CurrentState, Converter={StaticResource reverseStringMatchToVisibilityConverter}, ConverterParameter='InputTypes'}">
+            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE00E;" FontSize="14"/>
+        </Button>
+
+        <!--main selection -->
+        <StackPanel Width="800" HorizontalAlignment="Center" Visibility="{Binding CurrentState, Converter={StaticResource stringMatchToVisibilityConverter}, ConverterParameter='InputTypes'}">
+
+            <!--Suggested images-->
+            <local:LeftRightScrollViewer x:Name="suggestedImagesScroll" Grid.Column="1" Grid.Row="1" Height="200" >
+                <GridView x:Name="suggestedImagesGrid" Height="200" SelectionMode="None" IsMultiSelectCheckBoxEnabled="False" IsItemClickEnabled="True" ItemClick="OnImageItemClicked" ItemContainerStyle="{StaticResource DefaultStyle}">
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VariableSizedWrapGrid ItemHeight="200" ItemWidth="200" Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+                    <GridView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="6">
+                                <Border.Background>
+                                    <ImageBrush ImageSource="{Binding ImageUrl}"  Stretch="UniformToFill" />
+                                </Border.Background>
+                            </Border>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+            </local:LeftRightScrollViewer>
+
+            <!--Input type selection -->
+            <GridView  x:Name="inputSourcesGridView" HorizontalContentAlignment="Center" SelectionMode="None" 
+                    ItemTemplate="{StaticResource InputSourceTemplate}" IsItemClickEnabled="True" ItemsSource="{Binding InputSourceTypes}" ItemClick="OnInputTypeItemClicked"
+                    ItemContainerStyleSelector="{StaticResource wideStyleSelector}">
+                <GridView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VariableSizedWrapGrid ItemHeight="200" ItemWidth="200" Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </GridView.ItemsPanel>
+            </GridView>
+
+        </StackPanel>
+
+        <!--Camera capture-->
+        <Grid Margin="0,5,0,0" Visibility="{Binding CurrentState, Converter={StaticResource stringMatchToVisibilityConverter}, ConverterParameter='CameraStream'}" SizeChanged="OnCameraAvailableSpaceChanged" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.4*"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="0.4*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Column="1" Text="From camera" HorizontalAlignment="Center" Margin="0,0,0,12" />
+
+            <Border x:Name="webCamHostGridParent" Grid.Column="1" Grid.Row ="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid x:Name="webCamHostGrid">
+                    <local:CameraControl x:Name="cameraControl" ImageCaptured="OnCameraPhotoCaptured" FlowDirection="LeftToRight" />
+                </Grid>
+            </Border>
+        </Grid>
+
+    </Grid>
+</UserControl>

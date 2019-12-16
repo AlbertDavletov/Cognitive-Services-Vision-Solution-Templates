@@ -1,0 +1,67 @@
+﻿<UserControl
+    x:Class="ShelfAuditingAutomation.Controls.ObjectRegionControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ShelfAuditingAutomation.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <UserControl.Resources>
+        <local:EnumMatchToVisibilityConverter x:Key="enumMatchToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid PointerEntered="MainGridPointerEntered" PointerExited="MainGridPointerExited" Tapped="OnMainGridTapped">
+
+        <!-- Active Region -->
+        <Border x:Name="activeRegion" Visibility="{Binding State, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Active'}" BorderThickness="1" CornerRadius="1">
+            <Border.BorderBrush>
+                <SolidColorBrush Color="{Binding Color}"/>
+            </Border.BorderBrush>
+            <Border.Background>
+                <SolidColorBrush Color="{Binding Color}" Opacity="0.6"/>
+            </Border.Background>
+            <Ellipse Fill="White" Height="18" Width="18" />
+        </Border>
+
+        <!-- Disabled Region -->
+        <Grid x:Name="disabledRegion" Visibility="{Binding State, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Disabled'}" CornerRadius="1">
+            <Grid.Background>
+                <SolidColorBrush Color="{Binding Color}" Opacity="0.4"/>
+            </Grid.Background>
+            
+            <Ellipse Height="8" Width="8">
+                <Ellipse.Fill>
+                    <SolidColorBrush Color="{Binding Color}"/>
+                </Ellipse.Fill>
+            </Ellipse>
+        </Grid>
+
+        <!-- Selected Region -->
+        <Grid Visibility="{Binding State, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Selected'}">
+            <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-25,0,0">
+                <StackPanel x:Name="labelPanel" CornerRadius="1" ToolTipService.ToolTip="{Binding Title}">
+                    <StackPanel.Background>
+                        <SolidColorBrush Color="{Binding Color}"/>
+                    </StackPanel.Background>
+                    <TextBlock Text="{Binding Title}" FontSize="12" Foreground="White" Margin="4" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Canvas>
+
+            <Grid x:Name="selectedRegion" CornerRadius="1" BorderThickness="2" Background="Transparent">
+                <Grid.BorderBrush>
+                    <SolidColorBrush Color="{Binding Color}"/>
+                </Grid.BorderBrush>
+            </Grid>
+        </Grid>
+        
+        <!-- Just Border -->
+        <Grid Visibility="{Binding State, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='JustBorder'}" BorderThickness="1" CornerRadius="1">
+            <Grid.BorderBrush>
+                <SolidColorBrush Color="{Binding Color}"/>
+            </Grid.BorderBrush>
+        </Grid>
+    </Grid>
+</UserControl>

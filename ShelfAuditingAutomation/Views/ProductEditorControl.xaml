@@ -1,0 +1,115 @@
+﻿<UserControl
+    x:Class="ShelfAuditingAutomation.Views.ProductEditorControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:ShelfAuditingAutomation.Models"
+    xmlns:ctl="using:ShelfAuditingAutomation.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    x:Name="userControl">
+
+    <UserControl.Resources>
+        <ctl:EnumMatchToVisibilityConverter x:Key="enumMatchToVisibilityConverter"/>
+        <ctl:CollectionCountToVisibilityConverter x:Key="collectionCountToVisibilityConverter"/>
+
+        <Style x:Key="GridViewItemContainerStyle" TargetType="FrameworkElement">
+            <Setter Property="Margin" Value="0,0,8,8"/>
+        </Style>
+
+        <Style x:Key="HorizontalGridViewStyle" TargetType="GridView">
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden"/>
+            <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
+            <Setter Property="ScrollViewer.VerticalScrollMode" Value="Disabled"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Vertical" MaximumRowsOrColumns="1"/>
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:Key="GridViewTemplate" x:DataType="models:ProductTag">
+            <StackPanel Width="150">
+                <Border Background="#171717">
+                    <Viewbox Height="150" Stretch="Uniform">
+                        <Image Source="{x:Bind models:ProductTag.GetTagImageSource(Tag)}" Margin="30"/>
+                    </Viewbox>
+                </Border>
+
+                <Grid Background="#1F1F1F" Height="30">
+                    <TextBlock Text="{Binding Tag.Name}" FontSize="12" VerticalAlignment="Center" Margin="8,0"/>
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Background="#2B2B2B" Padding="12" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <TextBlock Text="Add object" Foreground="{StaticResource RegularTextColor}" Style="{StaticResource SubtitleTextBlockStyle}" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Add'}"/>
+            <TextBlock Text="Edit" Foreground="{StaticResource RegularTextColor}" Style="{StaticResource SubtitleTextBlockStyle}" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Edit'}"/>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Spacing="12">
+            <TextBlock Text="Tap on the object within the image to create a bounding box, then use the handles to adjust the box size. Finally, select the correct tag from the product catalog." TextWrapping="Wrap"
+                           Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Add'}"/>
+
+            <TextBlock>
+                <Run Text="Current tag:" />
+                <Run Text="{Binding ElementName=userControl, Path=CurrentTag.Tag.Name}"/>
+            </TextBlock>
+            
+            <TextBox x:Name="findProductTextBox" PlaceholderText="Find a product" TextChanged="OnFindProductTextBoxChanged"/>
+
+            <TextBlock Text="Quick Access" Style="{StaticResource BaseTextBlockStyle}" Visibility="{Binding ElementName=userControl, Path=RecentlyUsedTagCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
+            <GridView x:Name="quickAccessProductGridView" ItemsSource="{Binding ElementName=userControl, Path=RecentlyUsedTagCollection}" 
+                      ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      SelectionMode="Single" Tag="QuickAccess"
+                      ItemClick="OnProductClick"
+                      IsItemClickEnabled="True"
+                      ItemTemplate="{StaticResource GridViewTemplate}"
+                      ItemContainerStyle="{StaticResource GridViewItemContainerStyle}"
+                      Style="{StaticResource HorizontalGridViewStyle}">
+            </GridView>
+            <Rectangle HorizontalAlignment="Stretch" Height="1" Fill="White" Opacity="0.2"/>
+        </StackPanel>
+
+        <Grid Grid.Row="2" RowSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Product catalog" Style="{StaticResource BaseTextBlockStyle}"/>
+            <GridView x:Name="productGridView" Grid.Row="1" Margin="0,6,0,0"
+                      ItemsSource="{Binding ElementName=userControl, Path=ProjectTagCollection}"
+                      SelectionMode="Single"
+                      ItemClick="OnProductClick"
+                      IsItemClickEnabled="True"
+                      ItemTemplate="{StaticResource GridViewTemplate}"
+                      ItemContainerStyle="{StaticResource GridViewItemContainerStyle}"/>
+        </Grid>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="Cancel" Width="120" Click="OnCancelEditorButtonClick"/>
+            <Button Width="120" Click="OnEditorUpdateButtonClick">
+                <StackPanel>
+                    <TextBlock Text="Add object" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Add'}"/>
+                    <TextBlock Text="Apply edit" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Edit'}"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+        
+    </Grid>
+</UserControl>

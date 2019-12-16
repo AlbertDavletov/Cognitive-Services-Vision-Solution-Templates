@@ -1,0 +1,74 @@
+﻿<UserControl
+    x:Class="ShelfAuditingAutomation.Controls.ProductCollectionControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    x:Name="userControl">
+
+    <UserControl.Resources>
+        <Style x:Key="GridViewItemContainerStyle" TargetType="FrameworkElement">
+            <Setter Property="Margin" Value="0,0,8,8"/>
+        </Style>
+
+        <DataTemplate x:Key="ProductViewTemplate">
+            <StackPanel CornerRadius="2" Width="94">
+                <Grid Height="94">
+                    <Image Source="{Binding Image}" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <interactivity:Interaction.Behaviors>
+                            <behaviors:Blur Value="30" />
+                        </interactivity:Interaction.Behaviors>
+                    </Image>
+                    <Image Source="{Binding Image}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Grid>
+
+                <Grid Background="#2B2B2B" Height="30">
+                    <TextBlock Text="{Binding DisplayName}" FontSize="12" VerticalAlignment="Center" Margin="8,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                </Grid>
+            </StackPanel>
+        </DataTemplate>
+
+    </UserControl.Resources>
+
+    <controls:Expander x:Name="expanderControl"
+                       HorizontalContentAlignment="Stretch" 
+                       VerticalContentAlignment="Top"
+                       Background="Transparent"
+                       IsExpanded="True"
+                       ExpandDirection="Down">
+
+        <controls:Expander.Resources>
+            <SolidColorBrush x:Key="SystemControlBackgroundChromeMediumLowBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="SystemControlHighlightBaseHighBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="SystemControlBackgroundListLowBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="SystemControlBackgroundListMediumBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="SystemControlHighlightListAccentLowBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="SystemControlHighlightListAccentMediumBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="SystemControlHighlightListAccentHighBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="SystemControlBackgroundBaseLowBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="SystemControlBackgroundBaseMediumLowBrush" Color="Transparent"/>
+            <SolidColorBrush x:Key="SystemControlDisabledBaseLowBrush" Color="Transparent"/>
+        </controls:Expander.Resources>
+
+        <controls:Expander.Header>
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis">
+                    <Run Text="{Binding ElementName=userControl, Path=Title}"/>
+                    <Run Text="("/><Run Text="{Binding ElementName=userControl, Path=ProductCollection.Count}"/>
+                    <Run Text="items)"/>
+                </TextBlock>
+            </StackPanel>
+        </controls:Expander.Header>
+
+        <GridView ItemsSource="{Binding ElementName=userControl, Path=ProductCollection}" Margin="0,6,0,0" SelectionMode="None"
+                  ItemTemplate="{StaticResource ProductViewTemplate}"
+                  ItemContainerStyle="{StaticResource GridViewItemContainerStyle}"/>
+    </controls:Expander>
+    
+</UserControl>

@@ -1,0 +1,49 @@
+﻿<UserControl
+    x:Class="ShelfAuditingAutomation.Views.InputView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ctl="using:ShelfAuditingAutomation.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <UserControl.Resources>
+        <ctl:ReverseEnumMatchToVisibilityConverter x:Key="reverseEnumMatchToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.1*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="0.1*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="1" Text="Select a photo" HorizontalAlignment="Center" Style="{ThemeResource HeaderTextBlockStyle}"
+                   Visibility="{Binding ElementName=imagePicker, Path=CurrentState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='CameraStream'}"/>
+
+        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" Margin="0,24,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <ComboBox Grid.Row="0" ItemsSource="{Binding Projects}" SelectedIndex="0" DisplayMemberPath="Name" x:Name="projectsComboBox" 
+                          MinWidth="300" MaxWidth="600" HorizontalAlignment="Center" Margin="0,0,0,50"
+                          Visibility="{Binding ElementName=imagePicker, Path=CurrentState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='CameraStream'}">
+                    <ComboBox.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="Vision model" />
+                        </DataTemplate>
+                    </ComboBox.HeaderTemplate>
+                </ComboBox>
+
+                <ctl:ImagePickerControl Grid.Row="1" x:Name="imagePicker" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" OnImageSearchCompleted="OnImageSearchCompleted" />
+            </Grid>
+        </ScrollViewer>
+
+    </Grid>
+</UserControl>

@@ -1,0 +1,357 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{DC12238D-FF59-40F4-9E59-85E97A3FD582}</ProjectGuid>
+    <OutputType>AppContainerExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ShelfAuditingAutomation</RootNamespace>
+    <AssemblyName>ShelfAuditingAutomation</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.17763.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
+    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <OutputPath>bin\ARM\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM64'">
+    <OutputPath>bin\ARM64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AnalyticsChartControl.xaml.cs">
+      <DependentUpon>AnalyticsChartControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CameraControl.xaml.cs">
+      <DependentUpon>CameraControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Converters.cs" />
+    <Compile Include="Controls\ImagePickerControl.xaml.cs">
+      <DependentUpon>ImagePickerControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ImageWithRegionEditorsControl.xaml.cs">
+      <DependentUpon>ImageWithRegionEditorsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ProductFilter.cs" />
+    <Compile Include="Models\ProductItemViewModel.cs" />
+    <Compile Include="Models\ProductTag.cs" />
+    <Compile Include="Models\ResultDataGridViewModel.cs" />
+    <Compile Include="Views\InputView.xaml.cs">
+      <DependentUpon>InputView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\LeftRightScrollViewer.xaml.cs">
+      <DependentUpon>LeftRightScrollViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ObjectRegionControl.xaml.cs">
+      <DependentUpon>ObjectRegionControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ProductCollectionControl.xaml.cs">
+      <DependentUpon>ProductCollectionControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProductEditorControl.xaml.cs">
+      <DependentUpon>ProductEditorControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RegionEditorControl.xaml.cs">
+      <DependentUpon>RegionEditorControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\CustomVisionServiceHelper.cs" />
+    <Compile Include="Helpers\SettingsHelper.cs" />
+    <Compile Include="Views\ShelfAuditingAutomationPage.xaml.cs">
+      <DependentUpon>ShelfAuditingAutomationPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ProjectViewModel.cs" />
+    <Compile Include="Models\ImageAnalyzer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util.cs" />
+    <Compile Include="Views\ReviewPanelControl.xaml.cs">
+      <DependentUpon>ReviewPanelControl.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\ImageSamples\1.jpg" />
+    <Content Include="Assets\ImageSamples\2.jpg" />
+    <Content Include="Assets\ImageSamples\3.jpg" />
+    <Content Include="Assets\ImageSamples\4.jpg" />
+    <Content Include="Assets\ProductSamples\champ-adulto-carne-&amp;-cereal.jpg" />
+    <Content Include="Assets\ProductSamples\champ-filhotes.jpg" />
+    <Content Include="Assets\ProductSamples\dreamies-carne.jpg" />
+    <Content Include="Assets\ProductSamples\dreamies-frango.jpg" />
+    <Content Include="Assets\ProductSamples\dreamies-queijo.jpg" />
+    <Content Include="Assets\ProductSamples\gap.jpg" />
+    <Content Include="Assets\ProductSamples\kitekat-sache-adulto-carne.jpg" />
+    <Content Include="Assets\ProductSamples\kitekat-sache-adulto-frango.jpg" />
+    <Content Include="Assets\ProductSamples\kitekat-sache-adulto-peixe.jpg" />
+    <Content Include="Assets\ProductSamples\optimum-cat-sache-ad-frango.jpg" />
+    <Content Include="Assets\ProductSamples\optimum-cat-sache-fil-frango.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree eqn-eqn-adulto.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree eqn-eqn-filhote.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree eqn-eqn-rmg.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree eqn-eqn-rp.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-biscrok-ad-multi.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-biscrok-ad-r-gde.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-biscrok-ad-r-peq.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-biscrok-filhotes.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dentastix-r-grandes.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dentastix-r-medias.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dentastix-r-pequenas.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-ad-rm-car-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-ad-rm-fgo-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-ad-rp-car-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-ad-rp-cor-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-ad-rp-fgo-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-filho-car-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-filho-fgo-mol.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dog-sch-sen-car-molho.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dry-ad-carne&amp;frango.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dry-ad-carne&amp;vegetais.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dry-ad-rpeq.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dry-fil-rmg.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-dry-fil-rpeq.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-lata-adulto-cig-carne.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-lata-adulto-cig-frango.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-lata-adulto-pate-carne.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-lata-adulto-pate-frango.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-lata-filhotes-pate-carne&amp;fgo.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-marrobone.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-rodeo-carne-.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-rodeo-frango-.jpg" />
+    <Content Include="Assets\ProductSamples\pedigree-sch-mpk-ad-rp-carne-mo.jpg" />
+    <Content Include="Assets\ProductSamples\product.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-dry-adulto-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-dry-adulto-frango.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-dry-adulto-peixe.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-dry-adulto.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-dry-filhote-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-gatos-castrados-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-atum-ao-molho.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-atum.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-carne-ao-molho.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-frango.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-lata-peixe.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-atum.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-carne-jelly.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-cordeiro.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-frango.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-peixe-jelly.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-ad-salmao.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-cast-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-cast-peixe.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-filh-carne-jelly.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-filhote-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-filhote-frango.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-sen-carne-jelly.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-senior-carne.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-sache-senior-peixe.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-temptations-anti-bolapelo.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-temptations-pelo-saudavel.jpg" />
+    <Content Include="Assets\ProductSamples\whiskas-temptations-salmao.jpg" />
+    <Content Include="Properties\Default.rd.xml" />
+    <Content Include="Assets\LockScreenLogo.scale-200.png" />
+    <Content Include="Assets\SplashScreen.scale-200.png" />
+    <Content Include="Assets\Square150x150Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.scale-200.png" />
+    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <Content Include="Assets\StoreLogo.png" />
+    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="Controls\AnalyticsChartControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\CameraControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ImagePickerControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ImageWithRegionEditorsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InputView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\LeftRightScrollViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ObjectRegionControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ProductCollectionControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ProductEditorControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\RegionEditorControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ShelfAuditingAutomationPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\Styles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ReviewPanelControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction">
+      <Version>1.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training">
+      <Version>1.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
+      <Version>6.2.9</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Animations">
+      <Version>6.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
+      <Version>5.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls.DataGrid">
+      <Version>6.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="TCD.Device.Camera">
+      <Version>1.3.2</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
+    <VisualStudioVersion>14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
