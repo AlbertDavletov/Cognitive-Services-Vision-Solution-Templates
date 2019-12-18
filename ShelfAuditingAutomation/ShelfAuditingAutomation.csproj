@@ -132,10 +132,12 @@
     <Compile Include="Controls\ImageWithRegionEditorsControl.xaml.cs">
       <DependentUpon>ImageWithRegionEditorsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\CustomSpecsDataLoader.cs" />
     <Compile Include="Models\ProductFilter.cs" />
     <Compile Include="Models\ProductItemViewModel.cs" />
     <Compile Include="Models\ProductTag.cs" />
     <Compile Include="Models\ResultDataGridViewModel.cs" />
+    <Compile Include="Models\SpecsData.cs" />
     <Compile Include="Views\InputView.xaml.cs">
       <DependentUpon>InputView.xaml</DependentUpon>
     </Compile>
@@ -177,6 +179,15 @@
     <Content Include="Assets\ImageSamples\2.jpg" />
     <Content Include="Assets\ImageSamples\3.jpg" />
     <Content Include="Assets\ImageSamples\4.jpg" />
+    <Content Include="Assets\ImageSamples\cat-food-1.jpg" />
+    <Content Include="Assets\ImageSamples\cat-food-2.jpg" />
+    <Content Include="Assets\ImageSamples\cat-food-3.jpg" />
+    <Content Include="Assets\ImageSamples\cat-food-4.jpg" />
+    <Content Include="Assets\ImageSamples\dog-food-1.jpg" />
+    <Content Include="Assets\ImageSamples\dog-food-2.jpg" />
+    <Content Include="Assets\ImageSamples\dog-food-3.jpg" />
+    <Content Include="Assets\ImageSamples\dog-food-4.jpg" />
+    <Content Include="Assets\ImageSamples\dog-food-5.jpg" />
     <Content Include="Assets\ProductSamples\champ-adulto-carne-&amp;-cereal.jpg" />
     <Content Include="Assets\ProductSamples\champ-filhotes.jpg" />
     <Content Include="Assets\ProductSamples\dreamies-carne.jpg" />
@@ -341,8 +352,15 @@
     <PackageReference Include="TCD.Device.Camera">
       <Version>1.3.2</Version>
     </PackageReference>
+    <PackageReference Include="WindowsAzure.Storage">
+      <Version>9.3.3</Version>
+    </PackageReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Assets\specsData.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

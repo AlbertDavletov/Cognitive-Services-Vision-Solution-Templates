@@ -66,7 +66,8 @@
             </StackPanel>
         </controls:Expander.Header>
 
-        <GridView ItemsSource="{Binding ElementName=userControl, Path=ProductCollection}" Margin="0,6,0,0" SelectionMode="None"
+        <GridView ItemsSource="{Binding ElementName=userControl, Path=ProductCollection}" Margin="0,6,0,0" SelectionMode="Single" IsItemClickEnabled="True"
+                  ItemClick="GridViewItemClick"
                   ItemTemplate="{StaticResource ProductViewTemplate}"
                   ItemContainerStyle="{StaticResource GridViewItemContainerStyle}"/>
     </controls:Expander>

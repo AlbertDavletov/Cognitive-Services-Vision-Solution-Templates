@@ -82,7 +82,10 @@
         </DataTemplate>
 
         <DataTemplate x:Key="GroupedProductsTemplate">
-            <ctl:ProductCollectionControl Title="{Binding Item1}" ProductCollection="{Binding Item2}" Visibility="{Binding Item2.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
+            <ctl:ProductCollectionControl Title="{Binding Item1}" 
+                                          ProductCollection="{Binding Item2}"
+                                          ProductSelected="ProductCollectionControlProductSelected" 
+                                          Visibility="{Binding Item2.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
         </DataTemplate>
     </Page.Resources>
 
@@ -92,7 +95,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <local:InputView Grid.Row="1" Projects="{Binding Projects}" ImageSelected="OnInputImageSelected" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}"/>
+        <local:InputView Grid.Row="1" SpecsDataCollection="{Binding SpecsDataCollection}" ImageSelected="OnInputImageSelected" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}"/>
 
         <Grid Grid.Row="1" Visibility="{Binding AppViewState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}">
             <Grid.RowDefinitions>
@@ -248,8 +251,7 @@
 
                                 <ctl:AnalyticsChartControl Grid.Row="1" x:Name="chartControl" />
                                 <Grid x:Name="resultsGrid" Grid.Row="1" Visibility="Collapsed" VerticalAlignment="Top">
-                                    <controls:DataGrid x:Name="summaryDataGrid" ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal"
-                                                       SelectionChanged="DataGridSelectionChanged">
+                                    <controls:DataGrid x:Name="summaryDataGrid" ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal">
                                         <controls:DataGrid.Columns>
                                             <controls:DataGridTemplateColumn Header="Object tag" Width="*">
                                                 <controls:DataGridTemplateColumn.CellTemplate>
@@ -266,6 +268,22 @@
                                             </controls:DataGridTemplateColumn>
 
                                             <controls:DataGridTextColumn Header="Count" Binding="{Binding TotalCount}" Width="Auto"/>
+                                            
+                                            <controls:DataGridTemplateColumn Header="Expected count" Width="Auto">
+                                                <controls:DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate x:DataType="models:ResultDataGridViewModel">
+                                                        <TextBlock Text="{x:Bind models:ResultDataGridViewModel.GetExpectedCountValue(ExpectedCount,ExpectedCoverage)}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </DataTemplate>
+                                                </controls:DataGridTemplateColumn.CellTemplate>
+                                            </controls:DataGridTemplateColumn>
+
+                                            <controls:DataGridTemplateColumn Header="Filter" Width="70">
+                                                <controls:DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate x:DataType="models:ResultDataGridViewModel">
+                                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Visibility="{Binding IsAggregateColumn, Converter={StaticResource reverseBooleanToVisibilityConverter}}" Margin="12,0" Checked="DataGridFilterChecked" Unchecked="DataGridFilterUnchecked"/>
+                                                    </DataTemplate>
+                                                </controls:DataGridTemplateColumn.CellTemplate>
+                                            </controls:DataGridTemplateColumn>
                                         </controls:DataGrid.Columns>
                                     </controls:DataGrid>
                                 </Grid>
@@ -307,6 +325,7 @@
                                           GroupedProductCollection="{Binding GroupedProductCollection}"
                                           PublishResults="OnReviewPanelControlPublishResults"
                                           DataGridSelected="OnReviewPanelControlDataGridSelected"
+                                          ProductSelected="OnReviewPanelControlProductSelected"
                                           Closed="OnReviewPanelControlClosed"/>
             </Grid>
 

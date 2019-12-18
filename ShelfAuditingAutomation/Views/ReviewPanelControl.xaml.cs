@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -50,7 +51,8 @@ namespace ShelfAuditingAutomation.Views
 
         public event EventHandler Closed;
         public event EventHandler PublishResults;
-        public event EventHandler<ResultDataGridViewModel> DataGridSelected;
+        public event EventHandler<IEnumerable<ResultDataGridViewModel>> DataGridSelected;
+        public event EventHandler<ProductItemViewModel> ProductSelected;
 
         private static void OnStateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -114,14 +116,6 @@ namespace ShelfAuditingAutomation.Views
             this.Closed?.Invoke(this, EventArgs.Empty);
         }
 
-        private void DataGridSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (this.dataGrid.SelectedItem is ResultDataGridViewModel selectedRow)
-            {
-                this.DataGridSelected?.Invoke(this, selectedRow);
-            }
-        }
-
         private void PivotSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             switch (this.pivot.SelectedIndex)
@@ -129,13 +123,37 @@ namespace ShelfAuditingAutomation.Views
                 case 0:
                     this.dataGrid.Visibility = Visibility.Visible;
                     this.groupedProductListView.Visibility = Visibility.Collapsed;
+
+                    ApplyFilters();
                     break;
 
                 case 1:
                     this.dataGrid.Visibility = Visibility.Collapsed;
                     this.groupedProductListView.Visibility = Visibility.Visible;
+
+                    ApplyFilters(useFilters: false);
                     break;
             }
+        }
+
+        private void ProductCollectionControlProductSelected(object sender, ProductItemViewModel e)
+        {
+            this.ProductSelected?.Invoke(this, e);
+        }
+
+        private void FilterChecked(object sender, RoutedEventArgs e)
+        {
+            ApplyFilters();
+        }
+
+        private void FilterUnchecked(object sender, RoutedEventArgs e)
+        {
+            ApplyFilters();
+        }
+
+        private void ApplyFilters(bool useFilters = true)
+        {
+            this.DataGridSelected?.Invoke(this, useFilters ? ResultDataGridCollection.Where(f => f.IsChecked) : ResultDataGridCollection);
         }
     }
 }

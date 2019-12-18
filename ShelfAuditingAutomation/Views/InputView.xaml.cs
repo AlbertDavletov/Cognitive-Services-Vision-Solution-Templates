@@ -9,25 +9,26 @@ namespace ShelfAuditingAutomation.Views
 {
     public sealed partial class InputView : UserControl
     {
-        public static readonly DependencyProperty ProjectsProperty =
+        public static readonly DependencyProperty SpecsDataCollectionProperty =
             DependencyProperty.Register(
-                "Projects",
-                typeof(ObservableCollection<ProjectViewModel>),
+                "SpecsDataCollection",
+                typeof(ObservableCollection<SpecsData>),
                 typeof(InputView),
                 new PropertyMetadata(null));
 
-        public ObservableCollection<ProjectViewModel> Projects
+        public ObservableCollection<SpecsData> SpecsDataCollection
         {
-            get { return (ObservableCollection<ProjectViewModel>)GetValue(ProjectsProperty); }
-            set { SetValue(ProjectsProperty, value); }
+            get { return (ObservableCollection<SpecsData>)GetValue(SpecsDataCollectionProperty); }
+            set { SetValue(SpecsDataCollectionProperty, value); }
         }
 
-        public event EventHandler<Tuple<ProjectViewModel, StorageFile>> ImageSelected;
+        public event EventHandler<Tuple<SpecsData, StorageFile>> ImageSelected;
 
         public InputView()
         {
             this.InitializeComponent();
 
+            // default sample images
             this.imagePicker.SetSuggestedImageList(
                 "ms-appx:///Assets/ImageSamples/1.jpg",
                 "ms-appx:///Assets/ImageSamples/2.jpg",
@@ -38,8 +39,16 @@ namespace ShelfAuditingAutomation.Views
 
         private void OnImageSearchCompleted(object sender, StorageFile imageFile)
         {
-            var project = this.projectsComboBox.SelectedItem as ProjectViewModel;
-            this.ImageSelected?.Invoke(this, new Tuple<ProjectViewModel, StorageFile>(project, imageFile));
+            var specsData = this.projectsComboBox.SelectedItem as SpecsData;
+            this.ImageSelected?.Invoke(this, new Tuple<SpecsData, StorageFile>(specsData, imageFile));
+        }
+
+        private void ProjectsComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.projectsComboBox.SelectedItem is SpecsData specsData)
+            {
+                this.imagePicker.SetSuggestedImageList(specsData.SampleImages);
+            }
         }
     }
 }

@@ -27,6 +27,7 @@ namespace ShelfAuditingAutomation.Views
         private static readonly string PredictionApiKey = "";         // CUSTOM VISION PREDICTION API KEY
         private static readonly string PredictionApiKeyEndpoint = ""; // CUSTOM VISION PREDICTION API ENDPOINT
 
+        private SpecsData currentSpec;
         private ProjectViewModel currentProject;
         private List<ProductItemViewModel> currentDetectedObjects;
         private SummaryViewState currentSummaryViewState = SummaryViewState.GroupedByCategory;
@@ -54,10 +55,7 @@ namespace ShelfAuditingAutomation.Views
             new ProductFilter("Shelf gap", FilterType.ShelfGap)
         };
 
-        public ObservableCollection<ProjectViewModel> Projects { get; set; } = new ObservableCollection<ProjectViewModel>()
-        {
-            new ProjectViewModel(new Guid("af826f5b-97c1-40a0-b8bb-bf44e08cec2b"), "Product Reco Solution Template")
-        };
+        public ObservableCollection<SpecsData> SpecsDataCollection { get; set; } = new ObservableCollection<SpecsData>();
 
         public ObservableCollection<ProductTag> ProjectTagCollection { get; set; } = new ObservableCollection<ProductTag>();
         public ObservableCollection<ProductItemViewModel> SelectedProductItemCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
@@ -94,6 +92,10 @@ namespace ShelfAuditingAutomation.Views
                 !string.IsNullOrEmpty(PredictionApiKey) && !string.IsNullOrEmpty(PredictionApiKeyEndpoint))
             {
                 this.mainPage.IsEnabled = true;
+
+                SpecsDataCollection.Clear();
+                SpecsDataCollection.AddRange((await CustomSpecsDataLoader.GetData()) ?? CustomSpecsDataLoader.GetBuiltInData());
+
                 trainingApi = new CustomVisionTrainingClient { Endpoint = TrainingApiKeyEndpoint, ApiKey = TrainingApiKey };
                 predictionApi = new CustomVisionPredictionClient { Endpoint = PredictionApiKeyEndpoint, ApiKey = PredictionApiKey };
             }
@@ -323,13 +325,14 @@ namespace ShelfAuditingAutomation.Views
             }
         }
 
-        private async void OnInputImageSelected(object sender, Tuple<ProjectViewModel, StorageFile> inputData)
+        private async void OnInputImageSelected(object sender, Tuple<SpecsData, StorageFile> args)
         {
             ResetImageData();
 
             // get project and image from input view page
-            currentProject = inputData.Item1;
-            await this.image.SetSourceFromFileAsync(inputData.Item2);
+            currentSpec = args.Item1;
+            currentProject = new ProjectViewModel(args.Item1.ModelId, args.Item1.ModelName);
+            await this.image.SetSourceFromFileAsync(args.Item2);
 
             AppViewState = AppViewState.ImageSelected;
         }
@@ -453,14 +456,22 @@ namespace ShelfAuditingAutomation.Views
             }
         }
 
-        private void DataGridSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void DataGridFilterChecked(object sender, RoutedEventArgs e)
         {
-            if (this.summaryDataGrid.SelectedItem is ResultDataGridViewModel selectedRow)
-            {
-                var filterData = selectedRow.IsAggregateColumn ? currentDetectedObjects : currentDetectedObjects.Where(p => p.DisplayName.Equals(selectedRow.Name, StringComparison.OrdinalIgnoreCase));
-                UpdateGroupedProductCollection(currentSummaryViewState, filterData);
-                UpdateImageDetectedBoxes(filterData);
-            }
+            ApplyDataGridFilters();
+        }
+
+        private void DataGridFilterUnchecked(object sender, RoutedEventArgs e)
+        {
+            ApplyDataGridFilters();
+        }
+
+        private void ApplyDataGridFilters()
+        {
+            var activeFilters = ResultDataGridCollection.Where(f => f.IsChecked);
+            var filterData = activeFilters.Any() ? currentDetectedObjects.Where(p => activeFilters.Select(f => f.Name.ToLower()).Contains(p.DisplayName.ToLower())) : currentDetectedObjects;
+            UpdateGroupedProductCollection(currentSummaryViewState, filterData);
+            UpdateImageDetectedBoxes(filterData);
         }
 
 
@@ -489,14 +500,35 @@ namespace ShelfAuditingAutomation.Views
 
         private void OnReviewPanelControlClosed(object sender, EventArgs e)
         {
+            SelectedProductItemCollection.Clear();
+            this.image.ClearSelectedRegions();
+
             this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
             AppViewState = AppViewState.ImageAnalyzed;
         }
 
-        private void OnReviewPanelControlDataGridSelected(object sender, ResultDataGridViewModel selectedRow)
+        private void OnReviewPanelControlDataGridSelected(object sender, IEnumerable<ResultDataGridViewModel> selectedRows)
         {
-            var filterData = selectedRow.IsAggregateColumn ? currentDetectedObjects : currentDetectedObjects.Where(p => p.DisplayName.Equals(selectedRow.Name, StringComparison.OrdinalIgnoreCase));
+            var filterData = currentDetectedObjects.Where(p => selectedRows.Select(r => r.Name.ToLower()).Contains(p.DisplayName.ToLower()));
             UpdateImageDetectedBoxes(filterData, useAllColors: false);
+        }
+
+        private void ProductCollectionControlProductSelected(object sender, ProductItemViewModel e)
+        {
+            if (e != null)
+            {
+                this.image.UpdateSelectedRegions(new List<ProductItemViewModel>() { e });
+            }
+        }
+
+        private void OnReviewPanelControlProductSelected(object sender, ProductItemViewModel e)
+        {
+            if (e != null)
+            {
+                SelectedProductItemCollection.Clear();
+                SelectedProductItemCollection.Add(e);
+                this.image.UpdateSelectedRegions(SelectedProductItemCollection);
+            }
         }
 
         private void OnTryAnotherImageButtonClick(object sender, RoutedEventArgs e)
@@ -609,24 +641,39 @@ namespace ShelfAuditingAutomation.Views
         {
             ResultDataGridCollection.Clear();
 
+            int total = productlist.Count();
             var productListGroupedByName = productlist.GroupBy(p => p.DisplayName).OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.ToList());
             foreach (var item in productListGroupedByName)
             {
+                Guid tagId = item.Value.First().Model.TagId;
                 string productName = item.Key;
                 var products = item.Value;
                 int totalCount = item.Value.Count;
 
+                int expectedCount = -1;
+                double expectedAreaCoverage = -1;
+                var tagFromSpec = currentSpec.Items.FirstOrDefault(s => s.TagId == tagId);
+                if (tagFromSpec != null)
+                {
+                    expectedAreaCoverage = tagFromSpec.ExpectedAreaCoverage / 100.0;
+                    expectedCount = (int)Math.Round(total * expectedAreaCoverage);
+                }
+
                 ResultDataGridCollection.Add(new ResultDataGridViewModel()
                 {
                     Name = productName,
-                    TotalCount = totalCount
+                    TotalCount = totalCount,
+                    ExpectedCount = expectedCount,
+                    ExpectedCoverage = expectedAreaCoverage
                 });
             }
             var totalRow = new ResultDataGridViewModel()
             {
                 Name = "Total",
                 TotalCount = ResultDataGridCollection.Sum(r => r.TotalCount),
-                IsAggregateColumn = true
+                IsAggregateColumn = true,
+                ExpectedCount = ResultDataGridCollection.Sum(r => r.ExpectedCount),
+                ExpectedCoverage = -1
             };
             ResultDataGridCollection.Add(totalRow);
         }

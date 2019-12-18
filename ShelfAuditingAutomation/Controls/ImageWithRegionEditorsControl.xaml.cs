@@ -265,6 +265,17 @@ namespace ShelfAuditingAutomation.Controls
         {
             selectedRegions.Clear();
             selectedRegions.AddRange(products);
+            foreach (ObjectRegionControl region in objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList())
+            {
+                if (selectedRegions.Any(x => x.Id == region.ProductItemViewModel.Id))
+                {
+                    region.State = RegionState.Selected;
+                }
+                else if (region.State == RegionState.Selected)
+                {
+                    region.State = RegionState.Active;
+                }
+            }
         }
 
         public void ClearSelectedRegions()
