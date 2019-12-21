@@ -34,15 +34,5 @@ namespace ShelfAuditingAutomation.Models
             string tagImageName = isTagImageExist ? $"{tagName}.jpg" : "product.jpg";
             return new BitmapImage(new Uri($"ms-appx:///Assets/ProductSamples/{tagImageName}"));
         }
-
-        public static string GetExpectedCountValue(int expectedCount, double expectedCoverage)
-        {
-            string result = expectedCount >= 0 ? $"{expectedCount}" : "N/A";
-            if (expectedCoverage > 0)
-            {
-                result += $" ({100 * expectedCoverage}%)";
-            }
-            return result;
-        }
     }
 }

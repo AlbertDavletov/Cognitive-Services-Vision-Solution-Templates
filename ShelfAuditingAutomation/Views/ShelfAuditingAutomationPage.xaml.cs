@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
+using Windows.UI;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -30,7 +31,6 @@ namespace ShelfAuditingAutomation.Views
         private SpecsData currentSpec;
         private ProjectViewModel currentProject;
         private List<ProductItemViewModel> currentDetectedObjects;
-        private SummaryViewState currentSummaryViewState = SummaryViewState.GroupedByCategory;
         private List<ProductItemViewModel> addedProductItems = new List<ProductItemViewModel>();
         private List<ProductItemViewModel> editedProductItems = new List<ProductItemViewModel>();
         private List<ProductItemViewModel> deletedProductItems = new List<ProductItemViewModel>();
@@ -40,29 +40,13 @@ namespace ShelfAuditingAutomation.Views
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ObservableCollection<Tuple<string, SummaryViewState>> SummaryGroupCollection { get; set; } = new ObservableCollection<Tuple<string, SummaryViewState>>
-        {
-            new Tuple<string, SummaryViewState>("result category", SummaryViewState.GroupedByCategory),
-            new Tuple<string, SummaryViewState>("object tag", SummaryViewState.GroupedByTag)
-        };
-
-        public static readonly List<ProductFilter> ProductFilterByCategory = new List<ProductFilter>()
-        {
-            new ProductFilter("Low confidence", FilterType.LowConfidence),
-            new ProductFilter("Medium confidence", FilterType.MediumConfidence),
-            new ProductFilter("High confidence", FilterType.HighConfidence),
-            new ProductFilter("Unknown product", FilterType.UnknownProduct),
-            new ProductFilter("Shelf gap", FilterType.ShelfGap)
-        };
-
         public ObservableCollection<SpecsData> SpecsDataCollection { get; set; } = new ObservableCollection<SpecsData>();
 
         public ObservableCollection<ProductTag> ProjectTagCollection { get; set; } = new ObservableCollection<ProductTag>();
+
         public ObservableCollection<ProductItemViewModel> SelectedProductItemCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
         public ObservableCollection<ProductTag> RecentlyUsedTagCollection { get; set; } = new ObservableCollection<ProductTag>();
-
-        public ObservableCollection<ProductFilter> ProductFilterCollection { get; set; } = new ObservableCollection<ProductFilter>(ProductFilterByCategory);
 
         public ObservableCollection<ResultDataGridViewModel> ResultDataGridCollection { get; set; } = new ObservableCollection<ResultDataGridViewModel>();
 
@@ -110,45 +94,24 @@ namespace ShelfAuditingAutomation.Views
 
         private void AppViewStateChanged()
         {
-            this.headerRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
-            this.imageRowDefinition.Height = new GridLength(0.6, GridUnitType.Star);
-            this.footerRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
+            this.headerRowDefinition.Height = AppViewState == AppViewState.ImageAnalysisPublishing ? new GridLength(0.4, GridUnitType.Star) : new GridLength(0, GridUnitType.Auto);
+            this.footerRowDefinition.Height = AppViewState == AppViewState.ImageAnalysisPublishing ? new GridLength(0.15, GridUnitType.Star) : new GridLength(0, GridUnitType.Auto);
 
-            this.imageColumnDefinition.Width = new GridLength(0.7, GridUnitType.Star);
+            this.imageColumnDefinition.Width =       AppViewState == AppViewState.ImageAnalysisPublishing ? new GridLength(0.3, GridUnitType.Star) : new GridLength(0.7, GridUnitType.Star);
+            this.leftOffsetColumnDefinition.Width =  AppViewState == AppViewState.ImageAnalysisPublishing ? new GridLength(0.2, GridUnitType.Star) : new GridLength(0, GridUnitType.Auto);
+            this.rightOffsetColumnDefinition.Width = AppViewState == AppViewState.ImageAnalysisPublishing ? new GridLength(0.2, GridUnitType.Star) : new GridLength(0, GridUnitType.Auto);
+
             this.resultColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
-
-            this.leftOffsetColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
-            this.rightOffsetColumnDefinition.Width = new GridLength(0, GridUnitType.Auto);
-
-            this.image.EnableImageControls = AppViewState != AppViewState.ImageAnalysisPublish && AppViewState != AppViewState.ImageAnalysisPublishing;
 
             switch (AppViewState)
             {
-                case AppViewState.ImageSelected:
-                    this.resultRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
-                    break;
-
-                case AppViewState.ImageAnalyzed:
-                    this.resultRowDefinition.Height = new GridLength(0.4, GridUnitType.Star);
-                    break;
-
                 case AppViewState.ImageAddOrUpdateProduct:
                 case AppViewState.ImageAnalysisReview:
-                case AppViewState.ImageAnalysisPublish:
-                    this.resultRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
                     this.resultColumnDefinition.Width = new GridLength(0.3, GridUnitType.Star);
                     break;
 
                 case AppViewState.ImageAnalysisPublishing:
-                    this.headerRowDefinition.Height = new GridLength(0.4, GridUnitType.Star);
-                    this.imageRowDefinition.Height = new GridLength(0.5, GridUnitType.Star);
-                    this.resultRowDefinition.Height = new GridLength(0, GridUnitType.Auto);
-                    this.footerRowDefinition.Height = new GridLength(0.15, GridUnitType.Star);
-
-                    this.imageColumnDefinition.Width = new GridLength(0.3, GridUnitType.Star);
                     this.resultColumnDefinition.Width = new GridLength(0.2, GridUnitType.Star);
-                    this.leftOffsetColumnDefinition.Width = new GridLength(0.2, GridUnitType.Star);
-                    this.rightOffsetColumnDefinition.Width = new GridLength(0.2, GridUnitType.Star);
                     break;
             }
         }
@@ -184,7 +147,6 @@ namespace ShelfAuditingAutomation.Views
             try
             {
                 this.progressRing.IsActive = true;
-                this.imageFileName.Text = this.image.ImageFile.Name;
 
                 // get detected objects
                 ImagePrediction result = await CustomVisionServiceHelper.AnalyzeImageAsync(trainingApi, predictionApi, currentProject.Id, this.image.ImageFile);
@@ -214,10 +176,10 @@ namespace ShelfAuditingAutomation.Views
                     }
                 }
 
-                UpdateImageDetectedBoxes(currentDetectedObjects, useAllColors: false);
-                this.chartControl.UpdateChart(currentDetectedObjects);
+                UpdateChart(currentDetectedObjects);
+                UpdateImageDetectedBoxes(currentDetectedObjects);
                 UpdateDataGrid(currentDetectedObjects);
-                UpdateGroupedProductCollection(SummaryViewState.GroupedByTag, currentDetectedObjects);
+                UpdateGroupedProductCollection(currentDetectedObjects);
 
                 AppViewState = AppViewState.ImageAnalysisReview;
             }
@@ -228,6 +190,41 @@ namespace ShelfAuditingAutomation.Views
             finally
             {
                 this.progressRing.IsActive = false;
+            }
+        }
+
+        private void UpdateChart(IEnumerable<ProductItemViewModel> productItemCollection)
+        {
+            if (productItemCollection != null && productItemCollection.Any())
+            {
+                double totalArea = productItemCollection.Sum(p => p.Model.BoundingBox.Width * p.Model.BoundingBox.Height);
+                double shelfGapArea = productItemCollection.Where(p => p.DisplayName.Equals(Util.ShelfGapName, StringComparison.OrdinalIgnoreCase)).Sum(p => p.Model.BoundingBox.Width * p.Model.BoundingBox.Height);
+                double unknownProductsArea = productItemCollection.Where(p => p.DisplayName.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase)).Sum(p => p.Model.BoundingBox.Width * p.Model.BoundingBox.Height);
+                double taggedProductsArea = totalArea - shelfGapArea - unknownProductsArea;
+
+                var data = new List<ChartItem>()
+                {
+                    new ChartItem()
+                    {
+                        Name = "Tagged item",
+                        Value = totalArea > 0 ? taggedProductsArea / totalArea : 0,
+                        Background = new Windows.UI.Xaml.Media.SolidColorBrush(Util.TaggedItemColor)
+                    },
+                    new ChartItem()
+                    {
+                        Name = "Unknown item",
+                        Value = totalArea > 0 ? unknownProductsArea / totalArea : 0,
+                        Background = new Windows.UI.Xaml.Media.SolidColorBrush(Util.UnknownProductColor)
+                    },
+                    new ChartItem()
+                    {
+                        Name = "Shelf gap",
+                        Value = totalArea > 0 ? shelfGapArea / totalArea : 0,
+                        Background = new Windows.UI.Xaml.Media.SolidColorBrush(Util.ShelfGapColor),
+                        Foreground = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Black)
+                    }
+                };
+                this.coverageChart.GenerateChart(data, $"{productItemCollection.Count()} items total");
             }
         }
 
@@ -248,25 +245,6 @@ namespace ShelfAuditingAutomation.Views
                         SelectedProductItemCollection.Remove(productToRemove);
                     }
                 }
-            }
-        }
-
-        private void OnClearSelectionButtonClick(object sender, RoutedEventArgs e)
-        {
-            this.image.ClearSelectedRegions();
-            SelectedProductItemCollection.Clear();
-            foreach(var filter in ProductFilterCollection)
-            {
-                filter.IsChecked = false;
-            }
-        }
-
-        private void OnCancelProductSelectionButtonClick(object sender, RoutedEventArgs e)
-        {
-            if (((Button)sender).DataContext is ProductItemViewModel productItem)
-            {
-                this.image.UnSelectRegion(productItem);
-                SelectedProductItemCollection.Remove(productItem);
             }
         }
 
@@ -309,18 +287,10 @@ namespace ShelfAuditingAutomation.Views
 
                     SelectedProductItemCollection.Clear();
                     UpdateImageDetectedBoxes(currentDetectedObjects);
+                    UpdateDataGrid(currentDetectedObjects);
+                    UpdateGroupedProductCollection(currentDetectedObjects);
 
-                    if (this.currentSummaryViewState == SummaryViewState.GroupedByCategory)
-                    {
-                        this.chartControl.UpdateChart(currentDetectedObjects);
-                        UpdateGroupedProductCollection(SummaryViewState.GroupedByCategory, currentDetectedObjects);
-                    }
-                    else if (this.currentSummaryViewState == SummaryViewState.GroupedByTag)
-                    {
-                        UpdateDataGrid(currentDetectedObjects);
-                        UpdateGroupedProductCollection(SummaryViewState.GroupedByTag, currentDetectedObjects);
-                    }
-                    AppViewState = AppViewState.ImageAnalyzed;
+                    AppViewState = AppViewState.ImageAnalysisReview;
                 }
             }
         }
@@ -348,7 +318,7 @@ namespace ShelfAuditingAutomation.Views
 
             this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
             this.image.ToggleEditState(enable: false);
-            AppViewState = AppViewState.ImageAnalyzed;
+            AppViewState = AppViewState.ImageAnalysisReview;
         }
 
         private void OnAddOrEditProductButtonClick(object sender, RoutedEventArgs e)
@@ -416,75 +386,23 @@ namespace ShelfAuditingAutomation.Views
                     }
 
                     UpdateImageDetectedBoxes(currentDetectedObjects);
-                    if (this.currentSummaryViewState == SummaryViewState.GroupedByCategory)
-                    {
-                        this.chartControl.UpdateChart(currentDetectedObjects);
-                        UpdateGroupedProductCollection(SummaryViewState.GroupedByCategory, currentDetectedObjects);
-                    }
-                    else if (this.currentSummaryViewState == SummaryViewState.GroupedByTag)
-                    {
-                        UpdateDataGrid(currentDetectedObjects);
-                        UpdateGroupedProductCollection(SummaryViewState.GroupedByTag, currentDetectedObjects);
-                    }
-                    AppViewState = AppViewState.ImageAnalyzed;
+                    UpdateDataGrid(currentDetectedObjects);
+                    UpdateGroupedProductCollection(currentDetectedObjects);
+
+                    AppViewState = AppViewState.ImageAnalysisReview;
                     break;
             }
         }
 
-        private void OnSummaryGroupComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (this.summaryGroupComboBox.SelectedValue is SummaryViewState selectedSummaryGroupState && currentDetectedObjects != null)
-            {
-                UpdateImageDetectedBoxes(currentDetectedObjects);
-                switch (selectedSummaryGroupState)
-                {
-                    case SummaryViewState.GroupedByCategory:
-                        this.chartControl.UpdateChart(currentDetectedObjects);
-                        UpdateGroupedProductCollection(SummaryViewState.GroupedByCategory, currentDetectedObjects);
-                        break;
-
-                    case SummaryViewState.GroupedByTag:
-                        UpdateDataGrid(currentDetectedObjects);
-                        UpdateGroupedProductCollection(SummaryViewState.GroupedByTag, currentDetectedObjects);
-                        break;
-                }
-                this.chartControl.Visibility =   selectedSummaryGroupState == SummaryViewState.GroupedByCategory ? Visibility.Visible : Visibility.Collapsed;
-                this.filterListView.Visibility = selectedSummaryGroupState == SummaryViewState.GroupedByCategory ? Visibility.Visible : Visibility.Collapsed;
-                this.resultsGrid.Visibility =    selectedSummaryGroupState == SummaryViewState.GroupedByTag ? Visibility.Visible : Visibility.Collapsed;
-
-                this.currentSummaryViewState = selectedSummaryGroupState;
-            }
-        }
-
-        private void DataGridFilterChecked(object sender, RoutedEventArgs e)
-        {
-            ApplyDataGridFilters();
-        }
-
-        private void DataGridFilterUnchecked(object sender, RoutedEventArgs e)
-        {
-            ApplyDataGridFilters();
-        }
-
-        private void ApplyDataGridFilters()
-        {
-            var activeFilters = ResultDataGridCollection.Where(f => f.IsChecked);
-            var filterData = activeFilters.Any() ? currentDetectedObjects.Where(p => activeFilters.Select(f => f.Name.ToLower()).Contains(p.DisplayName.ToLower())) : currentDetectedObjects;
-            UpdateGroupedProductCollection(currentSummaryViewState, filterData);
-            UpdateImageDetectedBoxes(filterData);
-        }
-
-
         #region Publishing
-        private async void OnOpenResultsViewButtonClick(object sender, RoutedEventArgs e)
+
+        private async void OnPublishButtonClicked(object sender, RoutedEventArgs e)
         {
             bool anyResults = addedProductItems.Any() || editedProductItems.Any() || deletedProductItems.Any();
             if (anyResults)
             {
-                UpdateDataGrid(currentDetectedObjects);
-
                 this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
-                AppViewState = AppViewState.ImageAnalysisPublish;
+                await PublishResultsAsync();
             }
             else
             {
@@ -492,36 +410,28 @@ namespace ShelfAuditingAutomation.Views
             }
         }
 
-        private async void OnReviewPanelControlPublishResults(object sender, EventArgs e)
+        private void PivotSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
-            await PublishResultsAsync();
-        }
-
-        private void OnReviewPanelControlClosed(object sender, EventArgs e)
-        {
-            SelectedProductItemCollection.Clear();
-            this.image.ClearSelectedRegions();
-
-            this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
-            AppViewState = AppViewState.ImageAnalyzed;
-        }
-
-        private void OnReviewPanelControlDataGridSelected(object sender, IEnumerable<ResultDataGridViewModel> selectedRows)
-        {
-            var filterData = currentDetectedObjects.Where(p => selectedRows.Select(r => r.Name.ToLower()).Contains(p.DisplayName.ToLower()));
-            UpdateImageDetectedBoxes(filterData, useAllColors: false);
-        }
-
-        private void ProductCollectionControlProductSelected(object sender, ProductItemViewModel e)
-        {
-            if (e != null)
+            switch (this.pivot.SelectedIndex)
             {
-                this.image.UpdateSelectedRegions(new List<ProductItemViewModel>() { e });
+                case 0:
+                    this.dataGrid.Visibility = Visibility.Visible;
+                    this.groupedProductListView.Visibility = Visibility.Collapsed;
+
+                    SelectedProductItemCollection.Clear();
+                    ApplyFilters();
+                    break;
+
+                case 1:
+                    this.dataGrid.Visibility = Visibility.Collapsed;
+                    this.groupedProductListView.Visibility = Visibility.Visible;
+
+                    ApplyFilters(useFilters: false);
+                    break;
             }
         }
 
-        private void OnReviewPanelControlProductSelected(object sender, ProductItemViewModel e)
+        private void ProductCollectionControlProductSelected(object sender, ProductItemViewModel e)
         {
             if (e != null)
             {
@@ -529,6 +439,23 @@ namespace ShelfAuditingAutomation.Views
                 SelectedProductItemCollection.Add(e);
                 this.image.UpdateSelectedRegions(SelectedProductItemCollection);
             }
+        }
+
+        private void FilterChecked(object sender, RoutedEventArgs e)
+        {
+            ApplyFilters();
+        }
+
+        private void FilterUnchecked(object sender, RoutedEventArgs e)
+        {
+            ApplyFilters();
+        }
+
+        private void ApplyFilters(bool useFilters = true)
+        {
+            var selectedRows = useFilters ? ResultDataGridCollection.Where(f => f.IsChecked) : ResultDataGridCollection;
+            var filterData = currentDetectedObjects.Where(p => selectedRows.Select(r => r.Name.ToLower()).Contains(p.DisplayName.ToLower()));
+            UpdateImageDetectedBoxes(filterData);
         }
 
         private void OnTryAnotherImageButtonClick(object sender, RoutedEventArgs e)
@@ -548,7 +475,7 @@ namespace ShelfAuditingAutomation.Views
                 this.currentProjectTextBlock.Text = this.currentProject.Name;
 
                 int unknownProductsCount = currentDetectedObjects.Count(p => p.DisplayName.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase));
-                int shelfGapsCount = currentDetectedObjects.Count(p => p.DisplayName.Equals(Util.EmptyGapName, StringComparison.OrdinalIgnoreCase));
+                int shelfGapsCount = currentDetectedObjects.Count(p => p.DisplayName.Equals(Util.ShelfGapName, StringComparison.OrdinalIgnoreCase));
                 int taggedProductCount = currentDetectedObjects.Count - unknownProductsCount - shelfGapsCount;
 
                 string[] finalResults = new string[]
@@ -592,7 +519,7 @@ namespace ShelfAuditingAutomation.Views
 
 
         #region Update Image, DataGrid, Collections, Products
-        private void UpdateImageDetectedBoxes(IEnumerable<ProductItemViewModel> productItemCollection, IEnumerable<ProductItemViewModel> selectedItems = null, bool useAllColors = true)
+        private void UpdateImageDetectedBoxes(IEnumerable<ProductItemViewModel> productItemCollection, IEnumerable<ProductItemViewModel> selectedItems = null)
         {
             if (selectedItems != null && selectedItems.Any())
             {
@@ -603,38 +530,17 @@ namespace ShelfAuditingAutomation.Views
                 this.image.ClearSelectedRegions();
             }
 
-            this.image.ShowObjectDetectionBoxes(productItemCollection, useAllColors: useAllColors);
+            this.image.ShowObjectDetectionBoxes(productItemCollection);
             this.image.ToggleEditState(enable: false);
         }
 
-        private void UpdateGroupedProductCollection(SummaryViewState viewState, IEnumerable<ProductItemViewModel> productItemCollection)
+        private void UpdateGroupedProductCollection(IEnumerable<ProductItemViewModel> productItemCollection)
         {
-            switch (viewState)
-            {
-                case SummaryViewState.GroupedByCategory:
-                    var unknownProducts = productItemCollection.Where(p => p.DisplayName.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase)).ToList();
-                    var shelfGaps = productItemCollection.Where(p => p.DisplayName.Equals(Util.EmptyGapName, StringComparison.OrdinalIgnoreCase)).ToList();
-                    var unknownItems = unknownProducts.Concat(shelfGaps).Select(p => p.Id);
-                    var lowConfidenceItems = productItemCollection.Where(p => p.Model.Probability < Util.MinMediumProbability && !unknownItems.Contains(p.Id)).ToList();
-                    var mediumConfidenceItems = productItemCollection.Where(p => p.Model.Probability >= Util.MinMediumProbability && p.Model.Probability < Util.MinHighProbability && !unknownItems.Contains(p.Id)).ToList();
-                    var highConfidenceItems = productItemCollection.Where(p => p.Model.Probability >= Util.MinHighProbability && !unknownItems.Contains(p.Id)).ToList();
-
-                    GroupedProductCollection.Clear();
-                    GroupedProductCollection.Add(new Tuple<string, List<ProductItemViewModel>>("Low Confidence", lowConfidenceItems));
-                    GroupedProductCollection.Add(new Tuple<string, List<ProductItemViewModel>>("Medium Confidence", mediumConfidenceItems));
-                    GroupedProductCollection.Add(new Tuple<string, List<ProductItemViewModel>>("High Confidence", highConfidenceItems));
-                    GroupedProductCollection.Add(new Tuple<string, List<ProductItemViewModel>>("Unknown product", unknownProducts));
-                    GroupedProductCollection.Add(new Tuple<string, List<ProductItemViewModel>>("Shelf gap", shelfGaps));
-                    break;
-
-                case SummaryViewState.GroupedByTag:
-                    var groupedProductCollection = productItemCollection.GroupBy(p => p.DisplayName)
-                        .OrderBy(p => p.Key)
-                        .Select(p => new Tuple<string, List<ProductItemViewModel>>(p.Key, p.ToList()));
-                    GroupedProductCollection.Clear();
-                    GroupedProductCollection.AddRange(groupedProductCollection);
-                    break;
-            }
+            var groupedProductCollection = productItemCollection.GroupBy(p => p.DisplayName)
+                .OrderBy(p => p.Key)
+                .Select(p => new Tuple<string, List<ProductItemViewModel>>(p.Key, p.ToList()));
+            GroupedProductCollection.Clear();
+            GroupedProductCollection.AddRange(groupedProductCollection);
         }
 
         private void UpdateDataGrid(IEnumerable<ProductItemViewModel> productlist)
@@ -649,31 +555,21 @@ namespace ShelfAuditingAutomation.Views
                 string productName = item.Key;
                 var products = item.Value;
                 int totalCount = item.Value.Count;
-
-                int expectedCount = -1;
-                double expectedAreaCoverage = -1;
-                var tagFromSpec = currentSpec.Items.FirstOrDefault(s => s.TagId == tagId);
-                if (tagFromSpec != null)
-                {
-                    expectedAreaCoverage = tagFromSpec.ExpectedAreaCoverage / 100.0;
-                    expectedCount = (int)Math.Round(total * expectedAreaCoverage);
-                }
+                int expectedCount = currentSpec.Items.Any(s => s.TagId == tagId) ? currentSpec.Items.First(s => s.TagId == tagId).ExpectedCount : 0;
 
                 ResultDataGridCollection.Add(new ResultDataGridViewModel()
                 {
                     Name = productName,
                     TotalCount = totalCount,
-                    ExpectedCount = expectedCount,
-                    ExpectedCoverage = expectedAreaCoverage
+                    ExpectedCount = expectedCount
                 });
             }
             var totalRow = new ResultDataGridViewModel()
             {
                 Name = "Total",
                 TotalCount = ResultDataGridCollection.Sum(r => r.TotalCount),
-                IsAggregateColumn = true,
                 ExpectedCount = ResultDataGridCollection.Sum(r => r.ExpectedCount),
-                ExpectedCoverage = -1
+                IsAggregateColumn = true
             };
             ResultDataGridCollection.Add(totalRow);
         }
@@ -727,58 +623,6 @@ namespace ShelfAuditingAutomation.Views
         }
         #endregion
 
-
-        #region Checkbox Filters
-        private void ProductFilterChecked(object sender, RoutedEventArgs e)
-        {
-            this.ApplyFilters();
-        }
-
-        private void ProductFilterUnchecked(object sender, RoutedEventArgs e)
-        {
-            this.ApplyFilters();
-        }
-
-        private void ApplyFilters()
-        {
-            SelectedProductItemCollection.Clear();
-
-            var activeFilters = ProductFilterCollection.Where(f => f.IsChecked).ToList();
-            if (activeFilters.Any())
-            {
-                var shelfGaps = currentDetectedObjects.Where(p => p.DisplayName.Equals(Util.EmptyGapName, StringComparison.OrdinalIgnoreCase));
-                var unknownProducts = currentDetectedObjects.Where(p => p.DisplayName.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase));
-                var unknownItems = unknownProducts.Concat(unknownProducts).Select(p => p.Id).ToList();
-                foreach (var filter in activeFilters)
-                {
-                    switch (filter.FilterType)
-                    {
-                        case FilterType.HighConfidence:
-                            SelectedProductItemCollection.AddRange(currentDetectedObjects.Where(p => p.Model.Probability >= Util.MinHighProbability && !unknownItems.Contains(p.Id)));
-                            break;
-
-                        case FilterType.MediumConfidence:
-                            SelectedProductItemCollection.AddRange(currentDetectedObjects.Where(p => p.Model.Probability >= Util.MinMediumProbability && p.Model.Probability < Util.MinHighProbability && !unknownItems.Contains(p.Id)));
-                            break;
-
-                        case FilterType.LowConfidence:
-                            SelectedProductItemCollection.AddRange(currentDetectedObjects.Where(p => p.Model.Probability < Util.MinMediumProbability && !unknownItems.Contains(p.Id)));
-                            break;
-
-                        case FilterType.UnknownProduct:
-                            SelectedProductItemCollection.AddRange(unknownProducts);
-                            break;
-
-                        case FilterType.ShelfGap:
-                            SelectedProductItemCollection.AddRange(shelfGaps);
-                            break;
-                    }
-                }
-            }
-
-            UpdateImageDetectedBoxes(currentDetectedObjects, SelectedProductItemCollection);
-        }
-        #endregion
 
         private void ResetImageData()
         {

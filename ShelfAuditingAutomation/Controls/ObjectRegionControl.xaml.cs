@@ -108,6 +108,8 @@ namespace ShelfAuditingAutomation.Controls
             if (State == RegionState.Active || State == RegionState.Selected)
             {
                 State = State == RegionState.Selected ? RegionState.Active : RegionState.Selected;
+
+                Canvas.SetZIndex(this, State == RegionState.Selected ? 10 : 1);
                 this.RegionSelected?.Invoke(this, new Tuple<RegionState, ProductItemViewModel>(State, ProductItemViewModel));
             }
         }

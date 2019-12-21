@@ -23,7 +23,7 @@
             <Border.Background>
                 <SolidColorBrush Color="{Binding Color}" Opacity="0.6"/>
             </Border.Background>
-            <Ellipse Fill="White" Height="18" Width="18" />
+            <Ellipse Fill="White" Height="18" Width="18"/>
         </Border>
 
         <!-- Disabled Region -->

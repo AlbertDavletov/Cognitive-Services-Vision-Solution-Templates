@@ -3,7 +3,6 @@ using Microsoft.Rest;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics.Display;
@@ -19,46 +18,25 @@ namespace ShelfAuditingAutomation
 {
     internal static class Util
     {
-        public const string EmptyGapName = "Gap";
+        public const string ShelfGapName = "Gap";
         public const string UnknownProductName = "Product";
-        public const double MinHighProbability = 0.6;
-        public const double MinMediumProbability = 0.3;
 
-        public static readonly Color HighConfidenceColor = Color.FromArgb(255, 36, 143, 255);
-        public static readonly Color MediumConfidenceColor = Color.FromArgb(255, 250, 190, 20);
-        public static readonly Color LowConfidenceColor = Color.FromArgb(255, 228, 19, 35);
-        public static readonly Color UnknownProductColor = Color.FromArgb(255, 180, 0, 158);
-        public static readonly Color EmptyGapColor = Color.FromArgb(255, 0, 158, 179);
+        public static readonly Color TaggedItemColor =      Color.FromArgb(255, 36, 143, 255); // #248FFF
+        public static readonly Color ShelfGapColor =        Color.FromArgb(255, 250, 190, 20); // #FABE14
+        public static readonly Color UnknownProductColor =  Color.FromArgb(255, 180, 0, 158);  // #B4009E
 
-        public static Color GetObjectRegionColor(PredictionModel model, bool useAllColors = true)
+        public static Color GetObjectRegionColor(PredictionModel model)
         {
-            double minHigh = MinHighProbability;
-            double minMed = MinMediumProbability;
-
             if (model.TagName.Equals(UnknownProductName, StringComparison.OrdinalIgnoreCase))
             {
                 return UnknownProductColor;
             }
-            else if (model.TagName.Equals(EmptyGapName, StringComparison.OrdinalIgnoreCase))
+            else if (model.TagName.Equals(ShelfGapName, StringComparison.OrdinalIgnoreCase))
             {
-                return useAllColors ? EmptyGapColor : MediumConfidenceColor;
+                return ShelfGapColor;
             }
 
-            if (useAllColors)
-            {
-                if (model.Probability >= minHigh)
-                {
-                    return HighConfidenceColor;
-                }
-                else if (model.Probability < minMed)
-                {
-                    return LowConfidenceColor;
-                }
-
-                return MediumConfidenceColor;
-            }
-
-            return HighConfidenceColor;
+            return TaggedItemColor;
         }
 
         public static async Task<bool> CheckAssetsFile(string fileName)
@@ -78,11 +56,6 @@ namespace ShelfAuditingAutomation
         {
             // ensure [0,1]
             return Math.Min(1, Math.Max(0, value));
-        }
-
-        public static double Max(params double[] values)
-        {
-            return Enumerable.Max(values);
         }
 
         internal static async Task GenericApiCallExceptionHandler(Exception ex, string errorTitle)

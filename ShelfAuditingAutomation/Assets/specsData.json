@@ -10,206 +10,251 @@
       "ms-appx:///Assets/ImageSamples/cat-food-3.jpg",
       "ms-appx:///Assets/ImageSamples/cat-food-4.jpg"
     ],
+    "ExpectedAreaCoverage": {
+      "Tagged": 70,
+      "Unknown": 20,
+      "Gap": 10
+    },
     "Items": [
       {
         "TagId": "b40c63a2-2c66-4420-bc85-1a799a130897",
         "TagName": "Gap",
-        "ExpectedAreaCoverage": 10
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 5
       },
       {
         "TagId": "81ecb2cb-8e1a-495a-988e-bbb8f2180cbc",
         "TagName": "product",
-        "ExpectedAreaCoverage": 20
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 10
       },
       {
         "TagId": "77438104-fad2-4770-9b8b-d157ae39e0ee",
         "TagName": "Dreamies-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "055a464d-68d2-463e-a87a-616467cf774c",
         "TagName": "Dreamies-FRANGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "4b4f1536-7b71-491b-bbc6-7b627e255dd8",
         "TagName": "Dreamies-QUEIJO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "76d13f46-6553-4972-b1d2-283f25071024",
         "TagName": "Kitekat-SACHE-ADULTO-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "3a356bfd-e5e0-4a42-8fb2-657441357d99",
         "TagName": "Kitekat-SACHE-ADULTO-FRANGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "d5ce091a-dd6b-452f-99da-1fda688a4d60",
         "TagName": "Kitekat-SACHE-ADULTO-PEIXE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "b5416bac-36de-456c-8221-1f5f1930ce8e",
         "TagName": "Optimum-CAT-SACHE-AD-FRANGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "69df766f-6caf-494f-9d6a-bb4475378756",
         "TagName": "Optimum-CAT-SACHE-FIL-FRANGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "f0c44e41-bd37-47cc-be86-7b82761d4369",
         "TagName": "Whiskas-DRY-ADULTO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "45a9af8d-1ab5-414f-92a3-6a3f6af1f14e",
         "TagName": "Whiskas-DRY-ADULTO-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "6f5d3031-12e0-4ecb-a46c-b729b6c49a9a",
         "TagName": "Whiskas-DRY-ADULTO-FRANGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "aad74605-3149-4a02-b2fc-65029b9ec0ab",
         "TagName": "Whiskas-DRY-ADULTO-PEIXE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "584a9812-edfe-4545-8944-323fac2fb51f",
         "TagName": "Whiskas-DRY-FILHOTE-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "c6897c6f-8982-4f51-aa95-c28f1f90a095",
         "TagName": "Whiskas-GATOS-CASTRADOS-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "7d1b7192-5116-44ca-9c06-c879c3c7b1ba",
         "TagName": "Whiskas-LATA-ATUM",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "bb59de19-0e2b-44c5-a0ff-49b67aec2661",
         "TagName": "Whiskas-LATA-ATUM-AO-MOLHO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "ce99f559-1252-42c0-a8d7-044aca4eab2f",
         "TagName": "Whiskas-LATA-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "fec9f22f-432c-414b-a5f6-d0648a103ad5",
         "TagName": "Whiskas-LATA-CARNE-AO-MOLHO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "003a9fe5-00e3-4752-9667-9a7133c1ca3c",
         "TagName": "Whiskas-LATA-FRANGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "3f386797-0b33-4c88-8b2f-c47bd18d5865",
         "TagName": "Whiskas-LATA-PEIXE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "90c71343-3b57-4ba2-92a1-3bb3f3eeeb5e",
         "TagName": "Whiskas-SACHE-AD-ATUM",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "dbb44ae5-e886-437b-855c-a7f3d10522fc",
         "TagName": "Whiskas-SACHE-AD-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "2f4d3f6d-d6f9-483b-ab20-7b254cc8767a",
         "TagName": "Whiskas-SACHE-AD-CARNE-JELLY",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "68697d47-f975-4066-a3b9-d1776f35925f",
         "TagName": "Whiskas-SACHE-AD-CORDEIRO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "2aa3db8e-8dba-4914-b5b1-93695ed66be1",
         "TagName": "Whiskas-SACHE-AD-FRANGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "f0c85992-57d3-4cac-a2c1-97799c2f29f0",
         "TagName": "Whiskas-SACHE-AD-PEIXE-JELLY",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "e7d3b6c8-bd29-4011-8f65-f3eac3be3532",
         "TagName": "Whiskas-SACHE-AD-SALMAO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "4b64409e-874d-4b32-a871-10397655ee72",
         "TagName": "Whiskas-SACHE-CAST-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "27812c51-3bae-4001-b4c9-1905695fc3e5",
         "TagName": "Whiskas-SACHE-CAST-PEIXE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "c84015bb-cff5-4a8d-8a01-3d93a2628764",
         "TagName": "Whiskas-SACHE-FILH-CARNE-JELLY",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "8cf2b0b8-3638-4786-98f9-c63bcb6b3185",
         "TagName": "Whiskas-SACHE-FILHOTE-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "2c1d26d4-85e9-4ae7-bcec-b22f525dc403",
         "TagName": "Whiskas-SACHE-FILHOTE-FRANGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "e4771b91-35ff-46d3-ad7f-79b16f4faa7d",
         "TagName": "Whiskas-SACHE-SEN-CARNE-JELLY",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "378b3cfc-9b7d-4f78-b247-041dc79b57f4",
         "TagName": "Whiskas-SACHE-SENIOR-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "f10a8213-e9a6-49f3-b152-01715f84ba43",
         "TagName": "Whiskas-SACHE-SENIOR-PEIXE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "47ae69bc-bd22-49e7-b676-13891617cf1b",
         "TagName": "Whiskas-TEMPTATIONS-ANTI-BOLAPELO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "7129eec2-82d5-476e-815a-307baa07e446",
         "TagName": "Whiskas-TEMPTATIONS-PELO-SAUDAVEL",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "bacd4048-d991-439c-bd7a-dbf433319c84",
         "TagName": "Whiskas-TEMPTATIONS-SALMAO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       }
     ]
   },
@@ -225,191 +270,233 @@
       "ms-appx:///Assets/ImageSamples/dog-food-4.jpg",
       "ms-appx:///Assets/ImageSamples/dog-food-5.jpg"
     ],
+    "ExpectedAreaCoverage": {
+      "Tagged": 70,
+      "Unknown": 20,
+      "Gap": 10
+    },
     "Items": [
       {
         "TagId": "b40c63a2-2c66-4420-bc85-1a799a130897",
         "TagName": "Gap",
-        "ExpectedAreaCoverage": 10
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 5
       },
       {
         "TagId": "81ecb2cb-8e1a-495a-988e-bbb8f2180cbc",
         "TagName": "product",
-        "ExpectedAreaCoverage": 20
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 10
       },
       {
         "TagId": "9679143f-5aed-4060-9b4f-3ef6500379a8",
         "TagName": "Champ-ADULTO-CARNE-&-CEREAL",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "bd4e09fd-6b94-43ed-b6bd-d3dee2ff91fe",
         "TagName": "Champ-FILHOTES",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "2d771abf-3eef-401a-8b0f-337494120708",
         "TagName": "Pedigree EQN-EQN-ADULTO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "734eb6c3-9221-4f2e-8374-03a677a0be4e",
         "TagName": "Pedigree EQN-EQN-FILHOTE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "0c8f1d68-2225-4dd3-8caf-4b03b39d9fe7",
         "TagName": "Pedigree EQN-EQN-RMG",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "b98b3a75-9d62-49f4-97ec-e87ef2a5cd6b",
         "TagName": "Pedigree EQN-EQN-RP",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "0b495ad9-c203-47c8-83f8-f612532c01a0",
         "TagName": "Pedigree-BISCROK-AD-MULTI",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "c2544afb-9b9d-497a-a260-b29af9dde89f",
         "TagName": "Pedigree-BISCROK-AD-R-GDE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "34c0d2ab-dc83-44ff-8d8f-3c9d56a2fb87",
         "TagName": "Pedigree-BISCROK-AD-R-PEQ",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "469a1479-5b0d-40ea-8955-e5477843054d",
         "TagName": "Pedigree-BISCROK-FILHOTES",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "96c7f1a7-17da-485c-9f70-b395454c4822",
         "TagName": "Pedigree-DENTASTIX-R-GRANDES",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "3247f34b-adc5-429f-b663-7d6dfca9b0a3",
         "TagName": "Pedigree-DENTASTIX-R-MEDIAS",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "2d181dc2-e460-4424-aeeb-5a09e1345019",
         "TagName": "Pedigree-DENTASTIX-R-PEQUENAS",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "75d492e8-1e64-4b9b-95fa-d72ac7102e2f",
         "TagName": "Pedigree-DOG-SCH-AD-RM-CAR-MOL",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "b64680e8-52a4-428d-a5e8-21152144b0dc",
         "TagName": "Pedigree-DOG-SCH-AD-RM-FGO-MOL",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "d593320c-3a28-454f-8b06-d8e3979fd38a",
         "TagName": "Pedigree-DOG-SCH-AD-RP-CAR-MOL",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "d209e3a0-bfa8-4c9c-bb46-b07e9fca31e4",
         "TagName": "Pedigree-DOG-SCH-AD-RP-COR-MOL",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "a66f3d20-9664-4ee5-bab8-ef240256381d",
         "TagName": "Pedigree-DOG-SCH-AD-RP-FGO-MOL",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "957d58ab-ffbf-4fe7-8131-f861d24f2347",
         "TagName": "Pedigree-DOG-SCH-FILHO-CAR-MOL",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "541c947b-9a75-498a-8d8c-13c46f703201",
         "TagName": "Pedigree-DOG-SCH-FILHO-FGO-MOL",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "556df76d-54f0-4fc1-a7f0-84be9e26a3da",
         "TagName": "Pedigree-DOG-SCH-SEN-CAR-MOLHO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "a4652f3e-8289-4460-892b-21314c4146f0",
         "TagName": "PEDIGREE-DRY-AD-CARNE&FRANGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "cf0a7df3-ceaa-4eed-8350-a056160f4a1c",
         "TagName": "Pedigree-DRY-AD-CARNE&VEGETAIS",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "6f34b8c5-716a-468d-9e52-dd344e0f1683",
         "TagName": "Pedigree-DRY-AD-RPEQ",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "ceb6dd3c-c57d-4f3e-8f3b-14cf2090d53b",
         "TagName": "Pedigree-DRY-FIL-RMG",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "bf4639d1-6715-466f-8baf-d8015dc22d2c",
         "TagName": "Pedigree-DRY-FIL-RPEQ",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "1b3d938e-6230-4c62-93ce-9a9acf31b3ac",
         "TagName": "Pedigree-LATA-ADULTO-CIG-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "b97aa797-2e3b-410a-a160-f0935517bd21",
         "TagName": "Pedigree-LATA-ADULTO-CIG-FRANGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "bb7def42-3c3d-4c24-a595-228242e8a50f",
         "TagName": "Pedigree-LATA-ADULTO-PATE-CARNE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "f732a2a8-2578-482f-bdf6-2c3725e45d2a",
         "TagName": "Pedigree-LATA-ADULTO-PATE-FRANGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "427191f3-a7f1-4487-8017-f28995e21f29",
         "TagName": "Pedigree-LATA-FILHOTES-PATE-CARNE&FGO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "ad4c03d9-cf45-47b6-af75-fa1631d083eb",
         "TagName": "Pedigree-MARROBONE",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "544f0927-e414-46d3-ad0c-e9e65eca1df5",
         "TagName": "Pedigree-RODEO-CARNE-",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "5338841c-0206-47d3-b9db-2ff1af215fda",
         "TagName": "Pedigree-RODEO-FRANGO-",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "4f1a4791-4552-4a7c-a47c-6f62d1add1c7",
         "TagName": "PEDIGREE-SCH-MPK-AD-RP-CARNE-MO",
-        "ExpectedAreaCoverage": 60
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
       }
     ]
   }

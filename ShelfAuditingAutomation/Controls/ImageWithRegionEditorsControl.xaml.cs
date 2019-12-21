@@ -17,7 +17,6 @@ namespace ShelfAuditingAutomation.Controls
 {
     public sealed partial class ImageWithRegionEditorsControl : UserControl, INotifyPropertyChanged
     {
-        private bool useAllColors = true;
         private bool enableRemoveMode = false;
         private bool addNewRegionMode = false;
         private readonly static int DefaultBoxSize = 50;
@@ -26,6 +25,30 @@ namespace ShelfAuditingAutomation.Controls
         private List<ProductItemViewModel> currentEditableObjects;
         private Tuple<RegionState, List<ProductItemViewModel>> currentDetectedObjects;
         private List<ProductItemViewModel> selectedRegions = new List<ProductItemViewModel>();
+
+        public static readonly DependencyProperty ActiveImageControlsProperty =
+            DependencyProperty.Register("ActiveImageControls",
+                typeof(bool),
+                typeof(ImageWithRegionEditorsControl),
+                new PropertyMetadata(true));
+
+        public static readonly DependencyProperty EnableImageControlsProperty =
+            DependencyProperty.Register("EnableImageControls",
+                typeof(Visibility),
+                typeof(ImageWithRegionEditorsControl),
+                new PropertyMetadata(Visibility.Visible));
+
+        public bool ActiveImageControls
+        {
+            get { return (bool)GetValue(ActiveImageControlsProperty); }
+            set { SetValue(ActiveImageControlsProperty, value); }
+        }
+
+        public Visibility EnableImageControls
+        {
+            get { return (Visibility)GetValue(EnableImageControlsProperty); }
+            set { SetValue(EnableImageControlsProperty, value); }
+        }
 
         public event EventHandler<Tuple<RegionState, ProductItemViewModel>> RegionSelected;
 
@@ -52,17 +75,6 @@ namespace ShelfAuditingAutomation.Controls
             }
         }
 
-        private bool enableImageControls = true;
-        public bool EnableImageControls
-        {
-            get { return enableImageControls; }
-            set
-            {
-                enableImageControls = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("EnableImageControls"));
-            }
-        }
-
         public ImageWithRegionEditorsControl()
         {
             this.InitializeComponent();
@@ -79,6 +91,7 @@ namespace ShelfAuditingAutomation.Controls
             ClearSource();
 
             ImageFile = imagefile;
+            this.imageNameTextBlock.Text = imagefile.Name;
 
             var bitmapImage = new BitmapImage();
             await bitmapImage.SetSourceAsync((await imagefile.OpenStreamForReadAsync()).AsRandomAccessStream());
@@ -102,6 +115,8 @@ namespace ShelfAuditingAutomation.Controls
 
             EnableCropFeature = false;
             this.cropImageButton.Visibility = Visibility.Visible;
+            this.clearSelectionButton.Visibility = Visibility.Collapsed;
+            this.imageControlsPanel.HorizontalAlignment = HorizontalAlignment.Center;
 
             ToggleEditState(enable: false);
         }
@@ -125,7 +140,7 @@ namespace ShelfAuditingAutomation.Controls
         {
             if (this.currentDetectedObjects != null && this.objectDetectionVisualizationCanvas.Children.Any())
             {
-                this.ShowObjectDetectionBoxes(currentDetectedObjects.Item2, currentDetectedObjects.Item1, this.useAllColors);
+                this.ShowObjectDetectionBoxes(currentDetectedObjects.Item2, currentDetectedObjects.Item1);
             }
         }
 
@@ -137,11 +152,12 @@ namespace ShelfAuditingAutomation.Controls
             }
         }
 
-        public void ShowObjectDetectionBoxes(IEnumerable<ProductItemViewModel> detectedObjects, RegionState regionState = RegionState.Active, bool useAllColors = true)
+        public void ShowObjectDetectionBoxes(IEnumerable<ProductItemViewModel> detectedObjects, RegionState regionState = RegionState.Active)
         {
             this.cropImageButton.Visibility = Visibility.Collapsed;
+            this.clearSelectionButton.Visibility = Visibility.Visible;
+            this.imageControlsPanel.HorizontalAlignment = HorizontalAlignment.Right;
 
-            this.useAllColors = useAllColors;
             currentDetectedObjects = new Tuple<RegionState, List<ProductItemViewModel>>(regionState, detectedObjects.ToList());
 
             double canvasWidth = objectDetectionVisualizationCanvas.ActualWidth;
@@ -173,7 +189,7 @@ namespace ShelfAuditingAutomation.Controls
                     region.Title = detectedObj.DisplayName;
                     region.State = state;
                     region.ProductItemViewModel = detectedObj;
-                    region.Color = Util.GetObjectRegionColor(model, useAllColors);
+                    region.Color = Util.GetObjectRegionColor(model);
                     region.RegionSelected -= OnRegionSelected;
                 }
                 else
@@ -186,7 +202,7 @@ namespace ShelfAuditingAutomation.Controls
                         Title = detectedObj.DisplayName,
                         State = state,
                         ProductItemViewModel = detectedObj,
-                        Color = Util.GetObjectRegionColor(model, useAllColors)
+                        Color = Util.GetObjectRegionColor(model)
                     };
                     objectDetectionVisualizationCanvas.Children.Add(region);
                 }
@@ -276,6 +292,7 @@ namespace ShelfAuditingAutomation.Controls
                     region.State = RegionState.Active;
                 }
             }
+            this.clearSelectionButton.IsEnabled = selectedRegions.Any();
         }
 
         public void ClearSelectedRegions()
@@ -291,16 +308,12 @@ namespace ShelfAuditingAutomation.Controls
                 }
                 selectedRegions.Clear();
             }
+            this.clearSelectionButton.IsEnabled = false;
         }
 
-        public void UnSelectRegion(ProductItemViewModel item)
+        private void OnClearSelectionButtonClick(object sender, RoutedEventArgs e)
         {
-            var objectRegion = objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().FirstOrDefault(x => x.ProductItemViewModel.Id == item.Id);
-            if (objectRegion != null && objectRegion.State == RegionState.Selected)
-            {
-                objectRegion.State = RegionState.Active;
-                selectedRegions.Remove(item);
-            }
+            ClearSelectedRegions();
         }
 
         private void OnRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> item)
@@ -313,6 +326,7 @@ namespace ShelfAuditingAutomation.Controls
             {
                 bool isRemoved = selectedRegions.Remove(item.Item2);
             }
+            this.clearSelectionButton.IsEnabled = selectedRegions.Any();
             this.RegionSelected?.Invoke(this, item);
         }
 

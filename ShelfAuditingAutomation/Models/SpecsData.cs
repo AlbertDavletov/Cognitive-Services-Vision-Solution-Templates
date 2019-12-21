@@ -10,6 +10,7 @@ namespace ShelfAuditingAutomation.Models
         public Guid ModelId { get; set; }
         public string ModelName { get; set; }
         public string[] SampleImages { get; set; }
+        public AreaCoverage ExpectedAreaCoverage { get; set; }
         public List<SpecItem> Items { get; set; }
     }
 
@@ -17,6 +18,14 @@ namespace ShelfAuditingAutomation.Models
     {
         public Guid TagId { get; set; }
         public string TagName { get; set; }
+        public int ExpectedCount { get; set; }
         public double ExpectedAreaCoverage { get; set; }
+    }
+
+    public class AreaCoverage
+    {
+        public double Tagged { get; set; }
+        public double Unknown { get; set; }
+        public double Gap { get; set; }
     }
 }

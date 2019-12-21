@@ -6,17 +6,9 @@ namespace ShelfAuditingAutomation.Models
     {
         ImageSelection,
         ImageSelected,
-        ImageAnalyzed,
         ImageAddOrUpdateProduct,
         ImageAnalysisReview,
-        ImageAnalysisPublish,
-        ImageAnalysisPublishing,
-    }
-
-    public enum SummaryViewState
-    {
-        GroupedByCategory,
-        GroupedByTag
+        ImageAnalysisPublishing
     }
 
     public class ProjectViewModel

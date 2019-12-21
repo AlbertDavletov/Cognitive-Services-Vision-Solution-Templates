@@ -6,8 +6,6 @@
     xmlns:ctl="using:ShelfAuditingAutomation.Controls"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:models="using:ShelfAuditingAutomation.Models"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -16,6 +14,7 @@
 
     <Page.Resources>
         <SolidColorBrush x:Key="GrayColorButton" Color="White" Opacity="0.2"/>
+        <SolidColorBrush x:Key="GrayWhiteColor" Color="White" Opacity="0.6"/>
         <SolidColorBrush x:Key="BlackColor" Color="Black" Opacity="0.8"/>
         <SolidColorBrush x:Key="DataGridColumnHeaderBackgroundColor" Color="Transparent" />
         <SolidColorBrush x:Key="DataGridColumnHeaderForegroundBrush" Color="White" />
@@ -30,74 +29,18 @@
         <ctl:ReverseCollectionCountToVisibilityConverter x:Key="reverseCollectionCountToVisibilityConverter"/>
         <ctl:CollectionCountToBooleanConverter x:Key="collectionCountToBooleanConverter"/>
 
-        <Style x:Key="SelectedProductGridViewItemContainerStyle" TargetType="FrameworkElement">
-            <Setter Property="Margin" Value="0,0,8,8"/>
-        </Style>
-
-        <Style x:Key="SelectedProductGridViewStyle" TargetType="GridView">
-            <Setter Property="ItemsPanel">
-                <Setter.Value>
-                    <ItemsPanelTemplate>
-                        <ItemsWrapGrid Orientation="Vertical" MaximumRowsOrColumns="1"/>
-                    </ItemsPanelTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <DataTemplate x:Key="SelectedProductGridView" x:DataType="models:ProductItemViewModel">
-            <Grid Background="#2B2B2B" CornerRadius="2" Height="250" ToolTipService.ToolTip="{Binding DisplayName}">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <StackPanel Spacing="12" VerticalAlignment="Stretch" Width="180">
-                    <Grid Height="175" Padding="32,12">
-                        <Image Source="{Binding Image}" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <interactivity:Interaction.Behaviors>
-                                <behaviors:Blur Value="30" />
-                            </interactivity:Interaction.Behaviors>
-                        </Image>
-                        <Image Source="{Binding Image}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                    </Grid>
-
-                    <StackPanel>
-                        <TextBlock Text="{Binding DisplayName}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="12,0" Opacity="0.8"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <Button Background="Transparent" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top" Click="OnCancelProductSelectionButtonClick">
-                    <SymbolIcon Symbol="Cancel"/>
-                </Button>
-
-                <Rectangle Grid.Row="1" Fill="{x:Bind models:ProductItemViewModel.GetPredictionColor(Model)}" Height="8" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:Key="CheckboxFiltersTemplate" x:DataType="models:ProductFilter">
-            <StackPanel Orientation="Horizontal">
-                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Width="30" MinWidth="30" Checked="ProductFilterChecked" Unchecked="ProductFilterUnchecked"/>
-                <TextBlock Text="{x:Bind Name}"/>
-            </StackPanel>
-        </DataTemplate>
-
         <DataTemplate x:Key="GroupedProductsTemplate">
             <ctl:ProductCollectionControl Title="{Binding Item1}" 
-                                          ProductCollection="{Binding Item2}"
+                                          ProductCollection="{Binding Item2}" 
                                           ProductSelected="ProductCollectionControlProductSelected" 
                                           Visibility="{Binding Item2.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
         </DataTemplate>
     </Page.Resources>
 
     <Grid EntranceNavigationTransitionInfo.IsTargetElement="True">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <local:InputView SpecsDataCollection="{Binding SpecsDataCollection}" ImageSelected="OnInputImageSelected" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}"/>
 
-        <local:InputView Grid.Row="1" SpecsDataCollection="{Binding SpecsDataCollection}" ImageSelected="OnInputImageSelected" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}"/>
-
-        <Grid Grid.Row="1" Visibility="{Binding AppViewState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}">
+        <Grid Visibility="{Binding AppViewState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='ImageSelection'}">
             <Grid.RowDefinitions>
                 <RowDefinition x:Name="headerRowDefinition" Height="Auto"/>
                 <RowDefinition x:Name="imageRowDefinition" Height="0.6*"/>
@@ -122,189 +65,118 @@
                 <TextBlock x:Name="publishDetails" Style="{StaticResource SubheaderTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
             </StackPanel>
 
-            <Grid Grid.Row="1" Grid.Column="1" Background="#1F1F1F">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <ctl:ImageWithRegionEditorsControl x:Name="image" HorizontalAlignment="Stretch" RegionSelected="OnImageRegionSelected" Margin="24,0"/>
+            <Grid Grid.Row="1" Grid.Column="1" Background="#171717">
+                <ctl:ImageWithRegionEditorsControl x:Name="image" HorizontalAlignment="Stretch" RegionSelected="OnImageRegionSelected" 
+                                                   EnableImageControls="{Binding ElementName=mainPage, Path=AppViewState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisPublishing'}"
+                                                   ActiveImageControls="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}"/>
                 <ProgressRing x:Name="progressRing" Width="100" Height="100" Foreground="{StaticResource RegularTextColor}"/>
-
-                <Button Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Left" Click="OnCloseImageViewButtonClicked"
-                        Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalyzed|ImageAnalysisReview'}">
-                    <StackPanel Spacing="20" Orientation="Horizontal">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE72B;" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="imageFileName" Text="Image.jpg" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-
-                <Grid Grid.Row="1" Margin="0,30" HorizontalAlignment="Center" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisReview'}">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="48" Background="{StaticResource BlackColor}" 
-                                CornerRadius="4" Padding="12" Spacing="12">
-                        <TextBlock Text="Key" VerticalAlignment="Center"/>
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Ellipse Width="12" Height="12" Fill="#B4009E" VerticalAlignment="Center"/>
-                            <TextBlock Text="Unknown product" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Ellipse Width="12" Height="12" Fill="#FABE14" VerticalAlignment="Center"/>
-                            <TextBlock Text="Shelf gap" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                            <Ellipse Width="12" Height="12" Fill="#248FFF" VerticalAlignment="Center"/>
-                            <TextBlock Text="Tagged" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
             </Grid>
 
-            <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,30,24,24" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelected'}">
-                    <Button Content="Identify items" Background="#0078D7" Width="120" Click="OnAnalyzeImageButtonClicked" 
-                            IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}"
-                            Visibility="{Binding ElementName=image, Path=EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}"/>
-                    <Button Content="Cancel" Background="{StaticResource GrayColorButton}" Width="120" Click="OnCloseImageViewButtonClicked"/>
+            <!-- Image Analysis Review panel -->
+            <Grid Grid.Row="1" Grid.Column="2" Background="#2B2B2B" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisReview|ImageAnalysisPublish'}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Padding="22" Spacing="16">
+                    <TextBlock Text="Image results" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Tag="Add" Click="OnAddOrEditProductButtonClick">
+                            <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEF20;"/>
+                                <TextBlock Text="Add label"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Tag="Edit" Click="OnAddOrEditProductButtonClick" IsEnabled="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToBooleanConverter}}">
+                            <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE70F;"/>
+                                <TextBlock Text="Edit label"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Click="OnRemoveRegionButtonClick" IsEnabled="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToBooleanConverter}}">
+                            <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
+                                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74D;"/>
+                                <TextBlock Text="Remove"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
 
-                <Grid Background="#171717" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalyzed'}">
+                <Rectangle Grid.Row="1" HorizontalAlignment="Stretch" Height="1" Fill="White" Opacity="0.2"/>
+
+                <Grid Grid.Row="2" Padding="22" RowSpacing="18">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition />
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-
-                    <Grid Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Text="No items selected" Foreground="{StaticResource RegularTextColor}" Margin="24,12" Visibility="{Binding SelectedProductItemCollection.Count, Converter={StaticResource reverseCollectionCountToVisibilityConverter}}"/>
-                        <TextBlock Foreground="{StaticResource RegularTextColor}" Margin="24,12" Visibility="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}">
-                            <Run Text="{Binding SelectedProductItemCollection.Count}"/>
-                            <Run Text="item selected"/>
-                        </TextBlock>
-
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Tag="Add" Click="OnAddOrEditProductButtonClick">
-                                <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEF20;"/>
-                                    <TextBlock Text="Add label"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Tag="Edit" Click="OnAddOrEditProductButtonClick" IsEnabled="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToBooleanConverter}}">
-                                <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE70F;"/>
-                                    <TextBlock Text="Edit label"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Click="OnClearSelectionButtonClick" IsEnabled="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToBooleanConverter}}">
-                                <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8E6;"/>
-                                    <TextBlock Text="Clear selection"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Click="OnRemoveRegionButtonClick" IsEnabled="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToBooleanConverter}}">
-                                <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74D;"/>
-                                    <TextBlock Text="Remove"/>
-                                </StackPanel>
-                            </Button>
-                            <Rectangle VerticalAlignment="Stretch" Width="1" Fill="White" Opacity="0.2" Margin="4,6"/>
-                            <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Click="OnOpenResultsViewButtonClick">
-                                <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
-                                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE896;"/>
-                                    <TextBlock Text="Publish results"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Grid>
-
-                    <Grid Grid.Row="1" ColumnSpacing="17" Padding="0,0,0,6">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.8*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Selected Items -->
-                        <GridView Grid.Column="0" Margin="24,0" Visibility="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"
-                                  ItemsSource="{Binding SelectedProductItemCollection}" 
-                                  ScrollViewer.HorizontalScrollMode="Enabled" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollMode="Disabled"
-                                  ItemTemplate="{StaticResource SelectedProductGridView}"
-                                  ItemContainerStyle="{StaticResource SelectedProductGridViewItemContainerStyle}"
-                                  Style="{StaticResource SelectedProductGridViewStyle}" />
-
-                        <Grid Grid.Column="0" ColumnSpacing="40" Margin="24,0,0,0" Visibility="{Binding SelectedProductItemCollection.Count, Converter={StaticResource reverseCollectionCountToVisibilityConverter}}">
+                    <StackPanel Grid.Row="0" Spacing="18">
+                        <ctl:CoverageChartControl x:Name="coverageChart" Title="Share of Shelf by area"/>
+                        <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.45*"/>
-                                <ColumnDefinition Width="0.55*"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
                             </Grid.ColumnDefinitions>
-
-                            <Grid RowSpacing="12">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Items by" Foreground="{StaticResource RegularTextColor}" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                                    <ComboBox x:Name="summaryGroupComboBox" ItemsSource="{Binding SummaryGroupCollection}" SelectedIndex="0" DisplayMemberPath="Item1" SelectedValuePath="Item2" SelectionChanged="OnSummaryGroupComboBoxSelectionChanged" />
-                                </StackPanel>
-
-                                <ctl:AnalyticsChartControl Grid.Row="1" x:Name="chartControl" />
-                                <Grid x:Name="resultsGrid" Grid.Row="1" Visibility="Collapsed" VerticalAlignment="Top">
-                                    <controls:DataGrid x:Name="summaryDataGrid" ItemsSource="{Binding ResultDataGridCollection}" IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal">
-                                        <controls:DataGrid.Columns>
-                                            <controls:DataGridTemplateColumn Header="Object tag" Width="*">
-                                                <controls:DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate x:DataType="models:ResultDataGridViewModel">
-                                                        <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Stretch">
-                                                            <Viewbox Width="48" Height="48" Margin="12" Visibility="{Binding IsAggregateColumn, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
-                                                                <Image Source="{x:Bind models:ResultDataGridViewModel.GetTagImageSource(Name)}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                            </Viewbox>
-
-                                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </controls:DataGridTemplateColumn.CellTemplate>
-                                            </controls:DataGridTemplateColumn>
-
-                                            <controls:DataGridTextColumn Header="Count" Binding="{Binding TotalCount}" Width="Auto"/>
-                                            
-                                            <controls:DataGridTemplateColumn Header="Expected count" Width="Auto">
-                                                <controls:DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate x:DataType="models:ResultDataGridViewModel">
-                                                        <TextBlock Text="{x:Bind models:ResultDataGridViewModel.GetExpectedCountValue(ExpectedCount,ExpectedCoverage)}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </DataTemplate>
-                                                </controls:DataGridTemplateColumn.CellTemplate>
-                                            </controls:DataGridTemplateColumn>
-
-                                            <controls:DataGridTemplateColumn Header="Filter" Width="70">
-                                                <controls:DataGridTemplateColumn.CellTemplate>
-                                                    <DataTemplate x:DataType="models:ResultDataGridViewModel">
-                                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Visibility="{Binding IsAggregateColumn, Converter={StaticResource reverseBooleanToVisibilityConverter}}" Margin="12,0" Checked="DataGridFilterChecked" Unchecked="DataGridFilterUnchecked"/>
-                                                    </DataTemplate>
-                                                </controls:DataGridTemplateColumn.CellTemplate>
-                                            </controls:DataGridTemplateColumn>
-                                        </controls:DataGrid.Columns>
-                                    </controls:DataGrid>
-                                </Grid>
-                            </Grid>
-
-                            <ListView Grid.Column="1" ItemsSource="{Binding GroupedProductCollection}" SelectionMode="None" 
-                                      ItemContainerStyle="{StaticResource ListViewItemWithMarginContainerStyle}"
-                                      ItemTemplate="{StaticResource GroupedProductsTemplate}" />
+                            <TextBlock Text="Shelf detail" VerticalAlignment="Center"/>
+                            <Pivot Grid.Column="1" x:Name="pivot" FlowDirection="RightToLeft" SelectionChanged="PivotSelectionChanged">
+                                <PivotItem>
+                                    <PivotItem.Header>
+                                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF0E2;" VerticalAlignment="Center"/>
+                                    </PivotItem.Header>
+                                </PivotItem>
+                                <PivotItem>
+                                    <PivotItem.Header>
+                                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8B9;" VerticalAlignment="Center"/>
+                                    </PivotItem.Header>
+                                </PivotItem>
+                            </Pivot>
                         </Grid>
+                    </StackPanel>
 
-                        <!-- Checkbox filters -->
-                        <ListView x:Name="filterListView" Grid.Column="1" Width="300"
-                                  ItemsSource="{Binding ProductFilterCollection}" SelectionMode="None" 
-                                  ItemTemplate="{StaticResource CheckboxFiltersTemplate}"
-                                  ItemContainerStyle="{StaticResource ListViewItemWithMarginContainerStyle}">
-                            <ListView.Header>
-                                <TextBlock Text="Quick select" Margin="0,0,0,12"/>
-                            </ListView.Header>
-                        </ListView>
-                    </Grid>
+                    <!-- Result Data Grid -->
+                    <controls:DataGrid x:Name="dataGrid" Grid.Row="1" VerticalAlignment="Top" 
+                           ItemsSource="{Binding ResultDataGridCollection}" 
+                           IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal">
+                        <controls:DataGrid.Columns>
+                            <controls:DataGridTemplateColumn Header="Object tag" Width="*">
+                                <controls:DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="models:ResultDataGridViewModel">
+                                        <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Stretch">
+                                            <Viewbox Width="48" Height="48" Margin="12" Visibility="{Binding IsAggregateColumn, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
+                                                <Image Source="{x:Bind models:ResultDataGridViewModel.GetTagImageSource(Name)}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </Viewbox>
 
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </controls:DataGridTemplateColumn.CellTemplate>
+                            </controls:DataGridTemplateColumn>
+
+                            <controls:DataGridTextColumn Header="Count" Binding="{Binding TotalCount}" Width="Auto"/>
+                            <controls:DataGridTextColumn Header="Expected count" Binding="{Binding ExpectedCount}" Width="Auto"/>
+
+                            <controls:DataGridTemplateColumn Header="Filter" Width="70">
+                                <controls:DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="models:ResultDataGridViewModel">
+                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Visibility="{Binding IsAggregateColumn, Converter={StaticResource reverseBooleanToVisibilityConverter}}" Margin="12,0" Checked="FilterChecked" Unchecked="FilterUnchecked"/>
+                                    </DataTemplate>
+                                </controls:DataGridTemplateColumn.CellTemplate>
+                            </controls:DataGridTemplateColumn>
+
+                        </controls:DataGrid.Columns>
+                    </controls:DataGrid>
+
+                    <ListView x:Name="groupedProductListView" Grid.Row="1" Visibility="Collapsed"
+                              ItemsSource="{Binding GroupedProductCollection}" SelectionMode="None" 
+                              ItemContainerStyle="{StaticResource ListViewItemWithMarginContainerStyle}"
+                              ItemTemplate="{StaticResource GroupedProductsTemplate}" />
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12" Spacing="8" HorizontalAlignment="Right">
+                        <Button Content="Publish results" Width="120" Background="#0078D7" Click="OnPublishButtonClicked" />
+                        <Button Content="Cancel" Width="120" Click="OnCloseImageViewButtonClicked"/>
+                    </StackPanel>
                 </Grid>
             </Grid>
 
@@ -315,18 +187,6 @@
                                           RecentlyUsedTagCollection="{Binding RecentlyUsedTagCollection}" 
                                           ProductTagUpdated="OnProductEditorControlProductUpdated" 
                                           EditorClosed="OnProductEditorControlClosed"/>
-            </Grid>
-
-            <!-- Image Analysis Review panel -->
-            <Grid Grid.Row="1" Grid.Column="2" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisReview|ImageAnalysisPublish'}">
-                <local:ReviewPanelControl x:Name="reviewPanelControl"
-                                          State="{Binding AppViewState}"
-                                          ResultDataGridCollection="{Binding ResultDataGridCollection}"
-                                          GroupedProductCollection="{Binding GroupedProductCollection}"
-                                          PublishResults="OnReviewPanelControlPublishResults"
-                                          DataGridSelected="OnReviewPanelControlDataGridSelected"
-                                          ProductSelected="OnReviewPanelControlProductSelected"
-                                          Closed="OnReviewPanelControlClosed"/>
             </Grid>
 
             <!-- Image Analysis publishing panel -->
@@ -344,7 +204,16 @@
                     <TextBlock x:Name="correctionsTextBlock"/>
                 </StackPanel>
             </StackPanel>
-        </Grid>
 
+            <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,30,24,24" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelected'}">
+                    <Button Content="Identify items" Background="#0078D7" Width="120" Click="OnAnalyzeImageButtonClicked" 
+                            IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}"
+                            Visibility="{Binding ElementName=image, Path=EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}"/>
+                    <Button Content="Cancel" Background="{StaticResource GrayColorButton}" Width="120" Click="OnCloseImageViewButtonClicked"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+        
     </Grid>
 </Page>
