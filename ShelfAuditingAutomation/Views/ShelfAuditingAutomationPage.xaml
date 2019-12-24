@@ -66,7 +66,8 @@
             </StackPanel>
 
             <Grid Grid.Row="1" Grid.Column="1" Background="#171717">
-                <ctl:ImageWithRegionEditorsControl x:Name="image" HorizontalAlignment="Stretch" RegionSelected="OnImageRegionSelected" 
+                <ctl:ImageWithRegionEditorsControl x:Name="image" HorizontalAlignment="Stretch" 
+                                                   RegionSelected="OnImageRegionSelected" 
                                                    EnableImageControls="{Binding ElementName=mainPage, Path=AppViewState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisPublishing'}"
                                                    ActiveImageControls="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}"/>
                 <ProgressRing x:Name="progressRing" Width="100" Height="100" Foreground="{StaticResource RegularTextColor}"/>
@@ -83,19 +84,19 @@
                 <StackPanel Grid.Row="0" Padding="22" Spacing="16">
                     <TextBlock Text="Image results" Style="{StaticResource SubtitleTextBlockStyle}" Foreground="{StaticResource RegularTextColor}"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Tag="Add" Click="OnAddOrEditProductButtonClick">
+                        <Button Background="Transparent" Tag="Add" Click="OnAddOrEditProductButtonClick" Style="{StaticResource ControlButtonStyle}">
                             <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEF20;"/>
                                 <TextBlock Text="Add label"/>
                             </StackPanel>
                         </Button>
-                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Tag="Edit" Click="OnAddOrEditProductButtonClick" IsEnabled="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToBooleanConverter}}">
+                        <Button x:Name="editLabelButton" Background="Transparent" Tag="Edit" IsEnabled="false" Click="OnAddOrEditProductButtonClick" Style="{StaticResource ControlButtonStyle}">
                             <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE70F;"/>
                                 <TextBlock Text="Edit label"/>
                             </StackPanel>
                         </Button>
-                        <Button Background="Transparent" Style="{StaticResource ControlButtonStyle}" Click="OnRemoveRegionButtonClick" IsEnabled="{Binding SelectedProductItemCollection.Count, Converter={StaticResource collectionCountToBooleanConverter}}">
+                        <Button x:Name="removeLabelButton" Background="Transparent" IsEnabled="false" Click="OnRemoveRegionButtonClick" Style="{StaticResource ControlButtonStyle}">
                             <StackPanel Orientation="Horizontal" Spacing="8" Padding="4">
                                 <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE74D;"/>
                                 <TextBlock Text="Remove"/>
@@ -112,7 +113,9 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
+                    
                     <StackPanel Grid.Row="0" Spacing="18">
+                        <TextBlock Text="Review the data below to make sure it's complete and correct before publishing" TextWrapping="Wrap"/>
                         <ctl:CoverageChartControl x:Name="coverageChart" Title="Share of Shelf by area"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -137,8 +140,8 @@
 
                     <!-- Result Data Grid -->
                     <controls:DataGrid x:Name="dataGrid" Grid.Row="1" VerticalAlignment="Top" 
-                           ItemsSource="{Binding ResultDataGridCollection}" 
-                           IsReadOnly="True" AutoGenerateColumns="False" SelectionMode="Single" GridLinesVisibility="Horizontal">
+                           ItemsSource="{Binding ResultDataGridCollection}" SelectionChanged="DataGridSelectionChanged" SelectionMode="Extended"
+                           IsReadOnly="True" AutoGenerateColumns="False" GridLinesVisibility="Horizontal">
                         <controls:DataGrid.Columns>
                             <controls:DataGridTemplateColumn Header="Object tag" Width="*">
                                 <controls:DataGridTemplateColumn.CellTemplate>
@@ -154,17 +157,8 @@
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
 
-                            <controls:DataGridTextColumn Header="Count" Binding="{Binding TotalCount}" Width="Auto"/>
                             <controls:DataGridTextColumn Header="Expected count" Binding="{Binding ExpectedCount}" Width="Auto"/>
-
-                            <controls:DataGridTemplateColumn Header="Filter" Width="70">
-                                <controls:DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate x:DataType="models:ResultDataGridViewModel">
-                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Visibility="{Binding IsAggregateColumn, Converter={StaticResource reverseBooleanToVisibilityConverter}}" Margin="12,0" Checked="FilterChecked" Unchecked="FilterUnchecked"/>
-                                    </DataTemplate>
-                                </controls:DataGridTemplateColumn.CellTemplate>
-                            </controls:DataGridTemplateColumn>
-
+                            <controls:DataGridTextColumn Header="Shelf count" Binding="{Binding TotalCount}" Width="Auto"/>
                         </controls:DataGrid.Columns>
                     </controls:DataGrid>
 
@@ -173,7 +167,7 @@
                               ItemContainerStyle="{StaticResource ListViewItemWithMarginContainerStyle}"
                               ItemTemplate="{StaticResource GroupedProductsTemplate}" />
 
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12" Spacing="8" HorizontalAlignment="Right">
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
                         <Button Content="Publish results" Width="120" Background="#0078D7" Click="OnPublishButtonClicked" />
                         <Button Content="Cancel" Width="120" Click="OnCloseImageViewButtonClicked"/>
                     </StackPanel>
@@ -192,9 +186,16 @@
             <!-- Image Analysis publishing panel -->
             <StackPanel Grid.Row="1" Grid.Column="2" Padding="12,0" Spacing="24" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisPublishing'}">
                 <StackPanel Spacing="4">
+                    <TextBlock Text="Source image" FontSize="12" Foreground="{StaticResource RegularTextColor}"/>
+                    <TextBlock x:Name="sourceImageTextBlock" />
+                </StackPanel>
+                <StackPanel Spacing="4">
                     <TextBlock Text="Product vision model" FontSize="12" Foreground="{StaticResource RegularTextColor}"/>
                     <TextBlock x:Name="currentProjectTextBlock" />
                 </StackPanel>
+
+                <ctl:CoverageChartControl x:Name="finalCoverageChart" Title="Share of Shelf by area"/>
+                
                 <StackPanel Spacing="4">
                     <TextBlock Text="Final results" FontSize="12" Foreground="{StaticResource RegularTextColor}"/>
                     <TextBlock x:Name="finalResultsTextBlock"/>
@@ -205,12 +206,15 @@
                 </StackPanel>
             </StackPanel>
 
-            <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,30,24,24" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelected'}">
+            <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelected'}">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,30,24,24" Visibility="{Binding ElementName=image, Path=EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
                     <Button Content="Identify items" Background="#0078D7" Width="120" Click="OnAnalyzeImageButtonClicked" 
-                            IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}"
-                            Visibility="{Binding ElementName=image, Path=EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}"/>
+                            IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}"/>
                     <Button Content="Cancel" Background="{StaticResource GrayColorButton}" Width="120" Click="OnCloseImageViewButtonClicked"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,30,24,24" Visibility="{Binding ElementName=image, Path=EnableCropFeature, Converter={StaticResource booleanToVisibilityConverter}}">
+                    <Button Content="Apply" Background="#0078D7" Width="120" Tag="Apply" Click="CropImageButtonClick"/>
+                    <Button Content="Cancel" Background="{StaticResource GrayColorButton}" Width="120" Tag="Cancel" Click="CropImageButtonClick"/>
                 </StackPanel>
             </Grid>
         </Grid>

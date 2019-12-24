@@ -28,6 +28,9 @@ namespace ShelfAuditingAutomation.Views
         private static readonly string PredictionApiKey = "";         // CUSTOM VISION PREDICTION API KEY
         private static readonly string PredictionApiKeyEndpoint = ""; // CUSTOM VISION PREDICTION API ENDPOINT
 
+        private CustomVisionTrainingClient trainingApi;
+        private CustomVisionPredictionClient predictionApi;
+
         private SpecsData currentSpec;
         private ProjectViewModel currentProject;
         private List<ProductItemViewModel> currentDetectedObjects;
@@ -35,16 +38,11 @@ namespace ShelfAuditingAutomation.Views
         private List<ProductItemViewModel> editedProductItems = new List<ProductItemViewModel>();
         private List<ProductItemViewModel> deletedProductItems = new List<ProductItemViewModel>();
 
-        private CustomVisionTrainingClient trainingApi;
-        private CustomVisionPredictionClient predictionApi;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<SpecsData> SpecsDataCollection { get; set; } = new ObservableCollection<SpecsData>();
 
         public ObservableCollection<ProductTag> ProjectTagCollection { get; set; } = new ObservableCollection<ProductTag>();
-
-        public ObservableCollection<ProductItemViewModel> SelectedProductItemCollection { get; set; } = new ObservableCollection<ProductItemViewModel>();
 
         public ObservableCollection<ProductTag> RecentlyUsedTagCollection { get; set; } = new ObservableCollection<ProductTag>();
 
@@ -176,8 +174,8 @@ namespace ShelfAuditingAutomation.Views
                     }
                 }
 
-                UpdateChart(currentDetectedObjects);
                 UpdateImageDetectedBoxes(currentDetectedObjects);
+                UpdateChart(this.coverageChart, currentDetectedObjects);
                 UpdateDataGrid(currentDetectedObjects);
                 UpdateGroupedProductCollection(currentDetectedObjects);
 
@@ -193,12 +191,277 @@ namespace ShelfAuditingAutomation.Views
             }
         }
 
-        private void UpdateChart(IEnumerable<ProductItemViewModel> productItemCollection)
+        private void OnImageRegionSelected(object sender, EventArgs e)
+        {
+            this.editLabelButton.IsEnabled = this.image.SelectedRegions.Any();
+            this.removeLabelButton.IsEnabled = this.image.SelectedRegions.Any();
+        }
+
+        private async void OnRemoveRegionButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (this.image.SelectedRegions.Any())
+            {
+                ContentDialog dialog = new ContentDialog
+                {
+                    Title = "Delete selected product(s) permanently?",
+                    Content = "This operation will delete product(s) permanently.\nAre you sure you want to continue?",
+                    PrimaryButtonText = "Delete",
+                    SecondaryButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Secondary
+                };
+
+                ContentDialogResult result = await dialog.ShowAsync();
+                if (result == ContentDialogResult.Primary)
+                {
+                    foreach (ProductItemViewModel product in this.image.SelectedRegions)
+                    {
+                        var newProductItem = addedProductItems.FirstOrDefault(p => p.Id == product.Id);
+
+                        if (!deletedProductItems.Any(p => p.Id == product.Id) && newProductItem == null)
+                        {
+                            deletedProductItems.Add(product);
+                        }
+
+                        if (newProductItem != null)
+                        {
+                            addedProductItems.Remove(newProductItem);
+                        }
+
+                        var productToRemove = currentDetectedObjects.FirstOrDefault(p => p.Id == product.Id);
+                        if (productToRemove != null)
+                        {
+                            currentDetectedObjects.Remove(productToRemove);
+                        }
+                    }
+
+                    UpdateImageDetectedBoxes(currentDetectedObjects);
+                    UpdateChart(this.coverageChart, currentDetectedObjects);
+                    UpdateDataGrid(currentDetectedObjects);
+                    UpdateGroupedProductCollection(currentDetectedObjects);
+
+                    AppViewState = AppViewState.ImageAnalysisReview;
+                }
+            }
+        }
+
+        private async void OnInputImageSelected(object sender, Tuple<SpecsData, StorageFile> args)
+        {
+            ResetImageData();
+
+            // get project and image from input view page
+            currentSpec = args.Item1;
+            currentProject = new ProjectViewModel(args.Item1.ModelId, args.Item1.ModelName);
+            await this.image.SetSourceFromFileAsync(args.Item2);
+
+            AppViewState = AppViewState.ImageSelected;
+        }
+
+        private async void CropImageButtonClick(object sender, RoutedEventArgs e)
+        {
+            string buttonTag = ((Button)sender).Tag as string ?? string.Empty;
+            await this.image.CropImage(crop: buttonTag == "Apply");
+        }
+
+        private void OnProductEditorControlClosed(object sender, EventArgs e)
+        {
+            foreach (var product in this.image.SelectedRegions)
+            {
+                var originalProduct = currentDetectedObjects.FirstOrDefault(p => p.Id == product.Id)?.DeepCopy();
+                product.DisplayName = originalProduct.DisplayName;
+                product.Model = originalProduct.Model;
+            }
+
+            this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
+            this.image.ToggleEditState(enable: false);
+            AppViewState = AppViewState.ImageAnalysisReview;
+        }
+
+        private void OnAddOrEditProductButtonClick(object sender, RoutedEventArgs e)
+        {
+            string buttonTag = ((Button)sender).Tag as string ?? string.Empty;
+
+            if (buttonTag == "Add")
+            {
+                this.productEditorControl.EditorState = EditorState.Add;
+                this.productEditorControl.CurrentTag = ProjectTagCollection.FirstOrDefault(p => p.Tag.Name.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase));
+                this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
+                this.image.ToggleEditState(enable: true);
+                this.image.AddedNewObjects.Clear();
+            }
+            else
+            {
+                this.productEditorControl.EditorState = EditorState.Edit;
+                var detectedProductsWithoutSelected = currentDetectedObjects.Where(p => !this.image.SelectedRegions.Select(s => s.Id).Contains(p.Id));
+                this.image.ShowObjectDetectionBoxes(detectedProductsWithoutSelected, RegionState.Disabled);
+                this.image.ShowEditableObjectDetectionBoxes(this.image.SelectedRegions);
+            }
+
+            RecentlyUsedTagCollection.Clear();
+            foreach (var tagId in SettingsHelper.Instance.RecentlyUsedProducts)
+            {
+                var tag = ProjectTagCollection.FirstOrDefault(p => p.Tag.Id.ToString() == tagId);
+                if (tag != null)
+                {
+                    RecentlyUsedTagCollection.Add(tag);
+                }
+            }
+
+            AppViewState = AppViewState.ImageAddOrUpdateProduct;
+        }
+
+        private async void OnProductEditorControlProductUpdated(object sender, Tuple<UpdateStatus, ProductTag> args)
+        {
+            UpdateStatus updateStatus = args.Item1;
+            ProductTag tag = args.Item2;
+            switch (updateStatus)
+            {
+                case UpdateStatus.UpdateExistingProduct:
+                    this.image.UpdateObjectBoxes(tag, isNewObject: false);
+                    break;
+
+                case UpdateStatus.UpdateNewProduct:
+                    this.image.UpdateObjectBoxes(tag, isNewObject: true);
+                    break;
+
+                case UpdateStatus.SaveExistingProduct:
+                case UpdateStatus.SaveNewProduct:
+
+                    bool isNewProducts = updateStatus == UpdateStatus.SaveNewProduct;
+                    if (isNewProducts && this.image.AddedNewObjects.Any(x => x.Model?.TagId == Guid.Empty))
+                    {
+                        this.image.UpdateObjectBoxes(tag, isNewObject: true);
+                    }
+                    var data = isNewProducts ? this.image.AddedNewObjects : this.image.SelectedRegions;
+                    await UpdateProducts(data, newProducts: isNewProducts);
+
+                    UpdateImageDetectedBoxes(currentDetectedObjects);
+                    UpdateChart(this.coverageChart, currentDetectedObjects);
+                    UpdateDataGrid(currentDetectedObjects);
+                    UpdateGroupedProductCollection(currentDetectedObjects);
+
+                    AppViewState = AppViewState.ImageAnalysisReview;
+                    break;
+            }
+        }
+
+        #region Publishing
+
+        private async void OnPublishButtonClicked(object sender, RoutedEventArgs e)
+        {
+            this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
+            await PublishResultsAsync();
+        }
+
+        private void PivotSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (this.pivot.SelectedIndex)
+            {
+                case 0:
+                    this.dataGrid.Visibility = Visibility.Visible;
+                    this.groupedProductListView.Visibility = Visibility.Collapsed;
+
+                    this.dataGrid.SelectedItems?.Clear();
+                    this.image.SelectedRegions.Clear();
+                    break;
+
+                case 1:
+                    this.dataGrid.Visibility = Visibility.Collapsed;
+                    this.groupedProductListView.Visibility = Visibility.Visible;
+                    break;
+            }
+
+            UpdateImageDetectedBoxes(currentDetectedObjects);
+        }
+
+        private void ProductCollectionControlProductSelected(object sender, ProductItemViewModel e)
+        {
+            this.image.UpdateSelectedRegions(new List<ProductItemViewModel>() { e });
+        }
+
+        private void DataGridSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedRows = this.dataGrid.SelectedItems.Cast<ResultDataGridViewModel>();
+            if (selectedRows.Any())
+            {
+                var filters = selectedRows.Where(r => !r.IsAggregateColumn).Select(r => r.Name.ToLower());
+                var filterData = selectedRows.All(r => r.IsAggregateColumn) ? currentDetectedObjects : currentDetectedObjects.Where(p => filters.Contains(p.DisplayName.ToLower()));
+                UpdateImageDetectedBoxes(filterData);
+            }
+        }
+
+        private void OnTryAnotherImageButtonClick(object sender, RoutedEventArgs e)
+        {
+            this.image.ClearSource();
+            AppViewState = AppViewState.ImageSelection;
+        }
+
+        private async Task PublishResultsAsync()
+        {
+            try
+            {
+                this.progressRing.IsActive = true;
+                this.publishStatus.Text = "Publishing results";
+                this.publishDetails.Text = "The image, results and corrections are being uploaded to your Custom Vision portal.";
+
+                this.sourceImageTextBlock.Text = this.image.ImageFile.Name;
+                this.currentProjectTextBlock.Text = this.currentProject.Name;
+                UpdateChart(this.finalCoverageChart, currentDetectedObjects);
+
+                int unknownProductsCount = currentDetectedObjects.Count(p => p.DisplayName.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase));
+                int shelfGapsCount = currentDetectedObjects.Count(p => p.DisplayName.Equals(Util.ShelfGapName, StringComparison.OrdinalIgnoreCase));
+                int taggedProductCount = currentDetectedObjects.Count - unknownProductsCount - shelfGapsCount;
+
+                string[] finalResults = new string[]
+                {
+                    $"{taggedProductCount} tagged",
+                    $"{unknownProductsCount} unknown",
+                    $"{shelfGapsCount} shelf gaps",
+                };
+                this.finalResultsTextBlock.Text = $"{currentDetectedObjects.Count} objects ({string.Join(", ", finalResults)})";
+
+                string[] corrections = new string[]
+                {
+                    editedProductItems.Any() ? $"{editedProductItems.Count} item(s) edited" : string.Empty,
+                    addedProductItems.Any() ? $"{addedProductItems.Count} item(s) added" : string.Empty,
+                    deletedProductItems.Any() ? $"{deletedProductItems.Count} item(s) deleted" : string.Empty
+                };
+                bool isAnyCorrections = corrections.Any(x => x.Length > 0);
+                this.correctionsTextBlock.Text = isAnyCorrections ? string.Join(", ", corrections.Where(x => x.Length > 0)) : "N/A";
+                AppViewState = AppViewState.ImageAnalysisPublishing;
+
+                await CustomVisionServiceHelper.AddImageRegionsAsync(trainingApi, currentProject.Id, this.image.ImageFile, currentDetectedObjects);
+
+                this.publishStatus.Text = "Results published";
+                this.publishDetails.Text = "The image, results and corrections are now available in your Custom Vision portal.";
+            }
+            catch (Exception ex)
+            {
+                this.publishStatus.Text = "Publishing failed";
+                this.publishDetails.Text = string.Empty;
+                await Util.GenericApiCallExceptionHandler(ex, "Publishing results error");
+            }
+            finally
+            {
+                this.progressRing.IsActive = false;
+            }
+        }
+        #endregion
+
+
+        #region Update Image, Chart, DataGrid, Collections, Products
+        private void UpdateImageDetectedBoxes(IEnumerable<ProductItemViewModel> productItemCollection)
+        {
+            this.image.ClearSelectedRegions();
+            this.image.ShowObjectDetectionBoxes(productItemCollection.Select(p => p.DeepCopy()));
+            this.image.ToggleEditState(enable: false);
+        }
+
+        private void UpdateChart(CoverageChartControl chartControl, IEnumerable<ProductItemViewModel> productItemCollection)
         {
             if (productItemCollection != null && productItemCollection.Any())
             {
-                double totalArea = productItemCollection.Sum(p => p.Model.BoundingBox.Width * p.Model.BoundingBox.Height);
-                double shelfGapArea = productItemCollection.Where(p => p.DisplayName.Equals(Util.ShelfGapName, StringComparison.OrdinalIgnoreCase)).Sum(p => p.Model.BoundingBox.Width * p.Model.BoundingBox.Height);
+                double totalArea =           productItemCollection.Sum(p => p.Model.BoundingBox.Width * p.Model.BoundingBox.Height);
+                double shelfGapArea =        productItemCollection.Where(p => p.DisplayName.Equals(Util.ShelfGapName, StringComparison.OrdinalIgnoreCase)).Sum(p => p.Model.BoundingBox.Width * p.Model.BoundingBox.Height);
                 double unknownProductsArea = productItemCollection.Where(p => p.DisplayName.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase)).Sum(p => p.Model.BoundingBox.Width * p.Model.BoundingBox.Height);
                 double taggedProductsArea = totalArea - shelfGapArea - unknownProductsArea;
 
@@ -224,314 +487,8 @@ namespace ShelfAuditingAutomation.Views
                         Foreground = new Windows.UI.Xaml.Media.SolidColorBrush(Colors.Black)
                     }
                 };
-                this.coverageChart.GenerateChart(data, $"{productItemCollection.Count()} items total");
+                chartControl?.GenerateChart(data, $"{productItemCollection.Count()} items total");
             }
-        }
-
-        private void OnImageRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> args)
-        {
-            if (args?.Item1 != null && args?.Item2 != null)
-            {
-                ProductItemViewModel product = args.Item2.DeepCopy();
-                if (args.Item1 == RegionState.Selected)
-                {
-                    SelectedProductItemCollection.Add(product);
-                }
-                else
-                {
-                    var productToRemove = SelectedProductItemCollection.FirstOrDefault(p => p.Id == product.Id);
-                    if (productToRemove != null)
-                    {
-                        SelectedProductItemCollection.Remove(productToRemove);
-                    }
-                }
-            }
-        }
-
-        private async void OnRemoveRegionButtonClick(object sender, RoutedEventArgs e)
-        {
-            if (SelectedProductItemCollection.Any())
-            {
-                ContentDialog dialog = new ContentDialog
-                {
-                    Title = "Delete selected product(s) permanently?",
-                    Content = "This operation will delete product(s) permanently.\nAre you sure you want to continue?",
-                    PrimaryButtonText = "Delete",
-                    SecondaryButtonText = "Cancel",
-                    DefaultButton = ContentDialogButton.Secondary
-                };
-
-                ContentDialogResult result = await dialog.ShowAsync();
-                if (result == ContentDialogResult.Primary)
-                {
-                    foreach (ProductItemViewModel product in SelectedProductItemCollection)
-                    {
-                        var newProductItem = addedProductItems.FirstOrDefault(p => p.Id == product.Id);
-
-                        if (!deletedProductItems.Any(p => p.Id == product.Id) && newProductItem == null)
-                        {
-                            deletedProductItems.Add(product);
-                        }
-
-                        if (newProductItem != null)
-                        {
-                            addedProductItems.Remove(newProductItem);
-                        }
-
-                        var productToRemove = currentDetectedObjects.FirstOrDefault(p => p.Id == product.Id);
-                        if (productToRemove != null)
-                        {
-                            currentDetectedObjects.Remove(productToRemove);
-                        }
-                    }
-
-                    SelectedProductItemCollection.Clear();
-                    UpdateImageDetectedBoxes(currentDetectedObjects);
-                    UpdateDataGrid(currentDetectedObjects);
-                    UpdateGroupedProductCollection(currentDetectedObjects);
-
-                    AppViewState = AppViewState.ImageAnalysisReview;
-                }
-            }
-        }
-
-        private async void OnInputImageSelected(object sender, Tuple<SpecsData, StorageFile> args)
-        {
-            ResetImageData();
-
-            // get project and image from input view page
-            currentSpec = args.Item1;
-            currentProject = new ProjectViewModel(args.Item1.ModelId, args.Item1.ModelName);
-            await this.image.SetSourceFromFileAsync(args.Item2);
-
-            AppViewState = AppViewState.ImageSelected;
-        }
-
-        private void OnProductEditorControlClosed(object sender, EventArgs e)
-        {
-            foreach (var product in SelectedProductItemCollection)
-            {
-                var originalProduct = currentDetectedObjects.FirstOrDefault(p => p.Id == product.Id)?.DeepCopy();
-                product.DisplayName = originalProduct.DisplayName;
-                product.Model = originalProduct.Model;
-            }
-
-            this.image.ShowObjectDetectionBoxes(currentDetectedObjects);
-            this.image.ToggleEditState(enable: false);
-            AppViewState = AppViewState.ImageAnalysisReview;
-        }
-
-        private void OnAddOrEditProductButtonClick(object sender, RoutedEventArgs e)
-        {
-            string buttonTag = ((Button)sender).Tag as string ?? string.Empty;
-
-            if (buttonTag == "Add")
-            {
-                this.productEditorControl.EditorState = EditorState.Add;
-                this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
-                this.image.ToggleEditState(enable: true);
-            }
-            else
-            {
-                this.productEditorControl.EditorState = EditorState.Edit;
-                var detectedProductsWithoutSelected = currentDetectedObjects.Where(p => !SelectedProductItemCollection.Select(s => s.Id).Contains(p.Id));
-                this.image.ShowObjectDetectionBoxes(detectedProductsWithoutSelected, RegionState.Disabled);
-                this.image.ShowEditableObjectDetectionBoxes(SelectedProductItemCollection);
-            }
-
-            RecentlyUsedTagCollection.Clear();
-            foreach (var tagId in SettingsHelper.Instance.RecentlyUsedProducts)
-            {
-                var tag = ProjectTagCollection.FirstOrDefault(p => p.Tag.Id.ToString() == tagId);
-                if (tag != null)
-                {
-                    RecentlyUsedTagCollection.Add(tag);
-                }
-            }
-
-            AppViewState = AppViewState.ImageAddOrUpdateProduct;
-        }
-
-        private async void OnProductEditorControlProductUpdated(object sender, Tuple<UpdateStatus, ProductTag> args)
-        {
-            UpdateStatus updateStatus = args.Item1;
-            ProductTag tag = args.Item2;
-            switch (updateStatus)
-            {
-                case UpdateStatus.UpdateExistingProduct:
-                    foreach (var item in SelectedProductItemCollection)
-                    {
-                        item.DisplayName = tag.Tag.Name;
-                        item.Model = new PredictionModel(probability: 1.0, tag.Tag.Id, tag.Tag.Name, item.Model.BoundingBox);
-                    }
-                    this.image.ShowEditableObjectDetectionBoxes(SelectedProductItemCollection);
-                    break;
-
-                case UpdateStatus.UpdateNewProduct:
-                    this.image.UpdateNewObject(tag);
-                    break;
-
-                case UpdateStatus.SaveExistingProduct:
-                case UpdateStatus.SaveNewProduct:
-
-                    if (updateStatus == UpdateStatus.SaveExistingProduct)
-                    {
-                        await UpdateProducts(SelectedProductItemCollection.Select(p => p.DeepCopy()));
-                        SelectedProductItemCollection.Clear();
-                    }
-                    else
-                    {
-                        await UpdateProducts(this.image.AddedNewObjects, newProducts: true);
-                        this.image.AddedNewObjects.Clear();
-                    }
-
-                    UpdateImageDetectedBoxes(currentDetectedObjects);
-                    UpdateDataGrid(currentDetectedObjects);
-                    UpdateGroupedProductCollection(currentDetectedObjects);
-
-                    AppViewState = AppViewState.ImageAnalysisReview;
-                    break;
-            }
-        }
-
-        #region Publishing
-
-        private async void OnPublishButtonClicked(object sender, RoutedEventArgs e)
-        {
-            bool anyResults = addedProductItems.Any() || editedProductItems.Any() || deletedProductItems.Any();
-            if (anyResults)
-            {
-                this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
-                await PublishResultsAsync();
-            }
-            else
-            {
-                await new MessageDialog("It looks like you didn't make any corrections.", "Publishing results").ShowAsync();
-            }
-        }
-
-        private void PivotSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            switch (this.pivot.SelectedIndex)
-            {
-                case 0:
-                    this.dataGrid.Visibility = Visibility.Visible;
-                    this.groupedProductListView.Visibility = Visibility.Collapsed;
-
-                    SelectedProductItemCollection.Clear();
-                    ApplyFilters();
-                    break;
-
-                case 1:
-                    this.dataGrid.Visibility = Visibility.Collapsed;
-                    this.groupedProductListView.Visibility = Visibility.Visible;
-
-                    ApplyFilters(useFilters: false);
-                    break;
-            }
-        }
-
-        private void ProductCollectionControlProductSelected(object sender, ProductItemViewModel e)
-        {
-            if (e != null)
-            {
-                SelectedProductItemCollection.Clear();
-                SelectedProductItemCollection.Add(e);
-                this.image.UpdateSelectedRegions(SelectedProductItemCollection);
-            }
-        }
-
-        private void FilterChecked(object sender, RoutedEventArgs e)
-        {
-            ApplyFilters();
-        }
-
-        private void FilterUnchecked(object sender, RoutedEventArgs e)
-        {
-            ApplyFilters();
-        }
-
-        private void ApplyFilters(bool useFilters = true)
-        {
-            var selectedRows = useFilters ? ResultDataGridCollection.Where(f => f.IsChecked) : ResultDataGridCollection;
-            var filterData = currentDetectedObjects.Where(p => selectedRows.Select(r => r.Name.ToLower()).Contains(p.DisplayName.ToLower()));
-            UpdateImageDetectedBoxes(filterData);
-        }
-
-        private void OnTryAnotherImageButtonClick(object sender, RoutedEventArgs e)
-        {
-            this.image.ClearSource();
-            AppViewState = AppViewState.ImageSelection;
-        }
-
-        private async Task PublishResultsAsync()
-        {
-            try
-            {
-                this.progressRing.IsActive = true;
-                this.publishStatus.Text = "Publishing results";
-                this.publishDetails.Text = "The image, results and corrections are being uploaded to your Custom Vision portal.";
-
-                this.currentProjectTextBlock.Text = this.currentProject.Name;
-
-                int unknownProductsCount = currentDetectedObjects.Count(p => p.DisplayName.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase));
-                int shelfGapsCount = currentDetectedObjects.Count(p => p.DisplayName.Equals(Util.ShelfGapName, StringComparison.OrdinalIgnoreCase));
-                int taggedProductCount = currentDetectedObjects.Count - unknownProductsCount - shelfGapsCount;
-
-                string[] finalResults = new string[]
-                {
-                    $"{taggedProductCount} tagged",
-                    $"{unknownProductsCount} unknown",
-                    $"{shelfGapsCount} shelf gaps",
-                };
-                this.finalResultsTextBlock.Text = $"{currentDetectedObjects.Count} objects ({string.Join(", ", finalResults)})";
-
-                string[] corrections = new string[]
-                {
-                    editedProductItems.Any() ? $"{editedProductItems.Count} item(s) edited" : string.Empty,
-                    addedProductItems.Any() ? $"{addedProductItems.Count} item(s) added" : string.Empty,
-                    deletedProductItems.Any() ? $"{deletedProductItems.Count} item(s) deleted" : string.Empty
-                };
-                bool isAnyCorrections = corrections.Any(x => x.Length > 0);
-                this.correctionsTextBlock.Text = isAnyCorrections ? string.Join(", ", corrections.Where(x => x.Length > 0)) : "N/A";
-                AppViewState = AppViewState.ImageAnalysisPublishing;
-
-                if (isAnyCorrections)
-                {
-                    await CustomVisionServiceHelper.AddImageRegionsAsync(trainingApi, currentProject.Id, this.image.ImageFile, currentDetectedObjects);
-                }
-
-                this.publishStatus.Text = "Results published";
-                this.publishDetails.Text = "The image, results and corrections are now available in your Custom Vision portal.";
-            }
-            catch (Exception ex)
-            {
-                this.publishStatus.Text = "Publishing failed";
-                this.publishDetails.Text = string.Empty;
-                await Util.GenericApiCallExceptionHandler(ex, "Publishing results error");
-            }
-            finally
-            {
-                this.progressRing.IsActive = false;
-            }
-        }
-        #endregion
-
-
-        #region Update Image, DataGrid, Collections, Products
-        private void UpdateImageDetectedBoxes(IEnumerable<ProductItemViewModel> productItemCollection, IEnumerable<ProductItemViewModel> selectedItems = null)
-        {
-            if (selectedItems != null && selectedItems.Any())
-            {
-                this.image.UpdateSelectedRegions(selectedItems);
-            }
-            else
-            {
-                this.image.ClearSelectedRegions();
-            }
-
-            this.image.ShowObjectDetectionBoxes(productItemCollection);
-            this.image.ToggleEditState(enable: false);
         }
 
         private void UpdateGroupedProductCollection(IEnumerable<ProductItemViewModel> productItemCollection)
@@ -547,13 +504,11 @@ namespace ShelfAuditingAutomation.Views
         {
             ResultDataGridCollection.Clear();
 
-            int total = productlist.Count();
             var productListGroupedByName = productlist.GroupBy(p => p.DisplayName).OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.ToList());
             foreach (var item in productListGroupedByName)
             {
                 Guid tagId = item.Value.First().Model.TagId;
                 string productName = item.Key;
-                var products = item.Value;
                 int totalCount = item.Value.Count;
                 int expectedCount = currentSpec.Items.Any(s => s.TagId == tagId) ? currentSpec.Items.First(s => s.TagId == tagId).ExpectedCount : 0;
 
@@ -633,7 +588,6 @@ namespace ShelfAuditingAutomation.Views
             RecentlyUsedTagCollection.Clear();
             GroupedProductCollection.Clear();
             ResultDataGridCollection.Clear();
-            SelectedProductItemCollection.Clear();
 
             addedProductItems.Clear();
             editedProductItems.Clear();

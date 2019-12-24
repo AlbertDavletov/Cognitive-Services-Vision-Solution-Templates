@@ -1,26 +1,12 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace ShelfAuditingAutomation.Models
 {
-    public class ResultDataGridViewModel : INotifyPropertyChanged
+    public class ResultDataGridViewModel
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private bool isChecked = true;
-        public bool IsChecked
-        {
-            get { return isChecked; }
-            set
-            {
-                this.isChecked = value;
-                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsChecked"));
-            }
-        }
-
         public string Name { get; set; }
         public int TotalCount { get; set; }
         public int ExpectedCount { get; set; }

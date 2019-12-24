@@ -27,11 +27,11 @@ namespace ShelfAuditingAutomation
 
         public static Color GetObjectRegionColor(PredictionModel model)
         {
-            if (model.TagName.Equals(UnknownProductName, StringComparison.OrdinalIgnoreCase))
+            if (model?.TagName != null && model.TagName.Equals(UnknownProductName, StringComparison.OrdinalIgnoreCase))
             {
                 return UnknownProductColor;
             }
-            else if (model.TagName.Equals(ShelfGapName, StringComparison.OrdinalIgnoreCase))
+            else if (model?.TagName != null && model.TagName.Equals(ShelfGapName, StringComparison.OrdinalIgnoreCase))
             {
                 return ShelfGapColor;
             }

@@ -24,7 +24,6 @@ namespace ShelfAuditingAutomation.Controls
 
         private List<ProductItemViewModel> currentEditableObjects;
         private Tuple<RegionState, List<ProductItemViewModel>> currentDetectedObjects;
-        private List<ProductItemViewModel> selectedRegions = new List<ProductItemViewModel>();
 
         public static readonly DependencyProperty ActiveImageControlsProperty =
             DependencyProperty.Register("ActiveImageControls",
@@ -50,7 +49,7 @@ namespace ShelfAuditingAutomation.Controls
             set { SetValue(EnableImageControlsProperty, value); }
         }
 
-        public event EventHandler<Tuple<RegionState, ProductItemViewModel>> RegionSelected;
+        public event EventHandler RegionSelected;
 
         public int PixelWidth { get; private set; }
 
@@ -59,6 +58,8 @@ namespace ShelfAuditingAutomation.Controls
         public StorageFile ImageFile { get; private set; }
 
         public List<ProductItemViewModel> AddedNewObjects { get; set; } = new List<ProductItemViewModel>();
+
+        public List<ProductItemViewModel> SelectedRegions { get; set; } = new List<ProductItemViewModel>();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -86,6 +87,23 @@ namespace ShelfAuditingAutomation.Controls
             });
         }
 
+        private async void ImageViewChanged()
+        {
+            if (ImageFile != null)
+            {
+                ActiveImageControls = !EnableCropFeature;
+
+                if (EnableCropFeature)
+                {
+                    await this.imageCropper.LoadImageFromFile(ImageFile);
+                }
+                else
+                {
+                    await SetSourceFromFileAsync(ImageFile);
+                }
+            }
+        }
+
         public async Task SetSourceFromFileAsync(StorageFile imagefile)
         {
             ClearSource();
@@ -99,41 +117,6 @@ namespace ShelfAuditingAutomation.Controls
             this.image.Source = bitmapImage;
             PixelWidth = bitmapImage?.PixelWidth ?? 0;
             PixelHeight = bitmapImage?.PixelHeight ?? 0;
-        }
-
-        public void ClearSource()
-        {
-            this.objectDetectionVisualizationCanvas.Children.Clear();
-
-            currentEditableObjects = null;
-            currentDetectedObjects = null;
-            selectedRegions.Clear();
-
-            ImageFile = null;
-            this.image.Source = null;
-            this.imageCropper.Source = null;
-
-            EnableCropFeature = false;
-            this.cropImageButton.Visibility = Visibility.Visible;
-            this.clearSelectionButton.Visibility = Visibility.Collapsed;
-            this.imageControlsPanel.HorizontalAlignment = HorizontalAlignment.Center;
-
-            ToggleEditState(enable: false);
-        }
-
-        private async void ImageViewChanged()
-        {
-            if (ImageFile != null)
-            {
-                if (EnableCropFeature)
-                {
-                    await this.imageCropper.LoadImageFromFile(ImageFile);
-                }
-                else
-                {
-                    await SetSourceFromFileAsync(ImageFile);
-                }
-            }
         }
 
         private void OnObjectDetectionVisualizationCanvasSizeChanged(object sender, SizeChangedEventArgs e)
@@ -175,9 +158,9 @@ namespace ShelfAuditingAutomation.Controls
             {
                 var model = detectedObj.Model;
                 var state = regionState;
-                if (state == RegionState.Active || state == RegionState.Active)
+                if (state == RegionState.Active)
                 {
-                    state = selectedRegions.Any(x => x.Id == detectedObj.Id) ? RegionState.Selected : RegionState.Active;
+                    state = SelectedRegions.Any(x => x.Id == detectedObj.Id) ? RegionState.Selected : RegionState.Active;
                 }
 
                 ObjectRegionControl region = existingObjects.FirstOrDefault(d => d.ProductItemViewModel.Id == detectedObj.Id);
@@ -267,67 +250,15 @@ namespace ShelfAuditingAutomation.Controls
             this.editObjectVisualizationCanvas.Visibility = enable ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        public void UpdateNewObject(ProductTag tag)
+        public void UpdateObjectBoxes(ProductTag tag, bool isNewObject = false)
         {
-            foreach (var item in AddedNewObjects)
+            var data = isNewObject ? AddedNewObjects : SelectedRegions;
+            foreach (var item in data)
             {
                 item.DisplayName = tag.Tag.Name;
                 item.Model = new PredictionModel(item.Model.Probability, tag.Tag.Id, tag.Tag.Name, item.Model.BoundingBox);
             }
-            this.ShowEditableObjectDetectionBoxes(AddedNewObjects, true);
-        }
-
-        public void UpdateSelectedRegions(IEnumerable<ProductItemViewModel> products)
-        {
-            selectedRegions.Clear();
-            selectedRegions.AddRange(products);
-            foreach (ObjectRegionControl region in objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList())
-            {
-                if (selectedRegions.Any(x => x.Id == region.ProductItemViewModel.Id))
-                {
-                    region.State = RegionState.Selected;
-                }
-                else if (region.State == RegionState.Selected)
-                {
-                    region.State = RegionState.Active;
-                }
-            }
-            this.clearSelectionButton.IsEnabled = selectedRegions.Any();
-        }
-
-        public void ClearSelectedRegions()
-        {
-            if (selectedRegions.Any())
-            {
-                foreach (ObjectRegionControl region in objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList())
-                {
-                    if (selectedRegions.Any(x => x.Id == region.ProductItemViewModel.Id))
-                    {
-                        region.State = RegionState.Active;
-                    }
-                }
-                selectedRegions.Clear();
-            }
-            this.clearSelectionButton.IsEnabled = false;
-        }
-
-        private void OnClearSelectionButtonClick(object sender, RoutedEventArgs e)
-        {
-            ClearSelectedRegions();
-        }
-
-        private void OnRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> item)
-        {
-            if (item.Item1 == RegionState.Selected)
-            {
-                selectedRegions.Add(item.Item2);
-            }
-            else
-            {
-                bool isRemoved = selectedRegions.Remove(item.Item2);
-            }
-            this.clearSelectionButton.IsEnabled = selectedRegions.Any();
-            this.RegionSelected?.Invoke(this, item);
+            this.ShowEditableObjectDetectionBoxes(data, removeOption: isNewObject);
         }
 
         private void OnPointerReleasedOverImage(object sender, PointerRoutedEventArgs e)
@@ -350,7 +281,7 @@ namespace ShelfAuditingAutomation.Controls
                                         normalizedHeight + normalizedPosY > 1 ? 1 - normalizedPosY : normalizedHeight));
                 var product = new ProductItemViewModel()
                 {
-                    DisplayName = "None",
+                    DisplayName = "product",
                     Model = obj
                 };
 
@@ -447,21 +378,84 @@ namespace ShelfAuditingAutomation.Controls
         }
 
 
+        #region Region selection
+        public void UpdateSelectedRegions(IEnumerable<ProductItemViewModel> products)
+        {
+            if (products.Any())
+            {
+                SelectedRegions.Clear();
+                SelectedRegions.AddRange(products);
+
+                foreach (ObjectRegionControl region in objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList())
+                {
+                    if (SelectedRegions.Any(x => x.Id == region.ProductItemViewModel.Id))
+                    {
+                        region.State = RegionState.Selected;
+                    }
+                    else if (region.State == RegionState.Selected)
+                    {
+                        region.State = RegionState.Active;
+                    }
+                }
+                this.clearSelectionButton.IsEnabled = SelectedRegions.Any();
+                this.RegionSelected?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public void ClearSelectedRegions()
+        {
+            if (SelectedRegions.Any())
+            {
+                foreach (ObjectRegionControl region in objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList())
+                {
+                    if (SelectedRegions.Any(x => x.Id == region.ProductItemViewModel.Id))
+                    {
+                        region.State = RegionState.Active;
+                    }
+                }
+                SelectedRegions.Clear();
+            }
+            this.clearSelectionButton.IsEnabled = false;
+            this.RegionSelected?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnClearSelectionButtonClick(object sender, RoutedEventArgs e)
+        {
+            ClearSelectedRegions();
+        }
+
+        private void OnRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> item)
+        {
+            if (item.Item1 == RegionState.Selected)
+            {
+                SelectedRegions.Add(item.Item2);
+            }
+            else
+            {
+                SelectedRegions.Remove(item.Item2);
+            }
+            this.clearSelectionButton.IsEnabled = SelectedRegions.Any();
+            this.RegionSelected?.Invoke(this, EventArgs.Empty);
+        }
+        #endregion
+
+
         #region Crop and Zoom Image
         private void OnCropImageButtonClicked(object sender, RoutedEventArgs e)
         {
             EnableCropFeature = !EnableCropFeature;
         }
 
-        private void OnCancelCropImageButtonClicked(object sender, RoutedEventArgs e)
+        public async Task CropImage(bool crop = false)
         {
-            this.imageCropper.Reset();
-            EnableCropFeature = false;
-        }
-
-        private async void OnSaveImageButtonClicked(object sender, RoutedEventArgs e)
-        {
-            await SaveImageToFileAsync(ImageFile);
+            if (crop)
+            {
+                await SaveImageToFileAsync(ImageFile);
+            }
+            else
+            {
+                this.imageCropper.Reset();
+            }
             EnableCropFeature = false;
         }
 
@@ -486,5 +480,27 @@ namespace ShelfAuditingAutomation.Controls
             }
         }
         #endregion
+
+
+        public void ClearSource()
+        {
+            this.objectDetectionVisualizationCanvas.Children.Clear();
+
+            currentEditableObjects = null;
+            currentDetectedObjects = null;
+            SelectedRegions.Clear();
+            AddedNewObjects.Clear();
+
+            ImageFile = null;
+            this.image.Source = null;
+            this.imageCropper.Source = null;
+
+            EnableCropFeature = false;
+            this.cropImageButton.Visibility = Visibility.Visible;
+            this.clearSelectionButton.Visibility = Visibility.Collapsed;
+            this.imageControlsPanel.HorizontalAlignment = HorizontalAlignment.Center;
+
+            ToggleEditState(enable: false);
+        }
     }
 }

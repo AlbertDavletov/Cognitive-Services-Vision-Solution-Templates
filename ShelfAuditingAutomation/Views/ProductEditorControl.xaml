@@ -16,7 +16,7 @@
         <ctl:CollectionCountToVisibilityConverter x:Key="collectionCountToVisibilityConverter"/>
 
         <Style x:Key="GridViewItemContainerStyle" TargetType="FrameworkElement">
-            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="Margin" Value="0,0,7,7"/>
         </Style>
 
         <Style x:Key="HorizontalGridViewStyle" TargetType="GridView">
@@ -35,21 +35,21 @@
         </Style>
 
         <DataTemplate x:Key="GridViewTemplate" x:DataType="models:ProductTag">
-            <StackPanel Width="150">
+            <StackPanel Width="140" ToolTipService.ToolTip="{Binding Tag.Name}">
                 <Border Background="#171717">
-                    <Viewbox Height="150" Stretch="Uniform">
+                    <Viewbox Height="140" Stretch="Uniform">
                         <Image Source="{x:Bind models:ProductTag.GetTagImageSource(Tag)}" Margin="30"/>
                     </Viewbox>
                 </Border>
 
-                <Grid Background="#1F1F1F" Height="30">
-                    <TextBlock Text="{Binding Tag.Name}" FontSize="12" VerticalAlignment="Center" Margin="8,0"/>
+                <Grid Background="#1F1F1F" Height="60">
+                    <TextBlock Text="{Binding Tag.Name}" FontSize="12" VerticalAlignment="Center" Margin="8,0" TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis"/>
                 </Grid>
             </StackPanel>
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid Background="#2B2B2B" Padding="12" RowSpacing="16">
+    <Grid Background="#2B2B2B" Padding="22" RowSpacing="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -63,17 +63,17 @@
         </Grid>
 
         <StackPanel Grid.Row="1" Spacing="12">
-            <TextBlock Text="Tap on the object within the image to create a bounding box, then use the handles to adjust the box size. Finally, select the correct tag from the product catalog." TextWrapping="Wrap"
-                           Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Add'}"/>
-
-            <TextBlock>
-                <Run Text="Current tag:" />
-                <Run Text="{Binding ElementName=userControl, Path=CurrentTag.Tag.Name}"/>
-            </TextBlock>
+            <TextBlock Text="Current label" FontSize="12"/>
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Viewbox Height="48" Width="48" Stretch="Uniform">
+                    <Image Source="{x:Bind models:ProductTag.GetTagImageSource(CurrentTag.Tag), Mode=OneWay}" Margin="30"/>
+                </Viewbox>
+                <TextBlock Text="{Binding ElementName=userControl, Path=CurrentTag.Tag.Name}" VerticalAlignment="Center"/>
+            </StackPanel>
             
             <TextBox x:Name="findProductTextBox" PlaceholderText="Find a product" TextChanged="OnFindProductTextBoxChanged"/>
 
-            <TextBlock Text="Quick Access" Style="{StaticResource BaseTextBlockStyle}" Visibility="{Binding ElementName=userControl, Path=RecentlyUsedTagCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
+            <TextBlock Text="Quick Access" FontSize="12" Visibility="{Binding ElementName=userControl, Path=RecentlyUsedTagCollection.Count, Converter={StaticResource collectionCountToVisibilityConverter}}"/>
             <GridView x:Name="quickAccessProductGridView" ItemsSource="{Binding ElementName=userControl, Path=RecentlyUsedTagCollection}" 
                       ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       SelectionMode="Single" Tag="QuickAccess"
@@ -91,7 +91,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <TextBlock Text="Product catalog" Style="{StaticResource BaseTextBlockStyle}"/>
+            <TextBlock Text="Product catalog" FontSize="12"/>
             <GridView x:Name="productGridView" Grid.Row="1" Margin="0,6,0,0"
                       ItemsSource="{Binding ElementName=userControl, Path=ProjectTagCollection}"
                       SelectionMode="Single"
@@ -102,13 +102,13 @@
         </Grid>
 
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-            <Button Content="Cancel" Width="120" Click="OnCancelEditorButtonClick"/>
-            <Button Width="120" Click="OnEditorUpdateButtonClick">
+            <Button Width="120" Click="OnEditorUpdateButtonClick" Background="#0078D7">
                 <StackPanel>
-                    <TextBlock Text="Add object" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Add'}"/>
+                    <TextBlock Text="Add label" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Add'}"/>
                     <TextBlock Text="Apply edit" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Edit'}"/>
                 </StackPanel>
             </Button>
+            <Button Content="Cancel" Width="120" Click="OnCancelEditorButtonClick"/>
         </StackPanel>
         
     </Grid>
