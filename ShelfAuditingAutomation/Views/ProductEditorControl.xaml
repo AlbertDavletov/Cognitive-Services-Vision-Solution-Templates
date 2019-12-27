@@ -49,7 +49,7 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid Background="#2B2B2B" Padding="22" RowSpacing="16">
+    <Grid Background="{StaticResource DarkBackgroundColor}" Padding="22" RowSpacing="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -102,13 +102,13 @@
         </Grid>
 
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-            <Button Width="120" Click="OnEditorUpdateButtonClick" Background="#0078D7">
+            <Button Click="OnEditorUpdateButtonClick" Style="{StaticResource ActiveActionButtonStyle}">
                 <StackPanel>
                     <TextBlock Text="Add label" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Add'}"/>
                     <TextBlock Text="Apply edit" Visibility="{Binding ElementName=userControl, Path=EditorState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Edit'}"/>
                 </StackPanel>
             </Button>
-            <Button Content="Cancel" Width="120" Click="OnCancelEditorButtonClick"/>
+            <Button Content="Cancel" Click="OnCancelEditorButtonClick" Style="{StaticResource RegularActionButtonStyle}"/>
         </StackPanel>
         
     </Grid>

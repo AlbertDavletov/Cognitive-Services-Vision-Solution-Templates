@@ -210,6 +210,7 @@ namespace ShelfAuditingAutomation.Controls
         {
             this.enableRemoveMode = removeOption;
             currentEditableObjects = detectedObjects?.ToList();
+            this.clearSelectionButton.IsEnabled = false;
 
             this.imageGrid.Padding = ImagePadding;
             this.editObjectVisualizationCanvas.Children.Clear();
@@ -246,6 +247,7 @@ namespace ShelfAuditingAutomation.Controls
         {
             this.addNewRegionMode = enable;
             this.imageGrid.Padding = enable ? ImagePadding : new Thickness(0);
+            this.clearSelectionButton.IsEnabled = enable ? false : SelectedRegions.Any();
             this.editObjectVisualizationCanvas.Children.Clear();
             this.editObjectVisualizationCanvas.Visibility = enable ? Visibility.Visible : Visibility.Collapsed;
         }
@@ -428,11 +430,12 @@ namespace ShelfAuditingAutomation.Controls
         {
             if (item.Item1 == RegionState.Selected)
             {
-                SelectedRegions.Add(item.Item2);
+                SelectedRegions.Add(item.Item2.DeepCopy());
             }
             else
             {
-                SelectedRegions.Remove(item.Item2);
+                var region = SelectedRegions.FirstOrDefault(r => r.Id == item.Item2.Id);
+                SelectedRegions.Remove(region);
             }
             this.clearSelectionButton.IsEnabled = SelectedRegions.Any();
             this.RegionSelected?.Invoke(this, EventArgs.Empty);

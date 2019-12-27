@@ -11,6 +11,7 @@
     d:DesignWidth="400">
 
     <UserControl.Resources>
+        <SolidColorBrush x:Key="BackgroundColor" Color="#1F1F1F" />
         <SolidColorBrush x:Key="CropImageMask" Color="#1F1F1F" Opacity="0.7"/>
         <SolidColorBrush x:Key="CanvasDarkBackground" Color="Black" Opacity="0.6"/>
 
@@ -29,7 +30,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Background="#1F1F1F" Visibility="{Binding EnableImageControls}">
+        <Grid Grid.Row="0" Background="{StaticResource BackgroundColor}" Visibility="{Binding EnableImageControls}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
@@ -86,7 +87,7 @@
 
         <!-- ImageCropper -->
         <Grid Grid.Row="1" Visibility="{Binding EnableCropFeature, Converter={StaticResource booleanToVisibilityConverter}}">
-            <controls:ImageCropper Grid.Row="1" x:Name="imageCropper" Mask="{StaticResource CropImageMask}" Background="#1F1F1F"/>
+            <controls:ImageCropper Grid.Row="1" x:Name="imageCropper" Mask="{StaticResource CropImageMask}" Background="{StaticResource BackgroundColor}"/>
         </Grid>
     </Grid>
     

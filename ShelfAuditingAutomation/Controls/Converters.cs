@@ -31,19 +31,6 @@ namespace ShelfAuditingAutomation.Controls
         }
     }
 
-    public class ReverseVisibilityConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            return (Visibility)value == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            return (Visibility)value;
-        }
-    }
-
     public class ReverseBooleanConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
@@ -62,32 +49,6 @@ namespace ShelfAuditingAutomation.Controls
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             return System.Convert.ToInt32(value) > 0 ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            return value;
-        }
-    }
-
-    public class ReverseCollectionCountToVisibilityConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            return System.Convert.ToInt32(value) > 0 ? Visibility.Collapsed : Visibility.Visible;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            return value;
-        }
-    }
-
-    public class CollectionCountToBooleanConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            return System.Convert.ToInt32(value) > 0;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

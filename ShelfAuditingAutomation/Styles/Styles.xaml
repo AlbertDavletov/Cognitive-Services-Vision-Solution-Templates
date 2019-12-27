@@ -8,6 +8,9 @@
 
     <SolidColorBrush x:Key="CustomButtonForegroundDisabled" Color="White" Opacity="0.4"/>
     <SolidColorBrush x:Key="RegularTextColor" Color="White" Opacity="0.8"/>
+    <SolidColorBrush x:Key="WhiteOpacity20Color" Color="White" Opacity="0.2"/>
+    <SolidColorBrush x:Key="ActiveActionButtonColor" Color="#0078D7"/>
+    <SolidColorBrush x:Key="DarkBackgroundColor" Color="#2B2B2B"/>
 
     <Style x:Key="PageTitleCommandBarStyle" TargetType="CommandBar" BasedOn="{StaticResource CommandBarRevealStyle}">
         <Setter Property="Background" Value="Transparent"/>
@@ -25,6 +28,18 @@
 
     <Style x:Key="ListViewItemWithMarginContainerStyle" BasedOn="{StaticResource ListViewItemContainerStyle}" TargetType="ListViewItem">
         <Setter Property="Margin" Value="0,0,0,20" />
+    </Style>
+
+    <Style x:Key="ActionButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="120"/>
+    </Style>
+
+    <Style x:Name="RegularActionButtonStyle" BasedOn="{StaticResource ActionButtonStyle}" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource WhiteOpacity20Color}"/>
+    </Style>
+
+    <Style x:Name="ActiveActionButtonStyle" BasedOn="{StaticResource ActionButtonStyle}" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource ActiveActionButtonColor}"/>
     </Style>
 
     <Style x:Key="CustomThumbStyle" TargetType="Thumb">

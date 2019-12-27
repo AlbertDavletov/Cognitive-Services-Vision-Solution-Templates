@@ -28,7 +28,7 @@
                     <Image Source="{Binding Image}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </Grid>
 
-                <Grid Background="#2B2B2B" Height="30">
+                <Grid Background="{StaticResource DarkBackgroundColor}" Height="30">
                     <TextBlock Text="{Binding DisplayName}" FontSize="12" VerticalAlignment="Center" Margin="8,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                 </Grid>
             </StackPanel>

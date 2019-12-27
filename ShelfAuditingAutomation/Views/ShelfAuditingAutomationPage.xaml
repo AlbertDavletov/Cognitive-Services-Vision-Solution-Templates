@@ -13,21 +13,15 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
-        <SolidColorBrush x:Key="GrayColorButton" Color="White" Opacity="0.2"/>
-        <SolidColorBrush x:Key="GrayWhiteColor" Color="White" Opacity="0.6"/>
-        <SolidColorBrush x:Key="BlackColor" Color="Black" Opacity="0.8"/>
         <SolidColorBrush x:Key="DataGridColumnHeaderBackgroundColor" Color="Transparent" />
         <SolidColorBrush x:Key="DataGridColumnHeaderForegroundBrush" Color="White" />
 
-        <ctl:ReverseEnumMatchToVisibilityConverter x:Key="reverseEnumMatchToVisibilityConverter"/>
+        <ctl:ReverseBooleanConverter x:Key="reverseBooleanConverter"/>
         <ctl:EnumMatchToVisibilityConverter x:Key="enumMatchToVisibilityConverter"/>
+        <ctl:ReverseEnumMatchToVisibilityConverter x:Key="reverseEnumMatchToVisibilityConverter"/>
         <ctl:BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter"/>
         <ctl:ReverseBooleanToVisibilityConverter x:Key="reverseBooleanToVisibilityConverter"/>
-        <ctl:ReverseVisibilityConverter x:Key="reverseVisibilityConverter"/>
-        <ctl:ReverseBooleanConverter x:Key="reverseBooleanConverter"/>
         <ctl:CollectionCountToVisibilityConverter x:Key="collectionCountToVisibilityConverter"/>
-        <ctl:ReverseCollectionCountToVisibilityConverter x:Key="reverseCollectionCountToVisibilityConverter"/>
-        <ctl:CollectionCountToBooleanConverter x:Key="collectionCountToBooleanConverter"/>
 
         <DataTemplate x:Key="GroupedProductsTemplate">
             <ctl:ProductCollectionControl Title="{Binding Item1}" 
@@ -56,7 +50,8 @@
 
             <StackPanel Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Spacing="24" Margin="0,0,0,25" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisPublishing'}">
                 <TextBlock x:Name="publishStatus" Style="{StaticResource HeaderTextBlockStyle}" HorizontalAlignment="Center" Foreground="{StaticResource RegularTextColor}"/>
-                <Button Grid.Column="1" HorizontalAlignment="Center" Background="#0078D7" Width="280" Height="40" Click="OnTryAnotherImageButtonClick" IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}">
+                <Button Grid.Column="1" HorizontalAlignment="Center" Background="{StaticResource ActiveActionButtonColor}" Width="280" Height="40" Click="OnTryAnotherImageButtonClick" 
+                        IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE72C;"/>
                         <TextBlock Text="Try another image" />
@@ -74,7 +69,7 @@
             </Grid>
 
             <!-- Image Analysis Review panel -->
-            <Grid Grid.Row="1" Grid.Column="2" Background="#2B2B2B" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisReview|ImageAnalysisPublish'}">
+            <Grid Grid.Row="1" Grid.Column="2" Background="{StaticResource DarkBackgroundColor}" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisReview|ImageAnalysisPublish'}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -168,8 +163,8 @@
                               ItemTemplate="{StaticResource GroupedProductsTemplate}" />
 
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                        <Button Content="Publish results" Width="120" Background="#0078D7" Click="OnPublishButtonClicked" />
-                        <Button Content="Cancel" Width="120" Click="OnCloseImageViewButtonClicked"/>
+                        <Button Content="Publish results" Click="OnPublishButtonClicked" Style="{StaticResource ActiveActionButtonStyle}"/>
+                        <Button Content="Cancel" Click="OnCloseImageViewButtonClicked" Style="{StaticResource RegularActionButtonStyle}"/>
                     </StackPanel>
                 </Grid>
             </Grid>
@@ -208,13 +203,13 @@
 
             <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Visibility="{Binding AppViewState, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='ImageSelected'}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,30,24,24" Visibility="{Binding ElementName=image, Path=EnableCropFeature, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
-                    <Button Content="Identify items" Background="#0078D7" Width="120" Click="OnAnalyzeImageButtonClicked" 
+                    <Button Content="Identify items" Click="OnAnalyzeImageButtonClicked" Style="{StaticResource ActiveActionButtonStyle}"
                             IsEnabled="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}"/>
-                    <Button Content="Cancel" Background="{StaticResource GrayColorButton}" Width="120" Click="OnCloseImageViewButtonClicked"/>
+                    <Button Content="Cancel" Click="OnCloseImageViewButtonClicked" Style="{StaticResource RegularActionButtonStyle}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,30,24,24" Visibility="{Binding ElementName=image, Path=EnableCropFeature, Converter={StaticResource booleanToVisibilityConverter}}">
-                    <Button Content="Apply" Background="#0078D7" Width="120" Tag="Apply" Click="CropImageButtonClick"/>
-                    <Button Content="Cancel" Background="{StaticResource GrayColorButton}" Width="120" Tag="Cancel" Click="CropImageButtonClick"/>
+                    <Button Content="Apply" Tag="Apply" Click="CropImageButtonClick" Style="{StaticResource ActiveActionButtonStyle}"/>
+                    <Button Content="Cancel" Tag="Cancel" Click="CropImageButtonClick" Style="{StaticResource RegularActionButtonStyle}"/>
                 </StackPanel>
             </Grid>
         </Grid>
