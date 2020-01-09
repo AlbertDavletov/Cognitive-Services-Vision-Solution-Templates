@@ -41,12 +41,12 @@
 
         <!-- Selected Region -->
         <Grid Visibility="{Binding State, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Selected'}">
-            <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-25,0,0">
+            <Canvas x:Name="selectedRegionCanvas" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-15,0,0">
                 <StackPanel x:Name="labelPanel" CornerRadius="1" ToolTipService.ToolTip="{Binding Title}">
                     <StackPanel.Background>
                         <SolidColorBrush Color="{Binding Color}"/>
                     </StackPanel.Background>
-                    <TextBlock Text="{Binding Title}" FontSize="12" Foreground="White" Margin="4" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                    <TextBlock x:Name="selectedRegionTextBlock" Text="{Binding Title}" FontSize="12" Foreground="White" Margin="4" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
                 </StackPanel>
             </Canvas>
 

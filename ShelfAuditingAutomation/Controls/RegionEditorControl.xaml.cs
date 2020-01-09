@@ -11,6 +11,11 @@ namespace ShelfAuditingAutomation.Controls
 {
     public class RegionEditorViewModel : INotifyPropertyChanged
     {
+        private static readonly double maxFontSize = 12;
+        private static readonly double minFontSize = 2;
+        private static readonly double maxTopMargin = 30;
+        private static readonly double minTopMargin = 17;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public Guid ProductId { get; set; }
@@ -38,6 +43,42 @@ namespace ShelfAuditingAutomation.Controls
             {
                 zoomValue = value;
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ZoomValue"));
+                ZoomValueChanged();
+            }
+        }
+
+        public double labelFontSize = maxFontSize;
+        public double LabelFontSize
+        {
+            get { return labelFontSize; }
+            set
+            {
+                labelFontSize = value;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LabelFontSize"));
+            }
+        }
+
+        public Thickness labelMargin = new Thickness(0, -30, 0, 0);
+        public Thickness LabelMargin
+        {
+            get { return labelMargin; }
+            set
+            {
+                labelMargin = value;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LabelMargin"));
+            }
+        }
+
+        private void ZoomValueChanged()
+        {
+            double normalizedZoomValue = Util.NormalizeValue(ZoomValue, 1, 10);
+            double fontSize = minFontSize + (1 - normalizedZoomValue) * (maxFontSize - minFontSize);
+            double topMargin = minTopMargin + (1 - normalizedZoomValue) * (maxTopMargin - minTopMargin);
+
+            LabelFontSize = fontSize >= minFontSize && fontSize <= maxFontSize ? (int)fontSize : maxFontSize;
+            if (!EnableRemove)
+            {
+                LabelMargin = new Thickness(0, topMargin >= minTopMargin && topMargin <= maxTopMargin ? -topMargin : 0, 0, 0);
             }
         }
     }
@@ -102,7 +143,7 @@ namespace ShelfAuditingAutomation.Controls
             bool isValidXOffset = (newLeftOffset + newWidth) <= parentWidth;
             bool isValidYOffset = (newTopOffset + newHeight) <= parentHeight;
 
-            if (isValidXOffset && isValidYOffset && newWidth >= 1 && newHeight >= 1)
+            if (isValidXOffset && isValidYOffset && newWidth >= 5 && newHeight >= 5)
             {
                 this.Width = newWidth;
                 this.Height = newHeight;

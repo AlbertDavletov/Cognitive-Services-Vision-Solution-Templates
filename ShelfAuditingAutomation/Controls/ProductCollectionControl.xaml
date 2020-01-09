@@ -18,8 +18,8 @@
         </Style>
 
         <DataTemplate x:Key="ProductViewTemplate">
-            <StackPanel CornerRadius="2" Width="94">
-                <Grid Height="94">
+            <StackPanel CornerRadius="2" Width="140">
+                <Grid Height="140">
                     <Image Source="{Binding Image}" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center">
                         <interactivity:Interaction.Behaviors>
                             <behaviors:Blur Value="30" />
@@ -28,8 +28,8 @@
                     <Image Source="{Binding Image}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </Grid>
 
-                <Grid Background="{StaticResource DarkBackgroundColor}" Height="30">
-                    <TextBlock Text="{Binding DisplayName}" FontSize="12" VerticalAlignment="Center" Margin="8,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <Grid Background="{StaticResource DarkBackgroundColor}" Height="60">
+                    <TextBlock Text="{Binding DisplayName}" FontSize="12" VerticalAlignment="Center" Margin="8,0" TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis"/>
                 </Grid>
             </StackPanel>
         </DataTemplate>

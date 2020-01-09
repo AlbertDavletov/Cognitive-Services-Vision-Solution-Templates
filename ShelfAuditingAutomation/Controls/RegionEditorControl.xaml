@@ -25,13 +25,13 @@
     </UserControl.Resources>
 
     <Grid>
-        <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-40,0,0">
+        <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{Binding LabelMargin}">
             <StackPanel x:Name="labelPanel" Orientation="Horizontal" CornerRadius="1" Spacing="4">
                 <StackPanel.Background>
                     <SolidColorBrush Color="{Binding Color}"/>
                 </StackPanel.Background>
-                <TextBlock Text="{Binding Title}" FontSize="12" VerticalAlignment="Center" Foreground="Black" Margin="4" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Title}"/>
-                <Button Height="32" Click="OnRegionRemoveButtonClick" Foreground="Black" Style="{StaticResource ControlButtonStyle}" Visibility="{Binding EnableRemove, Converter={StaticResource booleanToVisibilityConverter}}">
+                <TextBlock Text="{Binding Title}" FontSize="{Binding LabelFontSize}" VerticalAlignment="Center" Foreground="Black" Margin="4" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Title}"/>
+                <Button Height="25" Click="OnRegionRemoveButtonClick" Padding="0" Margin="0" Foreground="Black" Style="{StaticResource ControlButtonStyle}" Visibility="{Binding EnableRemove, Converter={StaticResource booleanToVisibilityConverter}}">
                     <SymbolIcon Symbol="Cancel"/>
                 </Button>
             </StackPanel>

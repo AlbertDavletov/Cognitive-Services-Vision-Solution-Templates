@@ -291,6 +291,7 @@ namespace ShelfAuditingAutomation.Views
             else
             {
                 this.productEditorControl.EditorState = EditorState.Edit;
+                this.productEditorControl.CurrentTag = ProjectTagCollection.FirstOrDefault(p => p.Tag.Id == this.image.SelectedRegions.FirstOrDefault()?.Model?.TagId);
                 var detectedProductsWithoutSelected = currentDetectedObjects.Where(p => !this.image.SelectedRegions.Select(s => s.Id).Contains(p.Id));
                 this.image.ShowObjectDetectionBoxes(detectedProductsWithoutSelected, RegionState.Disabled);
                 this.image.ShowEditableObjectDetectionBoxes(this.image.SelectedRegions);
@@ -383,9 +384,18 @@ namespace ShelfAuditingAutomation.Views
             var selectedRows = this.dataGrid.SelectedItems.Cast<ResultDataGridViewModel>();
             if (selectedRows.Any())
             {
-                var filters = selectedRows.Where(r => !r.IsAggregateColumn).Select(r => r.Name.ToLower());
-                var filterData = selectedRows.All(r => r.IsAggregateColumn) ? currentDetectedObjects : currentDetectedObjects.Where(p => filters.Contains(p.DisplayName.ToLower()));
-                UpdateImageDetectedBoxes(filterData);
+                if (selectedRows.Any(r => r.IsAggregateColumn))
+                {
+                    UpdateImageDetectedBoxes(currentDetectedObjects);
+                    this.dataGrid.SelectedItems.Clear();
+                }
+                else
+                {
+                    var filters = selectedRows.Where(r => !r.IsAggregateColumn).Select(r => r.Name.ToLower());
+                    var filterData = selectedRows.All(r => r.IsAggregateColumn) ? currentDetectedObjects : currentDetectedObjects.Where(p => filters.Contains(p.DisplayName.ToLower()));
+                    this.image.UpdateSelectedRegions(filterData);
+                }
+                
             }
         }
 

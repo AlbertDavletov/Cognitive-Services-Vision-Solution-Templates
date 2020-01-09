@@ -111,6 +111,11 @@ namespace ShelfAuditingAutomation
             }
         }
 
+        public static double NormalizeValue(double value, double min, double max)
+        {
+            return (value - min) / (max - min);
+        }
+
         public static async Task DownloadAndSaveBitmapAsync(string imageUrl, StorageFile resultFile)
         {
             byte[] imgBytes = await new System.Net.Http.HttpClient().GetByteArrayAsync(imageUrl);

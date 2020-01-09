@@ -28,10 +28,5 @@ namespace ShelfAuditingAutomation.Models
                                             this.Model.BoundingBox.Width, this.Model.BoundingBox.Height))
             };
         }
-
-        public static SolidColorBrush GetPredictionColor(PredictionModel model)
-        {
-            return new SolidColorBrush(Util.GetObjectRegionColor(model));
-        }
     }
 }

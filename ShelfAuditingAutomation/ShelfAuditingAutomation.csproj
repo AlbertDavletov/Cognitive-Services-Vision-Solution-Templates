@@ -179,11 +179,14 @@
     <Content Include="Assets\ImageSamples\cat-food-2.jpg" />
     <Content Include="Assets\ImageSamples\cat-food-3.jpg" />
     <Content Include="Assets\ImageSamples\cat-food-4.jpg" />
+    <Content Include="Assets\ImageSamples\champ-dog-food-1.jpg" />
+    <Content Include="Assets\ImageSamples\champ-dog-food-2.jpg" />
+    <Content Include="Assets\ImageSamples\champ-dog-food-3.jpg" />
+    <Content Include="Assets\ImageSamples\champ-dog-food-4.jpg" />
     <Content Include="Assets\ImageSamples\dog-food-1.jpg" />
     <Content Include="Assets\ImageSamples\dog-food-2.jpg" />
     <Content Include="Assets\ImageSamples\dog-food-3.jpg" />
     <Content Include="Assets\ImageSamples\dog-food-4.jpg" />
-    <Content Include="Assets\ImageSamples\dog-food-5.jpg" />
     <Content Include="Assets\ProductSamples\champ-adulto-carne-&amp;-cereal.jpg" />
     <Content Include="Assets\ProductSamples\champ-filhotes.jpg" />
     <Content Include="Assets\ProductSamples\dreamies-carne.jpg" />

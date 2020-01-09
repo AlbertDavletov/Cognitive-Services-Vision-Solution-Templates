@@ -173,6 +173,7 @@ namespace ShelfAuditingAutomation.Controls
                     region.State = state;
                     region.ProductItemViewModel = detectedObj;
                     region.Color = Util.GetObjectRegionColor(model);
+                    region.ZoomValue = this.scrollViewerMain.ZoomFactor;
                     region.RegionSelected -= OnRegionSelected;
                 }
                 else
@@ -185,8 +186,9 @@ namespace ShelfAuditingAutomation.Controls
                         Title = detectedObj.DisplayName,
                         State = state,
                         ProductItemViewModel = detectedObj,
-                        Color = Util.GetObjectRegionColor(model)
-                    };
+                        Color = Util.GetObjectRegionColor(model),
+                        ZoomValue = this.scrollViewerMain.ZoomFactor
+                };
                     objectDetectionVisualizationCanvas.Children.Add(region);
                 }
 
@@ -376,6 +378,12 @@ namespace ShelfAuditingAutomation.Controls
                 {
                     regionEditorViewModel.ZoomValue = this.scrollViewerMain.ZoomFactor;
                 }
+            }
+
+            var objectList = this.objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList();
+            foreach (var obj in objectList)
+            {
+                obj.ZoomValue = this.scrollViewerMain.ZoomFactor;
             }
         }
 

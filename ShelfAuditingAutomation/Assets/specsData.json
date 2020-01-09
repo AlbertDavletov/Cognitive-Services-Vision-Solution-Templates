@@ -1,7 +1,7 @@
 [
   {
     "Id": "f5a9d465-7dbe-4624-a8da-f5208dd56d3d",
-    "Name": "Cat food",
+    "Name": "Whiskas cat food",
     "ModelId": "af826f5b-97c1-40a0-b8bb-bf44e08cec2b",
     "ModelName": "Product Reco Solution Template",
     "SampleImages": [
@@ -260,15 +260,14 @@
   },
   {
     "Id": "08b27829-07a8-47c5-b1eb-8c614a30f359",
-    "Name": "Dog food",
+    "Name": "Pedigree dog food",
     "ModelId": "af826f5b-97c1-40a0-b8bb-bf44e08cec2b",
     "ModelName": "Product Reco Solution Template",
     "SampleImages": [
       "ms-appx:///Assets/ImageSamples/dog-food-1.jpg",
       "ms-appx:///Assets/ImageSamples/dog-food-2.jpg",
       "ms-appx:///Assets/ImageSamples/dog-food-3.jpg",
-      "ms-appx:///Assets/ImageSamples/dog-food-4.jpg",
-      "ms-appx:///Assets/ImageSamples/dog-food-5.jpg"
+      "ms-appx:///Assets/ImageSamples/dog-food-4.jpg"
     ],
     "ExpectedAreaCoverage": {
       "Tagged": 70,
@@ -287,18 +286,6 @@
         "TagName": "product",
         "ExpectedCount": 2,
         "ExpectedAreaCoverage": 10
-      },
-      {
-        "TagId": "9679143f-5aed-4060-9b4f-3ef6500379a8",
-        "TagName": "Champ-ADULTO-CARNE-&-CEREAL",
-        "ExpectedCount": 4,
-        "ExpectedAreaCoverage": 20
-      },
-      {
-        "TagId": "bd4e09fd-6b94-43ed-b6bd-d3dee2ff91fe",
-        "TagName": "Champ-FILHOTES",
-        "ExpectedCount": 4,
-        "ExpectedAreaCoverage": 20
       },
       {
         "TagId": "2d771abf-3eef-401a-8b0f-337494120708",
@@ -495,6 +482,49 @@
       {
         "TagId": "4f1a4791-4552-4a7c-a47c-6f62d1add1c7",
         "TagName": "PEDIGREE-SCH-MPK-AD-RP-CARNE-MO",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      }
+    ]
+  },
+  {
+    "Id": "5c3dcb1a-a110-41ea-855c-bfe293653cd6",
+    "Name": "Champ dog food",
+    "ModelId": "af826f5b-97c1-40a0-b8bb-bf44e08cec2b",
+    "ModelName": "Product Reco Solution Template",
+    "SampleImages": [
+      "ms-appx:///Assets/ImageSamples/champ-dog-food-1.jpg",
+      "ms-appx:///Assets/ImageSamples/champ-dog-food-2.jpg",
+      "ms-appx:///Assets/ImageSamples/champ-dog-food-3.jpg",
+      "ms-appx:///Assets/ImageSamples/champ-dog-food-4.jpg"
+    ],
+    "ExpectedAreaCoverage": {
+      "Tagged": 70,
+      "Unknown": 20,
+      "Gap": 10
+    },
+    "Items": [
+      {
+        "TagId": "b40c63a2-2c66-4420-bc85-1a799a130897",
+        "TagName": "Gap",
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 5
+      },
+      {
+        "TagId": "81ecb2cb-8e1a-495a-988e-bbb8f2180cbc",
+        "TagName": "product",
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 10
+      },
+      {
+        "TagId": "9679143f-5aed-4060-9b4f-3ef6500379a8",
+        "TagName": "Champ-ADULTO-CARNE-&-CEREAL",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "bd4e09fd-6b94-43ed-b6bd-d3dee2ff91fe",
+        "TagName": "Champ-FILHOTES",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       }

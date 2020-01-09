@@ -21,7 +21,7 @@
             <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="1" Text="Select a photo" HorizontalAlignment="Center" Style="{ThemeResource HeaderTextBlockStyle}"
+        <TextBlock Grid.Row="1" Text="Shelf Auditing Automation" HorizontalAlignment="Center" Style="{ThemeResource HeaderTextBlockStyle}"
                    Visibility="{Binding ElementName=imagePicker, Path=CurrentState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='CameraStream'}"/>
 
         <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" Margin="0,24,0,0">
@@ -36,7 +36,7 @@
                           Visibility="{Binding ElementName=imagePicker, Path=CurrentState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='CameraStream'}">
                     <ComboBox.HeaderTemplate>
                         <DataTemplate>
-                            <TextBlock Text="Spec item" />
+                            <TextBlock Text="Target display" />
                         </DataTemplate>
                     </ComboBox.HeaderTemplate>
                 </ComboBox>

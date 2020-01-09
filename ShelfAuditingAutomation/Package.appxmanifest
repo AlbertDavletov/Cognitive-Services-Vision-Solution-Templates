@@ -9,7 +9,7 @@
   <Identity
     Name="ProductRecognizerDemo"
     Publisher="CN=albert.davletov@akvelon.com"
-    Version="1.0.7.0" />
+    Version="1.0.10.0" />
 
   <mp:PhoneIdentity PhoneProductId="5e7692c4-abf0-4172-8cde-2f12d0cb045c" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

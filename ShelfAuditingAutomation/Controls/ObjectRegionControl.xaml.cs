@@ -20,6 +20,10 @@ namespace ShelfAuditingAutomation.Controls
 
     public sealed partial class ObjectRegionControl : UserControl, INotifyPropertyChanged
     {
+        private static readonly double maxFontSize = 12;
+        private static readonly double minFontSize = 2;
+        private static readonly double maxTopMargin = 25;
+        private static readonly double minTopMargin = 15;
         public event EventHandler<Tuple<RegionState, ProductItemViewModel>> RegionSelected;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -56,6 +60,18 @@ namespace ShelfAuditingAutomation.Controls
             {
                 this.color = value;
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Color"));
+            }
+        }
+
+        public double zoomValue = 1;
+        public double ZoomValue
+        {
+            get { return zoomValue; }
+            set
+            {
+                zoomValue = value;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ZoomValue"));
+                ZoomValueChanged();
             }
         }
 
@@ -112,6 +128,16 @@ namespace ShelfAuditingAutomation.Controls
                 Canvas.SetZIndex(this, State == RegionState.Selected ? 10 : 1);
                 this.RegionSelected?.Invoke(this, new Tuple<RegionState, ProductItemViewModel>(State, ProductItemViewModel));
             }
+        }
+
+        private void ZoomValueChanged()
+        {
+            double normalizedZoomValue = Util.NormalizeValue(ZoomValue, 1, 10);
+            double fontSize = minFontSize + (1 - normalizedZoomValue) * (maxFontSize - minFontSize);
+            double topMargin = minTopMargin + (1 - normalizedZoomValue) * (maxTopMargin - minTopMargin);
+
+            this.selectedRegionTextBlock.FontSize = fontSize >= minFontSize && fontSize <= maxFontSize ? (int)fontSize : maxFontSize;
+            this.selectedRegionCanvas.Margin = new Thickness(0, topMargin >= minTopMargin && topMargin <= maxTopMargin ? -topMargin : 0, 0, 0);
         }
     }
 }
