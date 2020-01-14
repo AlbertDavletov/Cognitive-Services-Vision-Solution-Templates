@@ -23,11 +23,6 @@ namespace ShelfAuditingAutomation.Views
 {
     public sealed partial class ShelfAuditingAutomationPage : Page, INotifyPropertyChanged
     {
-        private static readonly string TrainingApiKey = "";           // CUSTOM VISION TRANING API KEY
-        private static readonly string TrainingApiKeyEndpoint = "";   // CUSTOM VISION TRANING API ENDPOINT
-        private static readonly string PredictionApiKey = "";         // CUSTOM VISION PREDICTION API KEY
-        private static readonly string PredictionApiKeyEndpoint = ""; // CUSTOM VISION PREDICTION API ENDPOINT
-
         private CustomVisionTrainingClient trainingApi;
         private CustomVisionPredictionClient predictionApi;
 
@@ -39,8 +34,6 @@ namespace ShelfAuditingAutomation.Views
         private List<ProductItemViewModel> deletedProductItems = new List<ProductItemViewModel>();
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public ObservableCollection<SpecsData> SpecsDataCollection { get; set; } = new ObservableCollection<SpecsData>();
 
         public ObservableCollection<ProductTag> ProjectTagCollection { get; set; } = new ObservableCollection<ProductTag>();
 
@@ -70,24 +63,46 @@ namespace ShelfAuditingAutomation.Views
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (!string.IsNullOrEmpty(TrainingApiKey) && !string.IsNullOrEmpty(TrainingApiKeyEndpoint) &&
-                !string.IsNullOrEmpty(PredictionApiKey) && !string.IsNullOrEmpty(PredictionApiKeyEndpoint))
+            await InitConfig();
+            SettingsHelper.InitConfigHandler = InitConfig;
+            base.OnNavigatedTo(e);
+        }
+
+        private async Task InitConfig()
+        {
+            bool hasError = false;
+
+            this.inputView.SetDataSource(data: null);
+
+            if (!string.IsNullOrEmpty(SettingsHelper.Instance.CustomVisionTrainingApiKey) && 
+                !string.IsNullOrEmpty(SettingsHelper.Instance.CustomVisionPredictionApiKey) &&
+                !string.IsNullOrEmpty(SettingsHelper.Instance.CustomVisionApiKeyEndpoint))
             {
-                this.mainPage.IsEnabled = true;
+                trainingApi = new CustomVisionTrainingClient { Endpoint = SettingsHelper.Instance.CustomVisionApiKeyEndpoint, ApiKey = SettingsHelper.Instance.CustomVisionTrainingApiKey };
+                predictionApi = new CustomVisionPredictionClient { Endpoint = SettingsHelper.Instance.CustomVisionApiKeyEndpoint, ApiKey = SettingsHelper.Instance.CustomVisionPredictionApiKey };
 
-                SpecsDataCollection.Clear();
-                SpecsDataCollection.AddRange((await CustomSpecsDataLoader.GetData()) ?? CustomSpecsDataLoader.GetBuiltInData());
-
-                trainingApi = new CustomVisionTrainingClient { Endpoint = TrainingApiKeyEndpoint, ApiKey = TrainingApiKey };
-                predictionApi = new CustomVisionPredictionClient { Endpoint = PredictionApiKeyEndpoint, ApiKey = PredictionApiKey };
+                if (CustomSpecsDataLoader.ValidateData(SettingsHelper.Instance.CustomConfigSettings))
+                {
+                    this.inputView.SetDataSource(CustomSpecsDataLoader.DeserializeData(SettingsHelper.Instance.CustomConfigSettings));
+                }
+                else
+                {
+                    hasError = true;
+                    await new MessageDialog("Please make sure your config file has correct format and valid data.", "Failure validating your Config file.").ShowAsync();
+                }
             }
             else
             {
-                this.mainPage.IsEnabled = false;
+                hasError = true;
                 await new MessageDialog("Please enter Custom Vision API Keys in the code behind of this demo.", "Missing API Keys").ShowAsync();
             }
 
-            base.OnNavigatedTo(e);
+            this.inputView.IsEnabled = !hasError;
+        }
+
+        private async void OnSettingsButtonClicked(object sender, RoutedEventArgs e)
+        {
+            await new SettingsDialog().ShowAsync();
         }
 
         private void AppViewStateChanged()
@@ -251,6 +266,7 @@ namespace ShelfAuditingAutomation.Views
             // get project and image from input view page
             currentSpec = args.Item1;
             currentProject = new ProjectViewModel(args.Item1.ModelId, args.Item1.ModelName);
+            this.image.LowConfidence = currentSpec.LowConfidence;
             await this.image.SetSourceFromFileAsync(args.Item2);
 
             AppViewState = AppViewState.ImageSelected;
@@ -328,10 +344,8 @@ namespace ShelfAuditingAutomation.Views
                 case UpdateStatus.SaveNewProduct:
 
                     bool isNewProducts = updateStatus == UpdateStatus.SaveNewProduct;
-                    if (isNewProducts && this.image.AddedNewObjects.Any(x => x.Model?.TagId == Guid.Empty))
-                    {
-                        this.image.UpdateObjectBoxes(tag, isNewObject: true);
-                    }
+                    this.image.UpdateObjectBoxes(tag, isNewObject: isNewProducts);
+
                     var data = isNewProducts ? this.image.AddedNewObjects : this.image.SelectedRegions;
                     await UpdateProducts(data, newProducts: isNewProducts);
 

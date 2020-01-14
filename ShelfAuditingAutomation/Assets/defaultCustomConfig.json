@@ -1,0 +1,76 @@
+[
+  {
+    "Name": "<YOUR CUSTOM SPECS NAME>",
+    "ModelId": "<CUSTOM VISION MODEL ID>",
+    "ModelName": "<CUSTOM VISION MODEL NAME>",
+    "SampleImages": [
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cat-food-1.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cat-food-2.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cat-food-3.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cat-food-4.jpg"
+    ],
+    "ExpectedAreaCoverage": {
+      "Tagged": 70,
+      "Unknown": 20,
+      "Gap": 10
+    },
+    "LowConfidence": 0.3,
+    "Items": [
+      {
+        "TagId": "<CUSTOM VISION MODEL'S TAG ID>",
+        "TagName": "Gap",
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 5
+      },
+      {
+        "TagId": "<CUSTOM VISION MODEL'S TAG ID>",
+        "TagName": "product",
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 10
+      },
+      {
+        "TagId": "<CUSTOM VISION MODEL'S TAG ID>",
+        "TagName": "<CUSTOM VISION MODEL'S TAG NAME>",
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 5
+      }
+    ]
+  },
+  {
+    "Name": "<YOUR CUSTOM SPECS NAME>",
+    "ModelId": "<CUSTOM VISION MODEL ID>",
+    "ModelName": "<CUSTOM VISION MODEL NAME>",
+    "SampleImages": [
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/dog-food-1.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/dog-food-2.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/dog-food-3.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/dog-food-4.jpg"
+    ],
+    "ExpectedAreaCoverage": {
+      "Tagged": 70,
+      "Unknown": 20,
+      "Gap": 10
+    },
+    "LowConfidence": 0.3,
+    "Items": [
+      {
+        "TagId": "<CUSTOM VISION MODEL'S TAG ID>",
+        "TagName": "Gap",
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 5
+      },
+      {
+        "TagId": "<CUSTOM VISION MODEL'S TAG ID>",
+        "TagName": "product",
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 10
+      },
+      {
+        "TagId": "<CUSTOM VISION MODEL'S TAG ID>",
+        "TagName": "<CUSTOM VISION MODEL'S TAG NAME>",
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 5
+      }
+    ]
+  }
+]

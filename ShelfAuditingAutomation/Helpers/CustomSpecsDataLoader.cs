@@ -42,5 +42,35 @@ namespace ShelfAuditingAutomation.Helpers
                 return new List<SpecsData>();
             }
         }
+
+        public static List<SpecsData> DeserializeData(string content)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<List<SpecsData>>(content);
+            }
+            catch (Exception)
+            {
+                return new List<SpecsData>();
+            }
+        }
+
+        public static bool ValidateData(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return false;
+            }
+
+            try
+            {
+                JsonConvert.DeserializeObject<List<SpecsData>>(content);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

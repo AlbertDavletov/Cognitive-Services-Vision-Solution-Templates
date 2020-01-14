@@ -15,6 +15,7 @@
       "Unknown": 20,
       "Gap": 10
     },
+    "LowConfidence": 0.3,
     "Items": [
       {
         "TagId": "b40c63a2-2c66-4420-bc85-1a799a130897",
@@ -274,6 +275,7 @@
       "Unknown": 20,
       "Gap": 10
     },
+    "LowConfidence": 0.3,
     "Items": [
       {
         "TagId": "b40c63a2-2c66-4420-bc85-1a799a130897",
@@ -503,6 +505,7 @@
       "Unknown": 20,
       "Gap": 10
     },
+    "LowConfidence": 0.3,
     "Items": [
       {
         "TagId": "b40c63a2-2c66-4420-bc85-1a799a130897",

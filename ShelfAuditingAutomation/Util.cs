@@ -3,11 +3,13 @@ using Microsoft.Rest;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics.Display;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Popups;
@@ -18,12 +20,15 @@ namespace ShelfAuditingAutomation
 {
     internal static class Util
     {
+        public const string RequiredFieldMessage = "This field is required";
         public const string ShelfGapName = "Gap";
         public const string UnknownProductName = "Product";
 
         public static readonly Color TaggedItemColor =      Color.FromArgb(255, 36, 143, 255); // #248FFF
         public static readonly Color ShelfGapColor =        Color.FromArgb(255, 250, 190, 20); // #FABE14
         public static readonly Color UnknownProductColor =  Color.FromArgb(255, 180, 0, 158);  // #B4009E
+
+        public static readonly double DefaultLowConfidence = 0.0;
 
         public static Color GetObjectRegionColor(PredictionModel model)
         {
@@ -114,6 +119,13 @@ namespace ShelfAuditingAutomation
         public static double NormalizeValue(double value, double min, double max)
         {
             return (value - min) / (max - min);
+        }
+
+        public static async Task<StorageFile> PickSingleFileAsync(string[] fileTypeFilter)
+        {
+            FileOpenPicker fileOpenPicker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary, ViewMode = PickerViewMode.Thumbnail };
+            fileTypeFilter.ToList().ForEach(f => fileOpenPicker.FileTypeFilter.Add(f));
+            return await fileOpenPicker.PickSingleFileAsync();
         }
 
         public static async Task DownloadAndSaveBitmapAsync(string imageUrl, StorageFile resultFile)

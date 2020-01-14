@@ -57,6 +57,8 @@ namespace ShelfAuditingAutomation.Controls
 
         public StorageFile ImageFile { get; private set; }
 
+        public double LowConfidence { get; set; } = Util.DefaultLowConfidence;
+
         public List<ProductItemViewModel> AddedNewObjects { get; set; } = new List<ProductItemViewModel>();
 
         public List<ProductItemViewModel> SelectedRegions { get; set; } = new List<ProductItemViewModel>();
@@ -150,17 +152,16 @@ namespace ShelfAuditingAutomation.Controls
             var objectsToRemove = existingObjects.Where(p => !detectedObjects.Select(d => d.Id).Contains(p.ProductItemViewModel.Id)).ToList();
             foreach (var objToRemove in objectsToRemove)
             {
-                // this.objectDetectionVisualizationCanvas.Children.Remove(objToRemove);
                 objToRemove.State = RegionState.Collapsed;
             }
 
             foreach (var detectedObj in detectedObjects)
             {
                 var model = detectedObj.Model;
-                var state = regionState;
-                if (state == RegionState.Active)
+                var state = GetStateByModel(model, defaultState: regionState);
+                if ((state == RegionState.Active || state == RegionState.LowConfidence) && SelectedRegions.Any(x => x.Id == detectedObj.Id))
                 {
-                    state = SelectedRegions.Any(x => x.Id == detectedObj.Id) ? RegionState.Selected : RegionState.Active;
+                    state = RegionState.Selected;
                 }
 
                 ObjectRegionControl region = existingObjects.FirstOrDefault(d => d.ProductItemViewModel.Id == detectedObj.Id);
@@ -188,7 +189,7 @@ namespace ShelfAuditingAutomation.Controls
                         ProductItemViewModel = detectedObj,
                         Color = Util.GetObjectRegionColor(model),
                         ZoomValue = this.scrollViewerMain.ZoomFactor
-                };
+                    };
                     objectDetectionVisualizationCanvas.Children.Add(region);
                 }
 
@@ -256,11 +257,14 @@ namespace ShelfAuditingAutomation.Controls
 
         public void UpdateObjectBoxes(ProductTag tag, bool isNewObject = false)
         {
+            Guid newId = tag.Tag.Id;
+            string newName = tag.Tag.Name;
+
             var data = isNewObject ? AddedNewObjects : SelectedRegions;
             foreach (var item in data)
             {
-                item.DisplayName = tag.Tag.Name;
-                item.Model = new PredictionModel(item.Model.Probability, tag.Tag.Id, tag.Tag.Name, item.Model.BoundingBox);
+                item.DisplayName = newName;
+                item.Model = new PredictionModel(1.0, newId, newName, item.Model.BoundingBox);
             }
             this.ShowEditableObjectDetectionBoxes(data, removeOption: isNewObject);
         }
@@ -418,9 +422,10 @@ namespace ShelfAuditingAutomation.Controls
             {
                 foreach (ObjectRegionControl region in objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList())
                 {
+                    var model = region.ProductItemViewModel?.Model;
                     if (SelectedRegions.Any(x => x.Id == region.ProductItemViewModel.Id))
                     {
-                        region.State = RegionState.Active;
+                        region.State = GetStateByModel(model);
                     }
                 }
                 SelectedRegions.Clear();
@@ -492,6 +497,10 @@ namespace ShelfAuditingAutomation.Controls
         }
         #endregion
 
+        private RegionState GetStateByModel(PredictionModel model, RegionState defaultState = RegionState.Active)
+        {
+            return model?.Probability >= LowConfidence ? defaultState : RegionState.LowConfidence;
+        }
 
         public void ClearSource()
         {

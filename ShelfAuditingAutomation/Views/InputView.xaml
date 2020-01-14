@@ -7,7 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+    x:Name="userControl">
 
     <UserControl.Resources>
         <ctl:ReverseEnumMatchToVisibilityConverter x:Key="reverseEnumMatchToVisibilityConverter"/>
@@ -31,8 +32,8 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <ComboBox Grid.Row="0" ItemsSource="{Binding SpecsDataCollection}" SelectedIndex="0" DisplayMemberPath="Name" x:Name="projectsComboBox" 
-                          MinWidth="300" MaxWidth="600" HorizontalAlignment="Center" Margin="0,0,0,50" SelectionChanged="ProjectsComboBoxSelectionChanged"
+                <ComboBox Grid.Row="0" ItemsSource="{Binding ElementName=userControl, Path=SpecsDataCollection}" SelectedIndex="0" DisplayMemberPath="Name" x:Name="projectsComboBox"
+                          SelectionChanged="ProjectsComboBoxSelectionChanged" MinWidth="300" MaxWidth="600" HorizontalAlignment="Center" Margin="0,0,0,50" 
                           Visibility="{Binding ElementName=imagePicker, Path=CurrentState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='CameraStream'}">
                     <ComboBox.HeaderTemplate>
                         <DataTemplate>

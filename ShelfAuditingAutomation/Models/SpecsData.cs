@@ -11,6 +11,7 @@ namespace ShelfAuditingAutomation.Models
         public string ModelName { get; set; }
         public string[] SampleImages { get; set; }
         public AreaCoverage ExpectedAreaCoverage { get; set; }
+        public double LowConfidence { get; set; }
         public List<SpecItem> Items { get; set; }
     }
 

@@ -39,6 +39,23 @@
             </Ellipse>
         </Grid>
 
+        <!-- Region with low confidence -->
+        <Grid Visibility="{Binding State, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='LowConfidence'}" CornerRadius="1">
+            <Grid.Background>
+                <SolidColorBrush Color="{Binding Color}" Opacity="0.6"/>
+            </Grid.Background>
+
+            <Rectangle x:Name="lowConfRegion" StrokeEndLineCap="Round" Stroke="#A6D8FF" StrokeDashArray="8,4" StrokeDashOffset="1.5" StrokeThickness="2" RadiusX="1" RadiusY="1" />
+
+            <Border Background="White" Height="24" Width="24" CornerRadius="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF13F;" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0,0,0">
+                    <FontIcon.Foreground>
+                        <SolidColorBrush Color="{Binding Color}"/>
+                    </FontIcon.Foreground>
+                </FontIcon>
+            </Border>
+        </Grid>
+
         <!-- Selected Region -->
         <Grid Visibility="{Binding State, Converter={StaticResource enumMatchToVisibilityConverter}, ConverterParameter='Selected'}">
             <Canvas x:Name="selectedRegionCanvas" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-15,0,0">

@@ -1,5 +1,6 @@
 ﻿using ShelfAuditingAutomation.Models;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Windows.Storage;
 using Windows.UI.Xaml;
@@ -9,18 +10,15 @@ namespace ShelfAuditingAutomation.Views
 {
     public sealed partial class InputView : UserControl
     {
-        public static readonly DependencyProperty SpecsDataCollectionProperty =
-            DependencyProperty.Register(
-                "SpecsDataCollection",
-                typeof(ObservableCollection<SpecsData>),
-                typeof(InputView),
-                new PropertyMetadata(null));
-
-        public ObservableCollection<SpecsData> SpecsDataCollection
+        private static readonly string[] DefaultImageList = new string[] 
         {
-            get { return (ObservableCollection<SpecsData>)GetValue(SpecsDataCollectionProperty); }
-            set { SetValue(SpecsDataCollectionProperty, value); }
-        }
+            "ms-appx:///Assets/ImageSamples/1.jpg",
+            "ms-appx:///Assets/ImageSamples/2.jpg",
+            "ms-appx:///Assets/ImageSamples/3.jpg",
+            "ms-appx:///Assets/ImageSamples/4.jpg"
+        };
+
+        public ObservableCollection<SpecsData> SpecsDataCollection { get; set; } = new ObservableCollection<SpecsData>();
 
         public event EventHandler<Tuple<SpecsData, StorageFile>> ImageSelected;
 
@@ -29,18 +27,25 @@ namespace ShelfAuditingAutomation.Views
             this.InitializeComponent();
 
             // default sample images
-            this.imagePicker.SetSuggestedImageList(
-                "ms-appx:///Assets/ImageSamples/1.jpg",
-                "ms-appx:///Assets/ImageSamples/2.jpg",
-                "ms-appx:///Assets/ImageSamples/3.jpg",
-                "ms-appx:///Assets/ImageSamples/4.jpg"
-            );
+            this.imagePicker.SetSuggestedImageList(DefaultImageList);
+        }
+
+        public void SetDataSource(List<SpecsData> data = null)
+        {
+            SpecsDataCollection.Clear();
+            if (data != null)
+            {
+                SpecsDataCollection.AddRange(data);
+                this.projectsComboBox.SelectedIndex = 0;
+            }
         }
 
         private void OnImageSearchCompleted(object sender, StorageFile imageFile)
         {
-            var specsData = this.projectsComboBox.SelectedItem as SpecsData;
-            this.ImageSelected?.Invoke(this, new Tuple<SpecsData, StorageFile>(specsData, imageFile));
+            if (this.projectsComboBox.SelectedItem is SpecsData specsData)
+            {
+                this.ImageSelected?.Invoke(this, new Tuple<SpecsData, StorageFile>(specsData, imageFile));
+            }
         }
 
         private void ProjectsComboBoxSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -48,6 +53,10 @@ namespace ShelfAuditingAutomation.Views
             if (this.projectsComboBox.SelectedItem is SpecsData specsData)
             {
                 this.imagePicker.SetSuggestedImageList(specsData.SampleImages);
+            }
+            else
+            {
+                this.imagePicker.SetSuggestedImageList(DefaultImageList);
             }
         }
     }

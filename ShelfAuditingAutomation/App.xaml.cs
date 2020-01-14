@@ -35,7 +35,7 @@ namespace ShelfAuditingAutomation
         /// will be used such as when the application is launched to open a specific file.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
             Frame rootFrame = Window.Current.Content as Frame;
 
@@ -53,7 +53,7 @@ namespace ShelfAuditingAutomation
                     //TODO: Load state from previously suspended application
                 }
 
-                SettingsHelper.Instance.Initialize();
+                await SettingsHelper.Instance.Initialize();
 
                 // Set the TitleBar to Dark Theme
                 var appView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();

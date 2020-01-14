@@ -13,6 +13,7 @@ namespace ShelfAuditingAutomation.Controls
         Disabled,
         Active,
         Selected,
+        LowConfidence,
         Edit,
         JustBorder,
         Collapsed
@@ -24,6 +25,8 @@ namespace ShelfAuditingAutomation.Controls
         private static readonly double minFontSize = 2;
         private static readonly double maxTopMargin = 25;
         private static readonly double minTopMargin = 15;
+
+        private RegionState prevState = RegionState.Active;
         public event EventHandler<Tuple<RegionState, ProductItemViewModel>> RegionSelected;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -96,6 +99,10 @@ namespace ShelfAuditingAutomation.Controls
                     this.labelPanel.BorderBrush = highlightColor;
                     this.selectedRegion.BorderBrush = highlightColor;
                     break;
+
+                case RegionState.LowConfidence:
+                    this.lowConfRegion.Stroke = highlightColor;
+                    break;
             }
         }
 
@@ -116,17 +123,31 @@ namespace ShelfAuditingAutomation.Controls
                     this.labelPanel.BorderThickness = borderSize;
                     this.selectedRegion.BorderBrush = new SolidColorBrush(Color);
                     break;
+
+                case RegionState.LowConfidence:
+                    this.lowConfRegion.Stroke = new SolidColorBrush(Color.FromArgb(255, 166, 216, 255));
+                    break;
             }
         }
 
         private void OnMainGridTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            if (State == RegionState.Active || State == RegionState.Selected)
+            if (State != RegionState.Selected)
             {
-                State = State == RegionState.Selected ? RegionState.Active : RegionState.Selected;
+                prevState = State;
+            }
 
-                Canvas.SetZIndex(this, State == RegionState.Selected ? 10 : 1);
-                this.RegionSelected?.Invoke(this, new Tuple<RegionState, ProductItemViewModel>(State, ProductItemViewModel));
+            switch (State)
+            {
+                case RegionState.Active:
+                case RegionState.Selected:
+                case RegionState.LowConfidence:
+
+                    State = State == RegionState.Selected ? prevState : RegionState.Selected;
+
+                    Canvas.SetZIndex(this, State == RegionState.Selected ? 10 : 1);
+                    this.RegionSelected?.Invoke(this, new Tuple<RegionState, ProductItemViewModel>(State, ProductItemViewModel));
+                    break;
             }
         }
 

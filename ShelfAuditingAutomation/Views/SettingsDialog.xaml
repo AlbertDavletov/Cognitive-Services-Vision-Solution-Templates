@@ -1,0 +1,57 @@
+﻿<ContentDialog
+    x:Class="ShelfAuditingAutomation.Views.SettingsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    PrimaryButtonText="OK"
+    SecondaryButtonText="Cancel"
+    DefaultButton="Primary"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
+    x:Name="contentDialog">
+
+    <Grid>
+        <StackPanel>
+            <StackPanel Spacing="10">
+                <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}">
+                    Custom vision
+                    <Hyperlink FontSize="14" NavigateUri="https://ms.portal.azure.com/#create/Microsoft.CognitiveServicesCustomVision">create</Hyperlink>
+                </TextBlock>
+
+                <StackPanel>
+                    <PasswordBox x:Name="CustomVisionTrainingApi" Header="Training API Key" Password="{Binding CustomVisionTrainingApiKey}" />
+                    <TextBlock x:Name="CustomVisionTrainingApiError" Foreground="Red" TextWrapping="WrapWholeWords" Visibility="Collapsed"/>
+                </StackPanel>
+
+                <StackPanel>
+                    <PasswordBox x:Name="CustomVisionPredictionApi" Header="Prediction API Key" Password="{Binding CustomVisionPredictionApiKey}"/>
+                    <TextBlock x:Name="CustomVisionPredictionApiError" Foreground="Red" TextWrapping="WrapWholeWords" Visibility="Collapsed"/>
+                </StackPanel>
+
+                <StackPanel>
+                    <TextBox x:Name="CustomVisionEndpoint" Header="Endpoint" Text="{Binding CustomVisionApiKeyEndpoint}" />
+                    <TextBlock x:Name="CustomVisionEndpointError" Foreground="Red" TextWrapping="WrapWholeWords" Visibility="Collapsed"/>
+                </StackPanel>
+            </StackPanel>
+            
+            <StackPanel Margin="0,25,0,0">
+                <TextBlock Text="Config" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                <TextBox x:Name="CustomConfigSettings" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CustomConfigSettings, Mode=TwoWay}" MaxHeight="300"
+                             PlaceholderText="Paste custom settings for config here" ScrollViewer.VerticalScrollBarVisibility="Visible"/>
+                <TextBlock x:Name="ConfigError" Foreground="Red" TextWrapping="WrapWholeWords" Visibility="Collapsed"/>
+
+                <Grid ColumnSpacing="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Button Content="Get Config Settings from file" Margin="0,6,0,0" Click="OnGetConfigFromFileButtonClick" HorizontalAlignment="Stretch"/>
+                    <Button Grid.Column="1" Content="Reset to Sample Config Settings" Margin="0,6,0,0" Click="ResetConfigSettingsButtonClick" HorizontalAlignment="Stretch"/>
+                </Grid>
+                
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</ContentDialog>

@@ -168,28 +168,37 @@ namespace ShelfAuditingAutomation.Controls
 
         private async void OnImageItemClicked(object sender, ItemClickEventArgs e)
         {
-            if (e.ClickedItem is ImageAnalyzer img)
+            try
             {
-                StorageFile imageFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("Image.jpg", CreationCollisionOption.ReplaceExisting);
+                this.suggestedImagesGrid.IsEnabled = false;
 
-                if (img.ImageUrl != null)
+                if (e.ClickedItem is ImageAnalyzer img)
                 {
-                    if (img.ImageUrl.Contains("ms-appx"))
-                    {
-                        var projectFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(img.ImageUrl));
-                        imageFile = await projectFile.CopyAsync(ApplicationData.Current.LocalFolder, projectFile.Name, NameCollisionOption.ReplaceExisting);
-                    }
-                    else
-                    {
-                        await Util.DownloadAndSaveBitmapAsync(img.ImageUrl, imageFile);
-                    }
-                }
-                else if (img.GetImageStreamCallback != null)
-                {
-                    await Util.SaveBitmapToStorageFileAsync(await img.GetImageStreamCallback(), imageFile);
-                }
+                    StorageFile imageFile = await ApplicationData.Current.LocalFolder.CreateFileAsync("Image.jpg", CreationCollisionOption.ReplaceExisting);
 
-                ProcessImageSelection(imageFile);
+                    if (img.ImageUrl != null)
+                    {
+                        if (img.ImageUrl.Contains("ms-appx"))
+                        {
+                            var projectFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri(img.ImageUrl));
+                            imageFile = await projectFile.CopyAsync(ApplicationData.Current.LocalFolder, projectFile.Name, NameCollisionOption.ReplaceExisting);
+                        }
+                        else
+                        {
+                            await Util.DownloadAndSaveBitmapAsync(img.ImageUrl, imageFile);
+                        }
+                    }
+                    else if (img.GetImageStreamCallback != null)
+                    {
+                        await Util.SaveBitmapToStorageFileAsync(await img.GetImageStreamCallback(), imageFile);
+                    }
+
+                    ProcessImageSelection(imageFile);
+                }
+            }
+            finally
+            {
+                this.suggestedImagesGrid.IsEnabled = true;
             }
         }
     }
