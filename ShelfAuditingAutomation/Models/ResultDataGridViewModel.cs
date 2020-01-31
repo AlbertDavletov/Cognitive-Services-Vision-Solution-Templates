@@ -12,6 +12,7 @@ namespace ShelfAuditingAutomation.Models
         public int ExpectedCount { get; set; }
         public double ExpectedCoverage { get; set; }
         public bool IsAggregateColumn { get; set; } = false;
+        public bool IsColumnWithAlert { get; set; } = false;
 
         public static ImageSource GetTagImageSource(string name)
         {

@@ -72,13 +72,11 @@ namespace ShelfAuditingAutomation.Controls
         private void ZoomValueChanged()
         {
             double normalizedZoomValue = Util.NormalizeValue(ZoomValue, 1, 10);
-            double fontSize = minFontSize + (1 - normalizedZoomValue) * (maxFontSize - minFontSize);
-            double topMargin = minTopMargin + (1 - normalizedZoomValue) * (maxTopMargin - minTopMargin);
 
-            LabelFontSize = fontSize >= minFontSize && fontSize <= maxFontSize ? (int)fontSize : maxFontSize;
+            LabelFontSize = Util.GetScaledValue(normalizedZoomValue, minFontSize, maxFontSize);
             if (!EnableRemove)
             {
-                LabelMargin = new Thickness(0, topMargin >= minTopMargin && topMargin <= maxTopMargin ? -topMargin : 0, 0, 0);
+                LabelMargin = new Thickness(0, -Util.GetScaledValue(normalizedZoomValue, minTopMargin, maxTopMargin), 0, 0);
             }
         }
     }

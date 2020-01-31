@@ -4,30 +4,34 @@ using System.ComponentModel;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media;
 
 namespace ShelfAuditingAutomation.Controls
 {
     public enum RegionState
     {
-        Disabled,
         Active,
-        Selected,
-        LowConfidence,
         Edit,
-        JustBorder,
-        Collapsed
+        Disabled,
+        Selected,
+        SelectedWithNotification,
+        LowConfidence
+    }
+
+    public enum ActionType
+    {
+        Apply,
+        Edit,
+        Cancel
     }
 
     public sealed partial class ObjectRegionControl : UserControl, INotifyPropertyChanged
     {
-        private static readonly double maxFontSize = 12;
-        private static readonly double minFontSize = 2;
-        private static readonly double maxTopMargin = 25;
-        private static readonly double minTopMargin = 15;
+        private static readonly double MinScale = 0.15;
 
-        private RegionState prevState = RegionState.Active;
-        public event EventHandler<Tuple<RegionState, ProductItemViewModel>> RegionSelected;
+        public event EventHandler RegionSelected;
+        public event EventHandler<ActionType> RegionActionSelected;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -52,6 +56,18 @@ namespace ShelfAuditingAutomation.Controls
             {
                 this.state = value;
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("State"));
+                UpdateZIndex();
+            }
+        }
+
+        private bool enableSelectedIcon = false;
+        public bool EnableSelectedIcon
+        {
+            get { return this.enableSelectedIcon; }
+            set
+            {
+                this.enableSelectedIcon = value;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("EnableSelectedIcon"));
             }
         }
 
@@ -132,33 +148,125 @@ namespace ShelfAuditingAutomation.Controls
 
         private void OnMainGridTapped(object sender, Windows.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
-            if (State != RegionState.Selected)
-            {
-                prevState = State;
-            }
+            this.RegionSelected?.Invoke(this, EventArgs.Empty);
+        }
 
+        private void CanvasNotificationGridSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            this.canvasNotification.Visibility = Visibility.Visible;
+
+            UpdateCanvasNotificationSize();
+        }
+
+        private void OnNotificationApplyButtonClicked(object sender, RoutedEventArgs e)
+        {
+            if (this.applyLabelButton.IsChecked.GetValueOrDefault())
+            {
+                this.RegionActionSelected?.Invoke(this, ActionType.Apply);
+            }
+            else if (this.editLabelButton.IsChecked.GetValueOrDefault())
+            {
+                this.RegionActionSelected?.Invoke(this, ActionType.Edit);
+            }
+            else
+            {
+                this.RegionActionSelected?.Invoke(this, ActionType.Cancel);
+            }
+        }
+
+        private void OnNotificationCancelButtonClicked(object sender, RoutedEventArgs e)
+        {
+            this.RegionActionSelected?.Invoke(this, ActionType.Cancel);
+        }
+
+        private void OnToggleOptionButtonClicked(object sender, RoutedEventArgs e)
+        {
+            string tag = ((ToggleButton)sender)?.Tag?.ToString();
+            bool isApplyAction = string.Equals(tag, "Apply", StringComparison.OrdinalIgnoreCase);
+
+            this.applyLabelButton.IsChecked = isApplyAction;
+            this.editLabelButton.IsChecked = !isApplyAction;
+        }
+
+        private void UpdateZIndex()
+        {
+            int zIndex = 1;
             switch (State)
             {
-                case RegionState.Active:
+                case RegionState.Edit:
+                    zIndex = 20;
+                    break;
+
                 case RegionState.Selected:
+                case RegionState.SelectedWithNotification:
+                    zIndex = 15;
+                    break;
+
+                case RegionState.Active:
                 case RegionState.LowConfidence:
+                    zIndex = 10;
+                    break;
 
-                    State = State == RegionState.Selected ? prevState : RegionState.Selected;
-
-                    Canvas.SetZIndex(this, State == RegionState.Selected ? 10 : 1);
-                    this.RegionSelected?.Invoke(this, new Tuple<RegionState, ProductItemViewModel>(State, ProductItemViewModel));
+                case RegionState.Disabled:
+                    zIndex = 1;
                     break;
             }
+            Canvas.SetZIndex(this, zIndex);
         }
 
         private void ZoomValueChanged()
         {
             double normalizedZoomValue = Util.NormalizeValue(ZoomValue, 1, 10);
-            double fontSize = minFontSize + (1 - normalizedZoomValue) * (maxFontSize - minFontSize);
-            double topMargin = minTopMargin + (1 - normalizedZoomValue) * (maxTopMargin - minTopMargin);
 
-            this.selectedRegionTextBlock.FontSize = fontSize >= minFontSize && fontSize <= maxFontSize ? (int)fontSize : maxFontSize;
-            this.selectedRegionCanvas.Margin = new Thickness(0, topMargin >= minTopMargin && topMargin <= maxTopMargin ? -topMargin : 0, 0, 0);
+            double activeEllipseSize = Util.GetScaledValue(normalizedZoomValue, 4, 12);
+            this.activeRegionEllipse.Width = activeEllipseSize;
+            this.activeRegionEllipse.Height = activeEllipseSize;
+
+            double lowConfEllipseSize = Util.GetScaledValue(normalizedZoomValue, 8, 24);
+            this.lowConfRegionBorder.Width = lowConfEllipseSize;
+            this.lowConfRegionBorder.Height = lowConfEllipseSize;
+            this.lowConfRegionIcon.FontSize = Util.GetScaledValue(normalizedZoomValue, 6, 14);
+
+            double disableEllipseSize = Util.GetScaledValue(normalizedZoomValue, 2, 8);
+            this.disabledRegionEllipse.Width = disableEllipseSize;
+            this.disabledRegionEllipse.Height = disableEllipseSize;
+
+            double selectedItemFontSize = Util.GetScaledValue(normalizedZoomValue, 2, 12);
+            this.selectedRegionTextBlock.FontSize = selectedItemFontSize;
+            this.selectedRegionIcon.FontSize = selectedItemFontSize;
+            this.selectedRegionCanvas.Margin = new Thickness(0, -Util.GetScaledValue(normalizedZoomValue, 15, 25), 0, 0);
+
+            UpdateCanvasNotificationSize();
+        }
+
+        private void UpdateCanvasNotificationSize()
+        {
+            double scale;
+            if (ZoomValue == 1)
+            {
+                scale = 1;
+            }
+            else
+            {
+                double newScale = 0.7 - 0.1 * (ZoomValue - 2);
+                scale = newScale >= MinScale ? newScale : MinScale;
+            }
+
+            this.canvasNotificationGridScale.ScaleX = scale; 
+            this.canvasNotificationGridScale.ScaleY = scale;
+
+            var parent = (FrameworkElement)this.Parent;
+            double topOffset = 4;
+            double gridWidth = this.canvasNotificationGrid.ActualWidth * scale;
+            double gridHeight = this.canvasNotificationGrid.ActualHeight * scale;
+
+            if (parent != null && gridWidth > 0 && gridHeight > 0)
+            {
+                this.canvasNotification.Margin = new Thickness(
+                    this.Margin.Left + gridWidth > parent.ActualWidth ? -(this.Margin.Left + gridWidth - parent.ActualWidth) : 0,
+                    this.Margin.Top < (gridHeight + topOffset) ? this.ActualHeight + topOffset : -(gridHeight + topOffset),
+                    0, 0);
+            }
         }
     }
 }

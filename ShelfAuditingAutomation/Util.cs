@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction.Models;
 using Microsoft.Rest;
+using ShelfAuditingAutomation.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,8 +28,6 @@ namespace ShelfAuditingAutomation
         public static readonly Color TaggedItemColor =      Color.FromArgb(255, 36, 143, 255); // #248FFF
         public static readonly Color ShelfGapColor =        Color.FromArgb(255, 250, 190, 20); // #FABE14
         public static readonly Color UnknownProductColor =  Color.FromArgb(255, 180, 0, 158);  // #B4009E
-
-        public static readonly double DefaultLowConfidence = 0.0;
 
         public static Color GetObjectRegionColor(PredictionModel model)
         {
@@ -61,6 +60,11 @@ namespace ShelfAuditingAutomation
         {
             // ensure [0,1]
             return Math.Min(1, Math.Max(0, value));
+        }
+
+        public static bool IsLowConfidenceRegion(PredictionModel model)
+        {
+            return model?.Probability <= SettingsHelper.Instance.LowConfidence;
         }
 
         internal static async Task GenericApiCallExceptionHandler(Exception ex, string errorTitle)
@@ -119,6 +123,20 @@ namespace ShelfAuditingAutomation
         public static double NormalizeValue(double value, double min, double max)
         {
             return (value - min) / (max - min);
+        }
+
+        public static double GetScaledValue(double scale, double minValue, double maxValue)
+        {
+            double newValue = minValue + (1 - scale) * (maxValue - minValue);
+            if (newValue < minValue)
+            {
+                return minValue;
+            }
+            else if (newValue > maxValue)
+            {
+                return maxValue;
+            }
+            return newValue;
         }
 
         public static async Task<StorageFile> PickSingleFileAsync(string[] fileTypeFilter)

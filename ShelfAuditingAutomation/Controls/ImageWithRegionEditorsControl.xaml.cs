@@ -50,14 +50,13 @@ namespace ShelfAuditingAutomation.Controls
         }
 
         public event EventHandler RegionSelected;
+        public event EventHandler<Tuple<ActionType, ProductItemViewModel>> RegionActionSelected;
 
         public int PixelWidth { get; private set; }
 
         public int PixelHeight { get; private set; }
 
         public StorageFile ImageFile { get; private set; }
-
-        public double LowConfidence { get; set; } = Util.DefaultLowConfidence;
 
         public List<ProductItemViewModel> AddedNewObjects { get; set; } = new List<ProductItemViewModel>();
 
@@ -125,7 +124,7 @@ namespace ShelfAuditingAutomation.Controls
         {
             if (this.currentDetectedObjects != null && this.objectDetectionVisualizationCanvas.Children.Any())
             {
-                this.ShowObjectDetectionBoxes(currentDetectedObjects.Item2, currentDetectedObjects.Item1);
+                this.ShowObjectDetectionBoxes(currentDetectedObjects.Item2, currentDetectedObjects.Item1, sizeChanged: true);
             }
         }
 
@@ -137,7 +136,7 @@ namespace ShelfAuditingAutomation.Controls
             }
         }
 
-        public void ShowObjectDetectionBoxes(IEnumerable<ProductItemViewModel> detectedObjects, RegionState regionState = RegionState.Active)
+        public void ShowObjectDetectionBoxes(IEnumerable<ProductItemViewModel> detectedObjects, RegionState regionState = RegionState.Active, bool sizeChanged = false)
         {
             this.cropImageButton.Visibility = Visibility.Collapsed;
             this.clearSelectionButton.Visibility = Visibility.Visible;
@@ -152,54 +151,49 @@ namespace ShelfAuditingAutomation.Controls
             var objectsToRemove = existingObjects.Where(p => !detectedObjects.Select(d => d.Id).Contains(p.ProductItemViewModel.Id)).ToList();
             foreach (var objToRemove in objectsToRemove)
             {
-                objToRemove.State = RegionState.Collapsed;
+                this.objectDetectionVisualizationCanvas.Children.Remove(objToRemove);
             }
 
             foreach (var detectedObj in detectedObjects)
             {
                 var model = detectedObj.Model;
-                var state = GetStateByModel(model, defaultState: regionState);
-                if ((state == RegionState.Active || state == RegionState.LowConfidence) && SelectedRegions.Any(x => x.Id == detectedObj.Id))
+                bool isLowConfidenceItem = Util.IsLowConfidenceRegion(model);
+
+                RegionState state = regionState;
+                if (state != RegionState.Disabled)
                 {
-                    state = RegionState.Selected;
+                    bool isSelected = SelectedRegions.Any(x => x.Id == detectedObj.Id);
+                    state = GetStateByModel(model, defaultState: state);
+                    if (isSelected && (state == RegionState.Active || state == RegionState.LowConfidence))
+                    {
+                        state = RegionState.Selected;
+                    }
                 }
 
                 ObjectRegionControl region = existingObjects.FirstOrDefault(d => d.ProductItemViewModel.Id == detectedObj.Id);
-                if (region != null)
+                if (region == null)
                 {
-                    region.Margin = new Thickness(model.BoundingBox.Left * canvasWidth, model.BoundingBox.Top * canvasHeight, 0, 0);
-                    region.Width = model.BoundingBox.Width * canvasWidth;
-                    region.Height = model.BoundingBox.Height * canvasHeight;
-                    region.Title = detectedObj.DisplayName;
-                    region.State = state;
-                    region.ProductItemViewModel = detectedObj;
-                    region.Color = Util.GetObjectRegionColor(model);
-                    region.ZoomValue = this.scrollViewerMain.ZoomFactor;
-                    region.RegionSelected -= OnRegionSelected;
-                }
-                else
-                {
-                    region = new ObjectRegionControl
-                    {
-                        Margin = new Thickness(model.BoundingBox.Left * canvasWidth, model.BoundingBox.Top * canvasHeight, 0, 0),
-                        Width = model.BoundingBox.Width * canvasWidth,
-                        Height = model.BoundingBox.Height * canvasHeight,
-                        Title = detectedObj.DisplayName,
-                        State = state,
-                        ProductItemViewModel = detectedObj,
-                        Color = Util.GetObjectRegionColor(model),
-                        ZoomValue = this.scrollViewerMain.ZoomFactor
-                    };
+                    region = new ObjectRegionControl();
                     objectDetectionVisualizationCanvas.Children.Add(region);
                 }
 
+                region.Title = detectedObj.DisplayName;
+                region.State = sizeChanged ? region.State : state;
+                region.ProductItemViewModel = detectedObj;
+                region.Color = Util.GetObjectRegionColor(model);
+                region.ZoomValue = this.scrollViewerMain.ZoomFactor;
+                region.EnableSelectedIcon = isLowConfidenceItem;
+                region.Margin = new Thickness(model.BoundingBox.Left * canvasWidth, model.BoundingBox.Top * canvasHeight, 0, 0);
+                region.Width = model.BoundingBox.Width * canvasWidth;
+                region.Height = model.BoundingBox.Height * canvasHeight;
+
+                region.RegionActionSelected -= OnRegionActionSelected;
+                region.RegionSelected -= OnRegionSelected;
+
                 if (regionState != RegionState.Disabled)
                 {
+                    region.RegionActionSelected += OnRegionActionSelected;
                     region.RegionSelected += OnRegionSelected;
-                }
-                else
-                {
-                    region.RegionSelected -= OnRegionSelected;
                 }
             }
 
@@ -402,13 +396,17 @@ namespace ShelfAuditingAutomation.Controls
 
                 foreach (ObjectRegionControl region in objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList())
                 {
+                    var model = region.ProductItemViewModel?.Model;
                     if (SelectedRegions.Any(x => x.Id == region.ProductItemViewModel.Id))
                     {
+                        bool isLowConfidenceItem = Util.IsLowConfidenceRegion(region.ProductItemViewModel?.Model);
                         region.State = RegionState.Selected;
+                        region.EnableSelectedIcon = isLowConfidenceItem;
                     }
                     else if (region.State == RegionState.Selected)
                     {
-                        region.State = RegionState.Active;
+                        region.State = GetStateByModel(model);
+                        region.EnableSelectedIcon = false;
                     }
                 }
                 this.clearSelectionButton.IsEnabled = SelectedRegions.Any();
@@ -423,10 +421,8 @@ namespace ShelfAuditingAutomation.Controls
                 foreach (ObjectRegionControl region in objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList())
                 {
                     var model = region.ProductItemViewModel?.Model;
-                    if (SelectedRegions.Any(x => x.Id == region.ProductItemViewModel.Id))
-                    {
-                        region.State = GetStateByModel(model);
-                    }
+                    region.State = GetStateByModel(model);
+                    region.EnableSelectedIcon = false;
                 }
                 SelectedRegions.Clear();
             }
@@ -439,19 +435,94 @@ namespace ShelfAuditingAutomation.Controls
             ClearSelectedRegions();
         }
 
-        private void OnRegionSelected(object sender, Tuple<RegionState, ProductItemViewModel> item)
+        private void OnRegionSelected(object sender, EventArgs args)
         {
-            if (item.Item1 == RegionState.Selected)
+            var selectedRegion = (ObjectRegionControl)sender;
+            if (selectedRegion == null)
             {
-                SelectedRegions.Add(item.Item2.DeepCopy());
+                return;
             }
-            else
+
+            var viewModel = selectedRegion.ProductItemViewModel;
+            switch (selectedRegion.State)
             {
-                var region = SelectedRegions.FirstOrDefault(r => r.Id == item.Item2.Id);
-                SelectedRegions.Remove(region);
+                case RegionState.Active:
+                    selectedRegion.State = RegionState.Selected;
+                    selectedRegion.EnableSelectedIcon = false;
+                    SelectedRegions.Add(viewModel.DeepCopy());
+                    break;
+
+                case RegionState.LowConfidence:
+                    bool isAnySelected = SelectedRegions.Any();
+                    selectedRegion.State = !isAnySelected ? RegionState.SelectedWithNotification : RegionState.Selected;
+                    selectedRegion.EnableSelectedIcon = isAnySelected;
+                    SelectedRegions.Add(viewModel.DeepCopy());
+
+                    if (!isAnySelected)
+                    {
+                        UpdateRegionState(disable: true);
+                    }
+                    break;
+
+                case RegionState.Selected:
+                    selectedRegion.State = RegionState.Active;
+
+                    var region = SelectedRegions.FirstOrDefault(r => r.Id == viewModel.Id);
+                    SelectedRegions.Remove(region);
+
+                    UpdateRegionState();
+                    break;
             }
+
             this.clearSelectionButton.IsEnabled = SelectedRegions.Any();
             this.RegionSelected?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnRegionActionSelected(object sender, ActionType actionType)
+        {
+            var selectedRegion = (ObjectRegionControl)sender;
+            if (selectedRegion == null)
+            {
+                return;
+            }
+
+            var viewModel = selectedRegion?.ProductItemViewModel;
+            switch (actionType)
+            {
+                case ActionType.Apply:
+                    viewModel.Model = new PredictionModel(1.0, viewModel.Model.TagId, viewModel.Model.TagName, viewModel.Model.BoundingBox);
+                    selectedRegion.State = RegionState.Active;
+                    SelectedRegions.Remove(SelectedRegions.FirstOrDefault(r => r.Id == viewModel.Id));
+
+                    UpdateRegionState();
+                    this.clearSelectionButton.IsEnabled = SelectedRegions.Any();
+                    break;
+
+                case ActionType.Cancel:
+                    selectedRegion.State = RegionState.LowConfidence;
+                    SelectedRegions.Remove(SelectedRegions.FirstOrDefault(r => r.Id == viewModel.Id));
+
+                    UpdateRegionState();
+                    this.clearSelectionButton.IsEnabled = SelectedRegions.Any();
+                    break;
+
+                case ActionType.Edit:
+                default:
+                    break;
+            }
+
+            this.RegionActionSelected?.Invoke(this, new Tuple<ActionType, ProductItemViewModel>(actionType, viewModel));
+        }
+
+        private void UpdateRegionState(bool disable = false)
+        {
+            foreach (ObjectRegionControl obj in objectDetectionVisualizationCanvas.Children.Cast<ObjectRegionControl>().ToList())
+            {
+                if (!SelectedRegions.Any(x => x.Id == obj.ProductItemViewModel.Id))
+                {
+                    obj.State = disable ? RegionState.Disabled : GetStateByModel(obj.ProductItemViewModel?.Model);
+                }
+            }
         }
         #endregion
 
@@ -499,7 +570,7 @@ namespace ShelfAuditingAutomation.Controls
 
         private RegionState GetStateByModel(PredictionModel model, RegionState defaultState = RegionState.Active)
         {
-            return model?.Probability >= LowConfidence ? defaultState : RegionState.LowConfidence;
+            return Util.IsLowConfidenceRegion(model) ? RegionState.LowConfidence : defaultState;
         }
 
         public void ClearSource()

@@ -42,6 +42,15 @@ namespace ShelfAuditingAutomation.Helpers
                 this.RecentlyUsedProducts = !string.IsNullOrEmpty(valueStr) ? JsonConvert.DeserializeObject<List<string>>(valueStr) : new List<string>();
             }
 
+            value = ApplicationData.Current.RoamingSettings.Values["LowConfidence"];
+            if (value != null)
+            {
+                if (double.TryParse(value.ToString(), out double lowConfidence))
+                {
+                    this.LowConfidence = lowConfidence;
+                }
+            }
+
             value = ApplicationData.Current.RoamingSettings.Values["CustomVisionTrainingApiKey"];
             if (value != null)
             {
@@ -74,6 +83,17 @@ namespace ShelfAuditingAutomation.Helpers
             catch (Exception)
             {
                 this.RestoreCustomConfigToDefaultFile();
+            }
+        }
+
+        private double lowConfidence = 0.3;
+        public double LowConfidence
+        {
+            get { return this.lowConfidence; }
+            set
+            {
+                this.lowConfidence = value;
+                this.OnSettingChanged("LowConfidence", value);
             }
         }
 

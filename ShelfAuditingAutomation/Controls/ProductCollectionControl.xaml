@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:models="using:ShelfAuditingAutomation.Models"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -17,7 +18,7 @@
             <Setter Property="Margin" Value="0,0,8,8"/>
         </Style>
 
-        <DataTemplate x:Key="ProductViewTemplate">
+        <DataTemplate x:Key="ProductViewTemplate" x:DataType="models:ProductItemViewModel">
             <StackPanel CornerRadius="2" Width="140">
                 <Grid Height="140">
                     <Image Source="{Binding Image}" Stretch="Fill" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -29,7 +30,13 @@
                 </Grid>
 
                 <Grid Background="{StaticResource DarkBackgroundColor}" Height="60">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
                     <TextBlock Text="{Binding DisplayName}" FontSize="12" VerticalAlignment="Center" Margin="8,0" TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis"/>
+                    <FontIcon Grid.Column="1" FontFamily="Segoe MDL2 Assets" Glyph="&#xE814;" FontSize="14" VerticalAlignment="Center" Margin="5,0" 
+                              Visibility="{x:Bind models:ProductItemViewModel.IsLowConfidenceItem(Model)}"/>
                 </Grid>
             </StackPanel>
         </DataTemplate>

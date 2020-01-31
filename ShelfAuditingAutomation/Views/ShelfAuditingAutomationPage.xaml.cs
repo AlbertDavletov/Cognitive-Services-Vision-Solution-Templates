@@ -212,6 +212,40 @@ namespace ShelfAuditingAutomation.Views
             this.removeLabelButton.IsEnabled = this.image.SelectedRegions.Any();
         }
 
+        private void OnImageRegionActionSelected(object sender, Tuple<ActionType, ProductItemViewModel> args)
+        {
+            ActionType actionType = args.Item1;
+            ProductItemViewModel updatedProduct = args.Item2;
+            switch (actionType)
+            {
+                case ActionType.Edit:
+                    var currentTag = ProjectTagCollection.FirstOrDefault(p => p.Tag.Id == updatedProduct.Model?.TagId);
+                    ShowEditProductPanel(EditorState.Edit, currentTag);
+                    break;
+
+                case ActionType.Apply:
+                    var product = currentDetectedObjects.FirstOrDefault(p => p.Id == updatedProduct.Id);
+                    product.Model = updatedProduct.Model;
+
+                    if (!editedProductItems.Any(p => p.Id == product.Id))
+                    {
+                        editedProductItems.Add(product);
+                    }
+
+                    UpdateDataGrid(currentDetectedObjects);
+                    UpdateGroupedProductCollection(currentDetectedObjects);
+
+                    this.editLabelButton.IsEnabled = this.image.SelectedRegions.Any();
+                    this.removeLabelButton.IsEnabled = this.image.SelectedRegions.Any();
+                    break;
+
+                case ActionType.Cancel:
+                    this.editLabelButton.IsEnabled = this.image.SelectedRegions.Any();
+                    this.removeLabelButton.IsEnabled = this.image.SelectedRegions.Any();
+                    break;
+            }
+        }
+
         private async void OnRemoveRegionButtonClick(object sender, RoutedEventArgs e)
         {
             if (this.image.SelectedRegions.Any())
@@ -266,7 +300,7 @@ namespace ShelfAuditingAutomation.Views
             // get project and image from input view page
             currentSpec = args.Item1;
             currentProject = new ProjectViewModel(args.Item1.ModelId, args.Item1.ModelName);
-            this.image.LowConfidence = currentSpec.LowConfidence;
+            SettingsHelper.Instance.LowConfidence = currentSpec.LowConfidence;
             await this.image.SetSourceFromFileAsync(args.Item2);
 
             AppViewState = AppViewState.ImageSelected;
@@ -295,22 +329,37 @@ namespace ShelfAuditingAutomation.Views
         private void OnAddOrEditProductButtonClick(object sender, RoutedEventArgs e)
         {
             string buttonTag = ((Button)sender).Tag as string ?? string.Empty;
-
+            ProductTag currentTag;
             if (buttonTag == "Add")
             {
-                this.productEditorControl.EditorState = EditorState.Add;
-                this.productEditorControl.CurrentTag = ProjectTagCollection.FirstOrDefault(p => p.Tag.Name.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase));
-                this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
-                this.image.ToggleEditState(enable: true);
-                this.image.AddedNewObjects.Clear();
+                currentTag = ProjectTagCollection.FirstOrDefault(p => p.Tag.Name.Equals(Util.UnknownProductName, StringComparison.OrdinalIgnoreCase));
+                ShowEditProductPanel(EditorState.Add, currentTag);
             }
             else
             {
-                this.productEditorControl.EditorState = EditorState.Edit;
-                this.productEditorControl.CurrentTag = ProjectTagCollection.FirstOrDefault(p => p.Tag.Id == this.image.SelectedRegions.FirstOrDefault()?.Model?.TagId);
-                var detectedProductsWithoutSelected = currentDetectedObjects.Where(p => !this.image.SelectedRegions.Select(s => s.Id).Contains(p.Id));
-                this.image.ShowObjectDetectionBoxes(detectedProductsWithoutSelected, RegionState.Disabled);
-                this.image.ShowEditableObjectDetectionBoxes(this.image.SelectedRegions);
+                currentTag = ProjectTagCollection.FirstOrDefault(p => p.Tag.Id == this.image.SelectedRegions.FirstOrDefault()?.Model?.TagId);
+                ShowEditProductPanel(EditorState.Edit, currentTag);
+            }
+        }
+
+        private void ShowEditProductPanel(EditorState editorState, ProductTag currentTag)
+        {
+            this.productEditorControl.EditorState = editorState;
+            this.productEditorControl.CurrentTag = currentTag;
+
+            switch (editorState)
+            {
+                case EditorState.Add:
+                    this.image.ShowObjectDetectionBoxes(currentDetectedObjects, RegionState.Disabled);
+                    this.image.ToggleEditState(enable: true);
+                    this.image.AddedNewObjects.Clear();
+                    break;
+
+                case EditorState.Edit:
+                    var detectedProductsWithoutSelected = currentDetectedObjects.Where(p => !this.image.SelectedRegions.Select(s => s.Id).Contains(p.Id));
+                    this.image.ShowObjectDetectionBoxes(detectedProductsWithoutSelected, RegionState.Disabled);
+                    this.image.ShowEditableObjectDetectionBoxes(this.image.SelectedRegions);
+                    break;
             }
 
             RecentlyUsedTagCollection.Clear();
@@ -535,12 +584,14 @@ namespace ShelfAuditingAutomation.Views
                 string productName = item.Key;
                 int totalCount = item.Value.Count;
                 int expectedCount = currentSpec.Items.Any(s => s.TagId == tagId) ? currentSpec.Items.First(s => s.TagId == tagId).ExpectedCount : 0;
+                bool isColumnWithLowConfidenceItem = item.Value.Any(p => Util.IsLowConfidenceRegion(p.Model));
 
                 ResultDataGridCollection.Add(new ResultDataGridViewModel()
                 {
                     Name = productName,
                     TotalCount = totalCount,
-                    ExpectedCount = expectedCount
+                    ExpectedCount = expectedCount,
+                    IsColumnWithAlert = isColumnWithLowConfidenceItem
                 });
             }
             var totalRow = new ResultDataGridViewModel()

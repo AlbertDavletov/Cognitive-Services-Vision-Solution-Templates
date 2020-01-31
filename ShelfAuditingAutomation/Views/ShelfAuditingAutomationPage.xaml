@@ -72,6 +72,7 @@
             <Grid Grid.Row="1" Grid.Column="1" Background="#171717">
                 <ctl:ImageWithRegionEditorsControl x:Name="image" HorizontalAlignment="Stretch" 
                                                    RegionSelected="OnImageRegionSelected" 
+                                                   RegionActionSelected="OnImageRegionActionSelected"
                                                    EnableImageControls="{Binding ElementName=mainPage, Path=AppViewState, Converter={StaticResource reverseEnumMatchToVisibilityConverter}, ConverterParameter='ImageAnalysisPublishing'}"
                                                    ActiveImageControls="{Binding ElementName=progressRing, Path=IsActive, Converter={StaticResource reverseBooleanConverter}}"/>
                 <ProgressRing x:Name="progressRing" Width="100" Height="100" Foreground="{StaticResource RegularTextColor}"/>
@@ -161,8 +162,25 @@
                                 </controls:DataGridTemplateColumn.CellTemplate>
                             </controls:DataGridTemplateColumn>
 
-                            <controls:DataGridTextColumn Header="Expected count" Binding="{Binding ExpectedCount}" Width="Auto"/>
-                            <controls:DataGridTextColumn Header="Shelf count" Binding="{Binding TotalCount}" Width="Auto"/>
+                            <controls:DataGridTextColumn Header="Expected count" Binding="{Binding ExpectedCount}" Width="Auto">
+                                <controls:DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </controls:DataGridTextColumn.ElementStyle>
+                            </controls:DataGridTextColumn>
+
+                            <controls:DataGridTemplateColumn Header="Shelf count" Width="Auto">
+                                <controls:DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right" Margin="0,0,20,0">
+                                            <TextBlock Text="{Binding TotalCount}" VerticalAlignment="Center"/>
+                                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE814;" FontSize="14" VerticalAlignment="Center" Margin="0,2,0,0" Visibility="{Binding IsColumnWithAlert, Converter={StaticResource booleanToVisibilityConverter}}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </controls:DataGridTemplateColumn.CellTemplate>
+                            </controls:DataGridTemplateColumn>
+
                         </controls:DataGrid.Columns>
                     </controls:DataGrid>
 
