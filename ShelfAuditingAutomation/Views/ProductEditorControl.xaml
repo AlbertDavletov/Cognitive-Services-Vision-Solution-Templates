@@ -38,7 +38,7 @@
             <StackPanel Width="140" ToolTipService.ToolTip="{Binding Tag.Name}">
                 <Border Background="#171717">
                     <Viewbox Height="140" Stretch="Uniform">
-                        <Image Source="{x:Bind models:ProductTag.GetTagImageSource(Tag)}" Margin="30"/>
+                        <Image Source="{Binding Image}" Margin="30"/>
                     </Viewbox>
                 </Border>
 
@@ -66,7 +66,7 @@
             <TextBlock Text="Current label" FontSize="12"/>
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <Viewbox Height="48" Width="48" Stretch="Uniform">
-                    <Image Source="{x:Bind models:ProductTag.GetTagImageSource(CurrentTag.Tag), Mode=OneWay}" Margin="30"/>
+                    <Image Source="{Binding ElementName=userControl, Path=CurrentTag.Image}" Margin="30"/>
                 </Viewbox>
                 <TextBlock Text="{Binding ElementName=userControl, Path=CurrentTag.Tag.Name}" VerticalAlignment="Center"/>
             </StackPanel>

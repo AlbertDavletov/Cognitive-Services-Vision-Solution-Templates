@@ -108,7 +108,7 @@
                             <ToggleButton x:Name="applyLabelButton" IsChecked="True" Tag="Apply" Click="OnToggleOptionButtonClicked" Style="{StaticResource ToggleButtonStyle}">
                                 <StackPanel Spacing="8">
                                     <Viewbox Stretch="Uniform" Height="82">
-                                        <Image Source="{x:Bind models:ProductItemViewModel.GetTagImageSource(ProductItemViewModel.Model.TagName)}" />
+                                        <Image Source="{Binding Image}" />
                                     </Viewbox>
                                     <Grid Height="30" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Title}" FontSize="10" TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>

@@ -153,7 +153,7 @@
                                     <DataTemplate x:DataType="models:ResultDataGridViewModel">
                                         <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Stretch">
                                             <Viewbox Width="48" Height="48" Margin="12" Visibility="{Binding IsAggregateColumn, Converter={StaticResource reverseBooleanToVisibilityConverter}}">
-                                                <Image Source="{x:Bind models:ResultDataGridViewModel.GetTagImageSource(Name)}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                <Image Source="{Binding Image}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             </Viewbox>
 
                                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>

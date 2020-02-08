@@ -1,15 +1,16 @@
 [
   {
-    "Id": "f5a9d465-7dbe-4624-a8da-f5208dd56d3d",
-    "Name": "Whiskas cat food",
-    "ModelId": "af826f5b-97c1-40a0-b8bb-bf44e08cec2b",
-    "ModelName": "Product Reco Solution Template",
+    "Id": "0a15e03e-a6f1-4c6d-954d-38c8fe3b86ac",
+    "Name": "Beverages",
+    "ModelId": "299f3a0d-559b-4277-87a0-85ef0c814a11",
+    "ModelName": "Product Reco Solution Template 92",
     "SampleImages": [
-      "ms-appx:///Assets/ImageSamples/cat-food-1.jpg",
-      "ms-appx:///Assets/ImageSamples/cat-food-2.jpg",
-      "ms-appx:///Assets/ImageSamples/cat-food-3.jpg",
-      "ms-appx:///Assets/ImageSamples/cat-food-4.jpg"
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/beverages-1.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/beverages-2.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/beverages-3.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/beverages-4.jpg"
     ],
+    "CanonicalImages": "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/Products/",
     "ExpectedAreaCoverage": {
       "Tagged": 70,
       "Unknown": 20,
@@ -18,258 +19,205 @@
     "LowConfidence": 0.3,
     "Items": [
       {
-        "TagId": "b40c63a2-2c66-4420-bc85-1a799a130897",
-        "TagName": "Gap",
-        "ExpectedCount": 2,
-        "ExpectedAreaCoverage": 5
-      },
-      {
-        "TagId": "81ecb2cb-8e1a-495a-988e-bbb8f2180cbc",
+        "TagId": "83cde748-df7b-41ba-afd5-9df54c3b6039",
         "TagName": "product",
         "ExpectedCount": 2,
         "ExpectedAreaCoverage": 10
       },
       {
-        "TagId": "77438104-fad2-4770-9b8b-d157ae39e0ee",
-        "TagName": "Dreamies-CARNE",
+        "TagId": "d272c521-997a-4766-a7c2-baa74b4d7cc4",
+        "TagName": "7up cherry-7up",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "055a464d-68d2-463e-a87a-616467cf774c",
-        "TagName": "Dreamies-FRANGO",
+        "TagId": "db6a360a-dd6d-4923-bbf0-a9a262f32b7f",
+        "TagName": "A&w root-beer-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "4b4f1536-7b71-491b-bbc6-7b627e255dd8",
-        "TagName": "Dreamies-QUEIJO",
+        "TagId": "9497a970-b0f3-4287-ac9d-e5e496352273",
+        "TagName": "Arrowhead mt-sprng-wtr-8oz-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "76d13f46-6553-4972-b1d2-283f25071024",
-        "TagName": "Kitekat-SACHE-ADULTO-CARNE",
+        "TagId": "9cdcf7c6-a3db-4d64-8e01-02ec07b9e892",
+        "TagName": "Arrowhead mt-spr-water-6-pk",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "3a356bfd-e5e0-4a42-8fb2-657441357d99",
-        "TagName": "Kitekat-SACHE-ADULTO-FRANGO",
+        "TagId": "2aa65f27-dcac-4fd6-b021-0015d43470f1",
+        "TagName": "Canada-dry gngr-ale-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "d5ce091a-dd6b-452f-99da-1fda688a4d60",
-        "TagName": "Kitekat-SACHE-ADULTO-PEIXE",
+        "TagId": "9eacc6a7-6697-431a-82e2-6a24df85cb14",
+        "TagName": "Capri-sun berry-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "b5416bac-36de-456c-8221-1f5f1930ce8e",
-        "TagName": "Optimum-CAT-SACHE-AD-FRANGO",
+        "TagId": "0d1f885a-5152-437f-986b-991283adbc61",
+        "TagName": "Capri-sun fruit-punch-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "69df766f-6caf-494f-9d6a-bb4475378756",
-        "TagName": "Optimum-CAT-SACHE-FIL-FRANGO",
+        "TagId": "9703ceaf-7ddb-43c6-be00-9c8b6aeef0a7",
+        "TagName": "Crush ornge-soda-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "f0c44e41-bd37-47cc-be86-7b82761d4369",
-        "TagName": "Whiskas-DRY-ADULTO",
+        "TagId": "b260e8ac-1d7f-4879-a840-5313bb86f1e1",
+        "TagName": "Fresca spfklng-soda-orig-cit-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "45a9af8d-1ab5-414f-92a3-6a3f6af1f14e",
-        "TagName": "Whiskas-DRY-ADULTO-CARNE",
+        "TagId": "8e640ae0-fa08-4fe2-9c3d-57134c4bea0e",
+        "TagName": "Hawaiin-punch frt-juicy-rd-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "6f5d3031-12e0-4ecb-a46c-b729b6c49a9a",
-        "TagName": "Whiskas-DRY-ADULTO-FRANGO",
+        "TagId": "0f232a74-b3bf-4cfa-8d8b-de95d9ead989",
+        "TagName": "Hnst-kds brry-brry-gd-lmn-orgnc-jce-drk-10pk",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "aad74605-3149-4a02-b2fc-65029b9ec0ab",
-        "TagName": "Whiskas-DRY-ADULTO-PEIXE",
+        "TagId": "ec85f5e6-71d3-42ad-883d-d92bfac80593",
+        "TagName": "La-croix berry-ess-spklng-wtr-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "584a9812-edfe-4545-8944-323fac2fb51f",
-        "TagName": "Whiskas-DRY-FILHOTE-CARNE",
+        "TagId": "c6adfdd6-9a9c-4422-a07a-cfd926b3fe5a",
+        "TagName": "La-croix mango-ess-spklng-wtr-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "c6897c6f-8982-4f51-aa95-c28f1f90a095",
-        "TagName": "Whiskas-GATOS-CASTRADOS-CARNE",
+        "TagId": "f9a666f6-b44e-495c-b680-ee7d3da61fd0",
+        "TagName": "La-croix peach-pear-ess-spklng-wtr-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "7d1b7192-5116-44ca-9c06-c879c3c7b1ba",
-        "TagName": "Whiskas-LATA-ATUM",
+        "TagId": "e66a92a5-63eb-451e-b67c-d7dbd3b1dc94",
+        "TagName": "La-croix pure-spklng-wtr-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "bb59de19-0e2b-44c5-a0ff-49b67aec2661",
-        "TagName": "Whiskas-LATA-ATUM-AO-MOLHO",
+        "TagId": "73b451f9-f034-4de4-aed1-49f295955588",
+        "TagName": "Minute-maid lemon-case",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "ce99f559-1252-42c0-a8d7-044aca4eab2f",
-        "TagName": "Whiskas-LATA-CARNE",
+        "TagId": "a9b35e2f-d936-4b43-a85f-7404a9c4df02",
+        "TagName": "Ocean-spray grapefruit-juice",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "fec9f22f-432c-414b-a5f6-d0648a103ad5",
-        "TagName": "Whiskas-LATA-CARNE-AO-MOLHO",
+        "TagId": "a4c6d6d8-58c5-4db0-b87d-3b80ca665b64",
+        "TagName": "Ocean-spray jlld-crnbrry-sce",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "003a9fe5-00e3-4752-9667-9a7133c1ca3c",
-        "TagName": "Whiskas-LATA-FRANGO",
+        "TagId": "2518ca69-f69f-4d64-9193-dd00dd34bb7b",
+        "TagName": "Ocean-spray orange-juice",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "3f386797-0b33-4c88-8b2f-c47bd18d5865",
-        "TagName": "Whiskas-LATA-PEIXE",
+        "TagId": "3b29472a-6099-42f4-b0ea-f4da505d3fa3",
+        "TagName": "Perrier carbonated-mnrl-wtr",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "90c71343-3b57-4ba2-92a1-3bb3f3eeeb5e",
-        "TagName": "Whiskas-SACHE-AD-ATUM",
+        "TagId": "daee14aa-9ef7-4bb8-8ea3-9bcd7f8a8c3f",
+        "TagName": "Sanpellegrino arianciata-rosa-sprklng-bld-or-6-pk",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "dbb44ae5-e886-437b-855c-a7f3d10522fc",
-        "TagName": "Whiskas-SACHE-AD-CARNE",
+        "TagId": "8debbbfb-74fc-4667-ae82-e70df51542f9",
+        "TagName": "Sanpellegrino sprklng-ntrl-mnrl-wtr",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "2f4d3f6d-d6f9-483b-ab20-7b254cc8767a",
-        "TagName": "Whiskas-SACHE-AD-CARNE-JELLY",
+        "TagId": "7c3db11d-7bdb-4e4e-94cd-84b962033370",
+        "TagName": "Snapple lmn-tea-6pk",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "68697d47-f975-4066-a3b9-d1776f35925f",
-        "TagName": "Whiskas-SACHE-AD-CORDEIRO",
+        "TagId": "49d81d4e-88db-4ae1-8d89-6efa6425d39c",
+        "TagName": "Snapple pch-tea-6pk",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "2aa3db8e-8dba-4914-b5b1-93695ed66be1",
-        "TagName": "Whiskas-SACHE-AD-FRANGO",
+        "TagId": "4a18f967-35a2-4809-b781-fbf7a5577c06",
+        "TagName": "Snapple rspbrry-tea-6pk",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "f0c85992-57d3-4cac-a2c1-97799c2f29f0",
-        "TagName": "Whiskas-SACHE-AD-PEIXE-JELLY",
+        "TagId": "d23b1a7c-7093-4e0f-b223-ca7cb9a15b1a",
+        "TagName": "Snapple strbrry-kiwi-6pk",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "e7d3b6c8-bd29-4011-8f65-f3eac3be3532",
-        "TagName": "Whiskas-SACHE-AD-SALMAO",
+        "TagId": "a096a0f1-21d7-4016-8ac3-3f3bf6a15536",
+        "TagName": "Talking-rain lemon-lime",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "4b64409e-874d-4b32-a871-10397655ee72",
-        "TagName": "Whiskas-SACHE-CAST-CARNE",
+        "TagId": "407d2f8c-5488-4703-9acb-b5ed4a12381c",
+        "TagName": "Talking-rain original",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "27812c51-3bae-4001-b4c9-1905695fc3e5",
-        "TagName": "Whiskas-SACHE-CAST-PEIXE",
+        "TagId": "8f546746-7415-4a92-905e-862bb6c1473f",
+        "TagName": "Tree-top apple-juice",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "c84015bb-cff5-4a8d-8a01-3d93a2628764",
-        "TagName": "Whiskas-SACHE-FILH-CARNE-JELLY",
-        "ExpectedCount": 4,
-        "ExpectedAreaCoverage": 20
-      },
-      {
-        "TagId": "8cf2b0b8-3638-4786-98f9-c63bcb6b3185",
-        "TagName": "Whiskas-SACHE-FILHOTE-CARNE",
-        "ExpectedCount": 4,
-        "ExpectedAreaCoverage": 20
-      },
-      {
-        "TagId": "2c1d26d4-85e9-4ae7-bcec-b22f525dc403",
-        "TagName": "Whiskas-SACHE-FILHOTE-FRANGO",
-        "ExpectedCount": 4,
-        "ExpectedAreaCoverage": 20
-      },
-      {
-        "TagId": "e4771b91-35ff-46d3-ad7f-79b16f4faa7d",
-        "TagName": "Whiskas-SACHE-SEN-CARNE-JELLY",
-        "ExpectedCount": 4,
-        "ExpectedAreaCoverage": 20
-      },
-      {
-        "TagId": "378b3cfc-9b7d-4f78-b247-041dc79b57f4",
-        "TagName": "Whiskas-SACHE-SENIOR-CARNE",
-        "ExpectedCount": 4,
-        "ExpectedAreaCoverage": 20
-      },
-      {
-        "TagId": "f10a8213-e9a6-49f3-b152-01715f84ba43",
-        "TagName": "Whiskas-SACHE-SENIOR-PEIXE",
-        "ExpectedCount": 4,
-        "ExpectedAreaCoverage": 20
-      },
-      {
-        "TagId": "47ae69bc-bd22-49e7-b676-13891617cf1b",
-        "TagName": "Whiskas-TEMPTATIONS-ANTI-BOLAPELO",
-        "ExpectedCount": 4,
-        "ExpectedAreaCoverage": 20
-      },
-      {
-        "TagId": "7129eec2-82d5-476e-815a-307baa07e446",
-        "TagName": "Whiskas-TEMPTATIONS-PELO-SAUDAVEL",
-        "ExpectedCount": 4,
-        "ExpectedAreaCoverage": 20
-      },
-      {
-        "TagId": "bacd4048-d991-439c-bd7a-dbf433319c84",
-        "TagName": "Whiskas-TEMPTATIONS-SALMAO",
+        "TagId": "6ab9b6af-9c4a-49b2-a722-4789ce848f51",
+        "TagName": "Vita-coco coconut-wtr-orignl",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       }
     ]
   },
   {
-    "Id": "08b27829-07a8-47c5-b1eb-8c614a30f359",
-    "Name": "Pedigree dog food",
-    "ModelId": "af826f5b-97c1-40a0-b8bb-bf44e08cec2b",
-    "ModelName": "Product Reco Solution Template",
+    "Id": "4fdd90e7-bbff-4f71-bbac-490a9473c95c",
+    "Name": "Cookies and Snacks",
+    "ModelId": "299f3a0d-559b-4277-87a0-85ef0c814a11",
+    "ModelName": "Product Reco Solution Template 92",
     "SampleImages": [
-      "ms-appx:///Assets/ImageSamples/dog-food-1.jpg",
-      "ms-appx:///Assets/ImageSamples/dog-food-2.jpg",
-      "ms-appx:///Assets/ImageSamples/dog-food-3.jpg",
-      "ms-appx:///Assets/ImageSamples/dog-food-4.jpg"
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/snacks-1.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/snacks-2.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/snacks-3.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/snacks-4.jpg"
     ],
+    "CanonicalImages": "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/Products/",
     "ExpectedAreaCoverage": {
       "Tagged": 70,
       "Unknown": 20,
@@ -278,227 +226,377 @@
     "LowConfidence": 0.3,
     "Items": [
       {
-        "TagId": "b40c63a2-2c66-4420-bc85-1a799a130897",
-        "TagName": "Gap",
-        "ExpectedCount": 2,
-        "ExpectedAreaCoverage": 5
-      },
-      {
-        "TagId": "81ecb2cb-8e1a-495a-988e-bbb8f2180cbc",
+        "TagId": "83cde748-df7b-41ba-afd5-9df54c3b6039",
         "TagName": "product",
         "ExpectedCount": 2,
         "ExpectedAreaCoverage": 10
       },
       {
-        "TagId": "2d771abf-3eef-401a-8b0f-337494120708",
-        "TagName": "Pedigree EQN-EQN-ADULTO",
+        "TagId": "0d0fb72f-0273-4ca0-be5e-62e1e1e69637",
+        "TagName": "B_keebler-town-house pts-crkr-sea-slt-bc",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "734eb6c3-9221-4f2e-8374-03a677a0be4e",
-        "TagName": "Pedigree EQN-EQN-FILHOTE",
+        "TagId": "5f7a1146-1f26-4d35-bd32-6986324ab4e3",
+        "TagName": "Betty-crocker mug-trts-trple-chclte-cake",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "0c8f1d68-2225-4dd3-8caf-4b03b39d9fe7",
-        "TagName": "Pedigree EQN-EQN-RMG",
+        "TagId": "3d36030a-70fd-4f69-8319-f95fb7992672",
+        "TagName": "Betty-crocker whppd-frstng-chclte",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "b98b3a75-9d62-49f4-97ec-e87ef2a5cd6b",
-        "TagName": "Pedigree EQN-EQN-RP",
+        "TagId": "4678a946-c129-42ce-80c0-ddd8243a0f1d",
+        "TagName": "Blu_dmd almds-habrno-bbq",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "0b495ad9-c203-47c8-83f8-f612532c01a0",
-        "TagName": "Pedigree-BISCROK-AD-MULTI",
+        "TagId": "adde1d08-3e5e-4c7b-8ff4-13235b0dda4b",
+        "TagName": "Blue-diamond almds-wsbi-soy",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "c2544afb-9b9d-497a-a260-b29af9dde89f",
-        "TagName": "Pedigree-BISCROK-AD-R-GDE",
+        "TagId": "d735eb0c-1732-44de-9d63-1c164eee601d",
+        "TagName": "Brown&haley roca-collection",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "34c0d2ab-dc83-44ff-8d8f-3c9d56a2fb87",
-        "TagName": "Pedigree-BISCROK-AD-R-PEQ",
+        "TagId": "490a4602-6ea1-48e3-a354-cde1cd70dc59",
+        "TagName": "Cheez-it org",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "469a1479-5b0d-40ea-8955-e5477843054d",
-        "TagName": "Pedigree-BISCROK-FILHOTES",
+        "TagId": "5c8eeccb-17d0-4a8e-bad1-3b5ca0758889",
+        "TagName": "Cheez-it org-fam-sz",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "96c7f1a7-17da-485c-9f70-b395454c4822",
-        "TagName": "Pedigree-DENTASTIX-R-GRANDES",
+        "TagId": "a4c1f0fe-588c-429b-9177-b8d5b85a9885",
+        "TagName": "Chips-ahoy rgnl",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "3247f34b-adc5-429f-b663-7d6dfca9b0a3",
-        "TagName": "Pedigree-DENTASTIX-R-MEDIAS",
+        "TagId": "f977bf30-4cb4-4e7e-a08c-5ddac241baf3",
+        "TagName": "David snflr_sds_org",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "2d181dc2-e460-4424-aeeb-5a09e1345019",
-        "TagName": "Pedigree-DENTASTIX-R-PEQUENAS",
+        "TagId": "2e150da6-b453-46c7-853f-e4d6cc3d73b0",
+        "TagName": "Doritos cool-ranch",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "75d492e8-1e64-4b9b-95fa-d72ac7102e2f",
-        "TagName": "Pedigree-DOG-SCH-AD-RM-CAR-MOL",
+        "TagId": "c00e5868-c613-4a1a-936b-f9b7d04d731c",
+        "TagName": "Doritos nch-chs",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "b64680e8-52a4-428d-a5e8-21152144b0dc",
-        "TagName": "Pedigree-DOG-SCH-AD-RM-FGO-MOL",
+        "TagId": "1c5b6743-96c1-4f52-a26d-1d4103058a2d",
+        "TagName": "Epic epic-beef-bar",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "d593320c-3a28-454f-8b06-d8e3979fd38a",
-        "TagName": "Pedigree-DOG-SCH-AD-RP-CAR-MOL",
+        "TagId": "4a0ade91-7896-41f0-9623-0f2bb5631934",
+        "TagName": "Famous-amos chclt-chp",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "d209e3a0-bfa8-4c9c-bb46-b07e9fca31e4",
-        "TagName": "Pedigree-DOG-SCH-AD-RP-COR-MOL",
+        "TagId": "a2f9656e-6cbd-4e3a-9ba2-30558bd7d9c0",
+        "TagName": "Festival orgnc-slced-mshrm",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "a66f3d20-9664-4ee5-bab8-ef240256381d",
-        "TagName": "Pedigree-DOG-SCH-AD-RP-FGO-MOL",
+        "TagId": "92a0a7cf-6154-44c3-b0d2-b96470799f62",
+        "TagName": "Frito-lay lys-clsc",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "957d58ab-ffbf-4fe7-8131-f861d24f2347",
-        "TagName": "Pedigree-DOG-SCH-FILHO-CAR-MOL",
+        "TagId": "b54369d4-c6c0-49c3-ad5e-278584d95015",
+        "TagName": "Fruit-by-the-foot vrty-pck",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "541c947b-9a75-498a-8d8c-13c46f703201",
-        "TagName": "Pedigree-DOG-SCH-FILHO-FGO-MOL",
+        "TagId": "1b03734f-ed4c-4898-a744-72e4524ba9e0",
+        "TagName": "Fruit-gushers vrty-pck",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "556df76d-54f0-4fc1-a7f0-84be9e26a3da",
-        "TagName": "Pedigree-DOG-SCH-SEN-CAR-MOLHO",
+        "TagId": "b9f46842-6042-48ba-8a04-b65bcb968722",
+        "TagName": "General-mills cinnamon-toast-crunch",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "a4652f3e-8289-4460-892b-21314c4146f0",
-        "TagName": "PEDIGREE-DRY-AD-CARNE&FRANGO",
+        "TagId": "7c24bdf1-3b3f-428e-adb2-6cf32febc7a6",
+        "TagName": "General-mills honey-nut-cheerios",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "cf0a7df3-ceaa-4eed-8350-a056160f4a1c",
-        "TagName": "Pedigree-DRY-AD-CARNE&VEGETAIS",
+        "TagId": "392dd46b-b54d-4b39-bf17-6fa264840195",
+        "TagName": "Glico pocky-chocolate-cream",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "6f34b8c5-716a-468d-9e52-dd344e0f1683",
-        "TagName": "Pedigree-DRY-AD-RPEQ",
+        "TagId": "b223e5cf-7a5e-4f29-acb8-d65b89b27e94",
+        "TagName": "Honey-maid graham-cracker-crust",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "ceb6dd3c-c57d-4f3e-8f3b-14cf2090d53b",
-        "TagName": "Pedigree-DRY-FIL-RMG",
+        "TagId": "8aa87ff7-6ecf-4f8c-91c5-7367fe585ddc",
+        "TagName": "Hostess twinkies",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "bf4639d1-6715-466f-8baf-d8015dc22d2c",
-        "TagName": "Pedigree-DRY-FIL-RPEQ",
+        "TagId": "bf01a754-9cd5-427f-8470-b57f0578b468",
+        "TagName": "Jolly-time hlthy-pop-btr",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "1b3d938e-6230-4c62-93ce-9a9acf31b3ac",
-        "TagName": "Pedigree-LATA-ADULTO-CIG-CARNE",
+        "TagId": "46ff7471-3916-4480-9c9d-fe848cdda65b",
+        "TagName": "Jolly-time yllw-popcrn",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "b97aa797-2e3b-410a-a160-f0935517bd21",
-        "TagName": "Pedigree-LATA-ADULTO-CIG-FRANGO",
+        "TagId": "a8c84c26-b926-401d-b5da-e83636093755",
+        "TagName": "Keebler  sands-pcn-shrtbrd",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "bb7def42-3c3d-4c24-a595-228242e8a50f",
-        "TagName": "Pedigree-LATA-ADULTO-PATE-CARNE",
+        "TagId": "1b46822b-b31b-49d9-b855-9430b884666d",
+        "TagName": "Keebler clb-crks-org",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "f732a2a8-2578-482f-bdf6-2c3725e45d2a",
-        "TagName": "Pedigree-LATA-ADULTO-PATE-FRANGO",
+        "TagId": "2a234d13-331f-4fbb-9a05-7880286f332a",
+        "TagName": "Keebler grsshppr-cks-mnt-nd-fdg",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "427191f3-a7f1-4487-8017-f28995e21f29",
-        "TagName": "Pedigree-LATA-FILHOTES-PATE-CARNE&FGO",
+        "TagId": "5007c307-bd0f-41f3-91df-d75975b83c3a",
+        "TagName": "Keebler whpsy-fdg-strps-cks-nd-crm",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "ad4c03d9-cf45-47b6-af75-fa1631d083eb",
-        "TagName": "Pedigree-MARROBONE",
+        "TagId": "cde98c39-7da0-4359-9061-979e40e7c679",
+        "TagName": "Kellogs variety-pack",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "544f0927-e414-46d3-ad0c-e9e65eca1df5",
-        "TagName": "Pedigree-RODEO-CARNE-",
+        "TagId": "e8c69ce8-7b1a-42f8-bb72-e5728ce8db63",
+        "TagName": "Little-debbie ntty-bddy-cks-wth-pnt-bttr",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "5338841c-0206-47d3-b9db-2ff1af215fda",
-        "TagName": "Pedigree-RODEO-FRANGO-",
+        "TagId": "77901228-9dee-464d-89d0-e24ab21177ba",
+        "TagName": "Little-debbie swss-rlls",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "4f1a4791-4552-4a7c-a47c-6f62d1add1c7",
-        "TagName": "PEDIGREE-SCH-MPK-AD-RP-CARNE-MO",
+        "TagId": "d119964d-bacd-43dc-95e5-f0200dfeb6e4",
+        "TagName": "Little-debbie tml-crm-ps",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "1e15b269-3a9f-4f25-8f8b-fc5765fdf95d",
+        "TagName": "Little-debbie zbr-cks",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "5640e24d-67b6-4d4a-92b5-c5bda2a72f24",
+        "TagName": "Moon-cheese cheddar",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "2a373360-812f-4741-9d0c-81d990ae70de",
+        "TagName": "Nabisco gldn-dbl-stffd-ro",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "6108c70c-a4a0-4871-8825-37b6b80c8dfd",
+        "TagName": "Nabisco nll",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "591eb3ca-50d6-42b3-916c-764ef4f04213",
+        "TagName": "Oreo chclt",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "4d1a1a9d-321b-41d5-90f7-4b4c698143bc",
+        "TagName": "Orville-redenbachers_relbrew-unswtblck",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "1d502854-81dd-4b68-a66a-4b133fd315bc",
+        "TagName": "Pepperidge milano-dark-chocolate",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "a6c1fdaa-3005-4235-8bb6-792118434bd1",
+        "TagName": "Pepperidge-farm shortbread-sweet&simple-cookies",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "c689e608-5b56-42b3-a8fa-86f461c4ccfa",
+        "TagName": "Pepperidge-farm tahoe-white-chocolate-macademia",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "c997acb2-4bda-4c1c-a5c3-acc79be257d9",
+        "TagName": "Pistachios wndrfl_slt_pr",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "75ac83a1-ce4a-46fa-bdf9-d7391e8d5f2f",
+        "TagName": "Planters clsc-pnuts",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "4f7cb7c8-4db9-40c5-999c-7f93ca278b4e",
+        "TagName": "Planters dy-rst-pnuts",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "75712a41-ff78-4b9a-b9b9-69402fe253e9",
+        "TagName": "Planters lght-slt-cshws-hlvs-pcs",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "97a12fa0-a56b-441f-a61a-4cd42b2ed6a9",
+        "TagName": "Pop-secret hmstyl-sprinkldslt-tst-btr",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "751cdf54-d561-49db-b703-249ceb6603e9",
+        "TagName": "Pop-secret ktl-crn",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "66d500f8-a39b-478f-b1c5-17cca11c9426",
+        "TagName": "Ritz original",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "65111557-8887-47ed-ab2d-227bb1be81e9",
+        "TagName": "Rufles org",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "cd9327f6-3a95-4949-afa9-056668384184",
+        "TagName": "Smartfood wte-chdr",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "5bfd8f8e-648e-46ba-9ec9-b889158f5d01",
+        "TagName": "Thai-kitchen orgnc-ccnt-milk",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "8918a0a2-ec46-45e2-a691-6f3ab0cab618",
+        "TagName": "Tims cscd-potato-chps",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "34af01c8-add2-45be-88b8-72e79c3ba870",
+        "TagName": "Tostitos chnky-slsa-med",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "c4e20e51-e9c0-413a-977f-905275d9a27a",
+        "TagName": "Tostitos org",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "e14f40c4-dbc2-4f9c-94ca-11e907336529",
+        "TagName": "Tostitos org-scps",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "5ae00113-2e0e-457e-9e2e-f721e3c6152f",
+        "TagName": "Tostitos slsa-cn-qeso-med",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "43099443-3381-4afd-a1ac-88b77de68120",
+        "TagName": "Triscuit original",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "00488a65-d3df-4620-b21c-c7c4d9cd48b1",
+        "TagName": "Wheat-thins org",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       }
     ]
   },
   {
-    "Id": "5c3dcb1a-a110-41ea-855c-bfe293653cd6",
-    "Name": "Champ dog food",
-    "ModelId": "af826f5b-97c1-40a0-b8bb-bf44e08cec2b",
-    "ModelName": "Product Reco Solution Template",
+    "Id": "8a8e435a-3775-4bf9-8491-49712d4773b3",
+    "Name": "Canned and prepared goods",
+    "ModelId": "299f3a0d-559b-4277-87a0-85ef0c814a11",
+    "ModelName": "Product Reco Solution Template 92",
     "SampleImages": [
-      "ms-appx:///Assets/ImageSamples/champ-dog-food-1.jpg",
-      "ms-appx:///Assets/ImageSamples/champ-dog-food-2.jpg",
-      "ms-appx:///Assets/ImageSamples/champ-dog-food-3.jpg",
-      "ms-appx:///Assets/ImageSamples/champ-dog-food-4.jpg"
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/canned-product-1.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/canned-product-2.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/canned-product-3.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/canned-product-4.jpg"
     ],
     "ExpectedAreaCoverage": {
       "Tagged": 70,
@@ -508,26 +606,514 @@
     "LowConfidence": 0.3,
     "Items": [
       {
-        "TagId": "b40c63a2-2c66-4420-bc85-1a799a130897",
-        "TagName": "Gap",
-        "ExpectedCount": 2,
-        "ExpectedAreaCoverage": 5
-      },
-      {
-        "TagId": "81ecb2cb-8e1a-495a-988e-bbb8f2180cbc",
+        "TagId": "83cde748-df7b-41ba-afd5-9df54c3b6039",
         "TagName": "product",
         "ExpectedCount": 2,
         "ExpectedAreaCoverage": 10
       },
       {
-        "TagId": "9679143f-5aed-4060-9b4f-3ef6500379a8",
-        "TagName": "Champ-ADULTO-CARNE-&-CEREAL",
+        "TagId": "c4dc11a7-4fb7-4252-901d-6780b736ca3d",
+        "TagName": "Allens veg-all-orgnl-mx-veg",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       },
       {
-        "TagId": "bd4e09fd-6b94-43ed-b6bd-d3dee2ff91fe",
-        "TagName": "Champ-FILHOTES",
+        "TagId": "7c92da9e-2368-4a58-8242-9b90ac997eb9",
+        "TagName": "Amys orgnc-soups-lntl",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "b5f9fe73-5659-44c7-82e3-ec97526855ee",
+        "TagName": "Amys orgnc-soups-lntl-vgtble",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "c963c679-4f3e-4e0b-9f43-779b064fbba2",
+        "TagName": "Aunt-nellies 3-bean-salad",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "4d86b45d-e75b-4b35-9ba4-8d518e2ce2ed",
+        "TagName": "Aunt-nellies pickled-beets",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "8b3e689a-2f97-4356-aca2-42213cca291a",
+        "TagName": "Aunt-nellies red-cbbge",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "46afd5e5-a742-4eee-b671-2cafe3f560b9",
+        "TagName": "B_nalley orgnl-chli",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "2d8b5d0b-fadc-4118-9cd4-d3fff09f8d45",
+        "TagName": "Bushes-best orgnl-bked-beans",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "094de818-c9b9-47f5-ac1f-dbd3b381bfac",
+        "TagName": "Cambells chncky-new-nglnd-clam-chwdr",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "30e5ad1d-9e11-4a03-9a2d-a71cd5b03366",
+        "TagName": "Cambells smpl-chckn-ndle",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "a92c84e2-5436-42ab-af4e-4ab99825e542",
+        "TagName": "Cambells wll-yes-hrty-lntl-veg-soup",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "c4954a89-f480-46b4-bf24-85d0def19b70",
+        "TagName": "Cambells wll-yes-mdtrrnn-style-wddng-soup",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "e14ea1ba-a437-4274-9461-ecf6d2dc738e",
+        "TagName": "Cambells wll-yes-mnstrn-kale-soup",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "9685a0c4-d789-4831-a2e2-131ac1514286",
+        "TagName": "Chicken-of-the-sea albcre-tuna-in-wtr",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "7d2e3676-0f58-4121-b0ec-5dadcd539296",
+        "TagName": "Chicken-of-the-sea pcfc-prl-fncy-crbmt-with-leg-pcs",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "f0fb28be-e3a2-4752-a670-e5b51e722879",
+        "TagName": "Chicken-of-the-sea prmm-tuna-in-the-wtr",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "ef80faed-d780-45ec-8eaa-e9a83f8ab085",
+        "TagName": "Del monte frsh-cut-slcd-crrts",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "82765254-28d8-466e-9ff6-2e7357b28819",
+        "TagName": "Del-destino fire-rsted-red-pppr-strps",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "1d1dbec7-250b-4263-a9b2-7f8bc8fa8bb8",
+        "TagName": "Del-monte frsh-cut-greans-beans",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "d5206e3b-38ef-41f4-b906-c8957138fc3c",
+        "TagName": "Del-monte frsh-cut-whle-krnl-corn",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "b787c424-ed51-45eb-a137-443c5417238c",
+        "TagName": "Del-monte sliced-pchs",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "190d75d1-1ae1-49ef-a1ba-e59a97af6881",
+        "TagName": "Dole mndrn-orngs",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "68a37a1b-4b72-4140-8d36-c435ebebafa2",
+        "TagName": "Dole trpcl-gold-pnpple-chnks",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "a2750580-1830-41eb-b2e0-93a3c9316912",
+        "TagName": "Heinz hmstyle-grvy-svry-beef",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "4bd2fc59-2049-434d-b194-7de855a8dd97",
+        "TagName": "Herdez guac_slsa",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "9ed2734d-d7b3-4d05-935c-a39a8c83e9c6",
+        "TagName": "Idahoan ldd-bkd-mshd-ptts",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "d7df0457-a7cf-4740-ac88-25dfea42087c",
+        "TagName": "Idahoan rstd-grlc-mshd-ptts",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "8c2f9904-6d99-410a-848f-bbdd6cfb22ae",
+        "TagName": "King-oscar's anchvs-flat-fllts-in-olve-oil",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "7c946012-3bba-493f-91be-18383d20894a",
+        "TagName": "La-prefereida black-beans",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "18d18079-470b-49c7-ab96-37216a133471",
+        "TagName": "Mae-ploy ccnt-crm",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "2b0fc8f0-8c3b-48d7-b101-ad8f955950d3",
+        "TagName": "Maruchan insnt-lnch-chddr-chse-flvr-",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "4374e086-3a5b-4a90-adbb-ff56667a197c",
+        "TagName": "Maruchan yksba-chckn-flvr",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "17d077f6-4ce9-4f04-8999-129f56eaef06",
+        "TagName": "Motts- apple-sauce",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "63653ed5-b869-4877-a4d9-f504a294c54c",
+        "TagName": "Musco-family-olive-co pearls-extra-large-pttd-ripe-olvs",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "cbe782de-5b57-47d7-a576-80bef3c91bcb",
+        "TagName": "Napoleon hearts-of-palm",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "add008ff-ddf7-4706-8049-c7b73e400595",
+        "TagName": "Nissin chow-mein-tryaki-beef-flvr",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "211f82d1-3077-4a4c-8d6c-cf065bd0393b",
+        "TagName": "Nissin cup-ndls-beef-flvr",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "3993782a-8c52-45d1-b1c7-56ca7ff49cb3",
+        "TagName": "Nissin top-rmn-chckn-flvr",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "dd35795d-f244-4deb-8f6a-76f2869b41f2",
+        "TagName": "Nongshim soon-vgge-ndle-soup",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "5f4496af-f219-4734-b322-707d2c252f1d",
+        "TagName": "Old-el-paso extra-large-taco-shells",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "5245a2e1-e21c-4746-b9ac-bfa992332ee1",
+        "TagName": "Oregon-specialty-fruit dark-swt-chrrs",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "aa3fb4cc-50d2-4c60-b49e-3b0a659c49cb",
+        "TagName": "Pacific food orgnc-rsted-red-pppr-tmto-soup",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "18cc7bd1-d3fe-44c0-aee3-dfba018183f0",
+        "TagName": "Pacific-food orgnc-crmy-bttrnt-sqush-soup",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "64e2879f-fa15-456e-b0b3-9c0196ad6a2f",
+        "TagName": "Pacific-food orgnc-free-rnge-chckn-brth",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "d197d790-1121-432a-9c0a-1b7373fbfc9e",
+        "TagName": "Pacific-food orgnc-pblno-pppr-crn-chder",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "74231978-e0c2-422f-9a3c-1f28c4b2eab1",
+        "TagName": "Pacific-food orgnc-veg-brth",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "5145932a-e53b-4cc4-b9ba-895a0d6fc7c8",
+        "TagName": "Pacific-pearl fncy-smckd-oystrs",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "ffa15eb8-2d36-4d06-8a0b-a8a2e76cd480",
+        "TagName": "Polar hearts-of-palm",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "cdd5a968-1496-4667-966c-a124ebc6747e",
+        "TagName": "Roland artchke-hrts-qurtrd",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "ca79c619-8162-4631-8de8-a131719d8dba",
+        "TagName": "S&w orgnc-blck-beans",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "2225fb5b-8421-4adc-90e4-6720b319b100",
+        "TagName": "S&w orgnc-grbnzo",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "93d41eab-0513-4f85-8cad-cc087ec28e64",
+        "TagName": "S&w prmm-frt-ccktl",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "3a9e096d-097e-42b1-8563-a104cde01bc2",
+        "TagName": "Simply-asian thai-ktchn-pad-thai-ndle-kit",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "e784dba4-72a8-4bf2-bcb1-7ca1a3075348",
+        "TagName": "Simply-asian thai-ktchn-thai-pnt-ndle-kit",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "307f09a9-13c3-4c5c-903c-6575a1c41d22",
+        "TagName": "Snow's bmble-bee-chppd-clms",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "d27e6e4f-df61-4469-a349-656a65d9756b",
+        "TagName": "Sprague-foods orgnc-crmy-culflwrr",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "c76096d2-b58c-4df0-a1ab-da8076559433",
+        "TagName": "Stubs original",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "2993ec8c-ddea-4e46-8482-1bf30e8c1118",
+        "TagName": "Swanson ntrl-gdnss-brth-chckn",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "04582808-0c33-44b3-935e-0e3eee6f5151",
+        "TagName": "Tapatio salsa-picante",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "dd3bad50-5b32-49c5-b8e7-f8e8cfaec138",
+        "TagName": "Wolfgang-puck orgnc-vgtble-brly",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "4d3603b5-b529-4bb1-9739-875d783a6a03",
+        "TagName": "Hormel classic",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "3c5e81bc-1c98-4780-9950-dbb30c4d2f4a",
+        "TagName": "Hormel spam-25-prcnt-less-sdm",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "92aa9bdf-d9ec-464a-8ab7-e780fbcda340",
+        "TagName": "California-girl srdns-in-spcy-tmto-sce",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      }
+    ]
+  },
+  {
+    "Id": "0a20ae43-357d-435f-bf0f-da14f8ac7cd8",
+    "Name": "Cleaning and Supplies",
+    "ModelId": "299f3a0d-559b-4277-87a0-85ef0c814a11",
+    "ModelName": "Product Reco Solution Template 92",
+    "SampleImages": [
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cleaning-1.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cleaning-2.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cleaning-3.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cleaning-4.jpg"
+    ],
+    "ExpectedAreaCoverage": {
+      "Tagged": 70,
+      "Unknown": 20,
+      "Gap": 10
+    },
+    "LowConfidence": 0.3,
+    "Items": [
+      {
+        "TagId": "83cde748-df7b-41ba-afd5-9df54c3b6039",
+        "TagName": "product",
+        "ExpectedCount": 2,
+        "ExpectedAreaCoverage": 10
+      },
+      {
+        "TagId": "0e9d6a58-8e4d-4a8c-9a75-6ed9d0b4685e",
+        "TagName": "Comforts bby-wpes-sen-3-pk",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "96ffaa02-038c-4987-b86b-a1f1014f3e73",
+        "TagName": "Crest 3pk-pro-hlth-adv-anti-cav-flrde-mthwsh",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "c9a96cbd-fb39-40ec-9b0c-b0535451d164",
+        "TagName": "Dawn ul-ab-hnd-sp-or-scnt",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "7db4f395-ab5a-49f2-8dc3-c819d793501c",
+        "TagName": "Dawn ul-esc-nz-sprng-scnt",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "97a25475-ec69-4449-8b13-6efd7ed11c67",
+        "TagName": "Dove dp-mstre-nrshng-bdy-wsh",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "da8b59b1-dc01-4a55-89bf-7dd298add54c",
+        "TagName": "Dove snstve-skn-bty-bar",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "3b64c1ec-5e94-4182-99ca-34f01d98688b",
+        "TagName": "Downy apr-frsh-90ld-fbrc-prtct",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "c8b537a5-2691-433c-834a-40ea980fbfc9",
+        "TagName": "Dr-pepper diet-dr-pepper-case",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "cf19eaca-002f-4215-9d96-133f6cc1389b",
+        "TagName": "Dr-pepper dr-pepper-case",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "512df75e-3ee2-4b4d-a6b8-51c2f85f2a15",
+        "TagName": "Gain aroma-bst-3in1-org-dtrgnt",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "e5d7f9f0-acc5-4062-b097-14af421af515",
+        "TagName": "Glade hwn-brze-spry",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "a71ec29e-145c-4961-88b7-4cdc3e239b13",
+        "TagName": "Lysol all-prpse-clnr-cmplt-cln-lmn-brz-scnt",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "70741e44-b2d2-484e-aaca-b0023f53e2f2",
+        "TagName": "Pledge frntre-spry-lmn-enhancng-plsh",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "2e25e3ec-cd56-449a-8e63-f4126ed3c59a",
+        "TagName": "Tide orignl-32-load",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "948c1bf0-c7f7-4b0e-bf30-9972c773a54d",
+        "TagName": "Tide pods-3in1-dtrgnt",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "a0c441b3-6b65-4725-9b5c-ec778dc816f1",
+        "TagName": "Windex mulit-wtr-orignl",
+        "ExpectedCount": 4,
+        "ExpectedAreaCoverage": 20
+      },
+      {
+        "TagId": "6bf9de05-c7b6-492b-8d0d-9d2603c7c97d",
+        "TagName": "Husky drwstrng-lrge-trsh-bgs-tr-rsstnt-3x2ft",
         "ExpectedCount": 4,
         "ExpectedAreaCoverage": 20
       }

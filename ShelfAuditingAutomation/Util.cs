@@ -25,6 +25,9 @@ namespace ShelfAuditingAutomation
         public const string ShelfGapName = "Gap";
         public const string UnknownProductName = "Product";
 
+        public static readonly Uri GapImageUrl = new Uri("ms-appx:///Assets/ProductSamples/gap.jpg");
+        public static readonly Uri UnknownProductImageUri = new Uri("ms-appx:///Assets/ProductSamples/product.jpg");
+
         public static readonly Color TaggedItemColor =      Color.FromArgb(255, 36, 143, 255); // #248FFF
         public static readonly Color ShelfGapColor =        Color.FromArgb(255, 250, 190, 20); // #FABE14
         public static readonly Color UnknownProductColor =  Color.FromArgb(255, 180, 0, 158);  // #B4009E
@@ -144,6 +147,25 @@ namespace ShelfAuditingAutomation
             FileOpenPicker fileOpenPicker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.DocumentsLibrary, ViewMode = PickerViewMode.Thumbnail };
             fileTypeFilter.ToList().ForEach(f => fileOpenPicker.FileTypeFilter.Add(f));
             return await fileOpenPicker.PickSingleFileAsync();
+        }
+
+        public static ImageSource GetCanonicalImage(string baseUrl, string tagName)
+        {
+            string name = tagName.ToLower();
+            string uri = Uri.EscapeUriString($"{baseUrl}{name}.jpg");
+            var bitmap = new BitmapImage();
+
+            bool isUri = !string.IsNullOrEmpty(uri) ? Uri.IsWellFormedUriString(uri, UriKind.Absolute) : false;
+            if (!isUri)
+            {
+                bitmap.UriSource = name.Equals("gap", StringComparison.OrdinalIgnoreCase) ? GapImageUrl : UnknownProductImageUri;
+                return bitmap;
+            }
+
+            bitmap.ImageFailed += (s, e) => bitmap.UriSource = name.Equals("gap", StringComparison.OrdinalIgnoreCase) ? GapImageUrl : UnknownProductImageUri;
+            bitmap.UriSource = new Uri(uri);
+
+            return bitmap;
         }
 
         public static async Task DownloadAndSaveBitmapAsync(string imageUrl, StorageFile resultFile)

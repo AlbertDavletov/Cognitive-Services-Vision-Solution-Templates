@@ -4,11 +4,12 @@
     "ModelId": "<CUSTOM VISION MODEL ID>",
     "ModelName": "<CUSTOM VISION MODEL NAME>",
     "SampleImages": [
-      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cat-food-1.jpg",
-      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cat-food-2.jpg",
-      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cat-food-3.jpg",
-      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/cat-food-4.jpg"
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/beverages-1.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/beverages-2.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/beverages-3.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/beverages-4.jpg"
     ],
+    "CanonicalImages": "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/Products/",
     "ExpectedAreaCoverage": {
       "Tagged": 70,
       "Unknown": 20,
@@ -41,11 +42,12 @@
     "ModelId": "<CUSTOM VISION MODEL ID>",
     "ModelName": "<CUSTOM VISION MODEL NAME>",
     "SampleImages": [
-      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/dog-food-1.jpg",
-      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/dog-food-2.jpg",
-      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/dog-food-3.jpg",
-      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/dog-food-4.jpg"
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/snacks-1.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/snacks-2.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/snacks-3.jpg",
+      "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/SuggestedImages/snacks-4.jpg"
     ],
+    "CanonicalImages": "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/B92/Products/",
     "ExpectedAreaCoverage": {
       "Tagged": 70,
       "Unknown": 20,

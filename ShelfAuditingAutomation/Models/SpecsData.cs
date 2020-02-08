@@ -10,6 +10,7 @@ namespace ShelfAuditingAutomation.Models
         public Guid ModelId { get; set; }
         public string ModelName { get; set; }
         public string[] SampleImages { get; set; }
+        public string CanonicalImages { get; set; }
         public AreaCoverage ExpectedAreaCoverage { get; set; }
         public double LowConfidence { get; set; }
         public List<SpecItem> Items { get; set; }

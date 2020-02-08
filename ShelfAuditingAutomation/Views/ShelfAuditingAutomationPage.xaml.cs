@@ -167,13 +167,14 @@ namespace ShelfAuditingAutomation.Views
                     .Select(p => new ProductItemViewModel()
                     {
                         DisplayName = p.TagName, // can modify a product name for display name
-                        Model = p
+                        Model = p,
+                        CanonicalImagesBaseUrl = currentSpec.CanonicalImages
                     }).ToList();
 
                 // get all tags from the project
                 ProjectTagCollection.Clear();
                 ProjectTagCollection.AddRange((await CustomVisionServiceHelper.GetTagsAsync(trainingApi, currentProject.Id))
-                                    .OrderBy(t => t.Name).Select(t => new ProductTag(t)));
+                                    .OrderBy(t => t.Name).Select(t => new ProductTag(t, currentSpec.CanonicalImages)));
 
                 // get cropped image for each object
                 using (var stream = (await this.image.ImageFile.OpenStreamForReadAsync()).AsRandomAccessStream())
@@ -580,7 +581,8 @@ namespace ShelfAuditingAutomation.Views
             var productListGroupedByName = productlist.GroupBy(p => p.DisplayName).OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.ToList());
             foreach (var item in productListGroupedByName)
             {
-                Guid tagId = item.Value.First().Model.TagId;
+                var model = item.Value.First()?.Model;
+                Guid tagId = model.TagId;
                 string productName = item.Key;
                 int totalCount = item.Value.Count;
                 int expectedCount = currentSpec.Items.Any(s => s.TagId == tagId) ? currentSpec.Items.First(s => s.TagId == tagId).ExpectedCount : 0;
@@ -591,7 +593,8 @@ namespace ShelfAuditingAutomation.Views
                     Name = productName,
                     TotalCount = totalCount,
                     ExpectedCount = expectedCount,
-                    IsColumnWithAlert = isColumnWithLowConfidenceItem
+                    IsColumnWithAlert = isColumnWithLowConfidenceItem,
+                    Image = Util.GetCanonicalImage(currentSpec.CanonicalImages, model.TagName)
                 });
             }
             var totalRow = new ResultDataGridViewModel()

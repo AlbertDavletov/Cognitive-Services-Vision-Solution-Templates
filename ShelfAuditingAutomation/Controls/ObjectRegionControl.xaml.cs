@@ -48,6 +48,17 @@ namespace ShelfAuditingAutomation.Controls
             }
         }
 
+        private ImageSource image = null;
+        public ImageSource Image
+        {
+            get { return this.image; }
+            set
+            {
+                this.image = value;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Image"));
+            }
+        }
+
         private RegionState state = RegionState.Active;
         public RegionState State
         {

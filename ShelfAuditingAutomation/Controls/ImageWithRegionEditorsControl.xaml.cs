@@ -178,6 +178,7 @@ namespace ShelfAuditingAutomation.Controls
                 }
 
                 region.Title = detectedObj.DisplayName;
+                region.Image = Util.GetCanonicalImage(detectedObj.CanonicalImagesBaseUrl, detectedObj.Model?.TagName);
                 region.State = sizeChanged ? region.State : state;
                 region.ProductItemViewModel = detectedObj;
                 region.Color = Util.GetObjectRegionColor(model);
