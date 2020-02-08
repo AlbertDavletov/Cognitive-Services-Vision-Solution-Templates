@@ -15,7 +15,7 @@ const MainNavigator = createStackNavigator({
           underlayColor="transparent"
           disabled={true}
           color="gray"
-          onPress={() => alert('This is a settings!')} />
+          onPress={() => console.log('This is a settings!')} />
     )}
   },
   Review: {
