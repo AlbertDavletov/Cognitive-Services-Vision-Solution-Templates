@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Text, TouchableOpacity, Alert } from 'react-native';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
-import { InputScreen, ReviewScreen, ResultScreen, CameraScreen } from './src/views';
+import { InputScreen, ReviewScreen, ResultScreen, CameraScreen, TestScreen } from './src/views';
 import Icon from 'react-native-vector-icons/EvilIcons';
 
 const MainNavigator = createStackNavigator({
@@ -29,8 +29,12 @@ const MainNavigator = createStackNavigator({
     }
   },
   Result: {
-   screen: ResultScreen,
-   navigationOptions: { title: 'Detection results' }
+    screen: ResultScreen,
+    navigationOptions: { title: 'Detection results' }
+  },
+  Test: {
+    screen: TestScreen,
+    navigationOptions: { title: 'Test page' }
   },
   Camera: {
     screen: CameraScreen,

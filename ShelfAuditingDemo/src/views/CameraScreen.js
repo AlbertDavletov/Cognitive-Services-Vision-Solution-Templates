@@ -1,13 +1,18 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Platform, TouchableOpacity, StyleSheet } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import CustomVisionService from '../services/customVisionServiceHelper';
+import { ZoomView } from '../components/uikit';
+
+const MAX_ZOOM = 7; // iOS only
+const ZOOM_F = Platform.OS === 'ios' ? 0.007 : 0.08;
 
 class CameraScreen extends React.Component {
     constructor(props) {
         super(props);
         this.customVisionService = new CustomVisionService();
         this.state = {
+            zoom: 0.0,
             isCameraVisible: false
         }
     }
@@ -17,6 +22,7 @@ class CameraScreen extends React.Component {
         let specData = navigation.getParam('specData', 'unknown');
 
         this.setState({
+            zoom: 0.0,
             specData: specData
         });
     }
@@ -58,6 +64,8 @@ class CameraScreen extends React.Component {
                 <RNCamera 
                     ref={ref => { this.camera = ref; }} 
                     style={cameraPreview}
+                    zoom={this.state.zoom}
+                    maxZoom={MAX_ZOOM}
                     flashMode={RNCamera.Constants.FlashMode.auto}
                     androidCameraPermissionOptions={{
                         title: 'Permission to use camera',
@@ -72,10 +80,18 @@ class CameraScreen extends React.Component {
                         buttonNegative: 'Cancel',
                     }}>
 
-                    {horizontalLines}
-                    {verticalLines}
+                    <ZoomView
+                        onPinchEnd={this.onPinchEnd}
+                        onPinchStart={this.onPinchStart}
+                        onPinchProgress={this.onPinchProgress}>
 
-                    {cameraControls}
+                        {horizontalLines}
+                        {verticalLines}
+
+                        {cameraControls}
+
+                    </ZoomView>
+
                 </RNCamera>
             </View>
         );
@@ -95,6 +111,25 @@ class CameraScreen extends React.Component {
         }
     }
 
+    onPinchStart = () => {
+        this._prevPinch = 1;
+    }
+    
+     onPinchEnd = () => {
+        this._prevPinch = 1;
+     }
+    
+    onPinchProgress = (p) => {
+        let p2 = p - this._prevPinch;
+        if (p2 > 0 && p2 > ZOOM_F) {
+          this._prevPinch = p;
+          this.setState({zoom: Math.min(this.state.zoom + ZOOM_F, 1)}, () => { });
+        } else if (p2 < 0 && p2 < -ZOOM_F) {
+          this._prevPinch = p;
+          this.setState({zoom: Math.max(this.state.zoom - ZOOM_F, 0)}, () => { });
+        }
+    }    
+
     styles = StyleSheet.create({
         mainContainer: {
             flex: 1, 
@@ -107,8 +142,9 @@ class CameraScreen extends React.Component {
             alignItems: 'center'
         },
         cameraControlsContainer: {
-            flexDirection: 'row', 
-            justifyContent: 'center', 
+            position: 'absolute',
+            bottom: 0,
+            alignSelf: 'center',
             opacity: 0.6
         },
         takePictureButton: {

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { View, Image, ImageBackground, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Image, ImageBackground, TouchableOpacity, Animated, StyleSheet } from 'react-native';
+import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import { RegionState } from '../../models';
 import { ObjectRegion } from './';
 
@@ -10,7 +11,7 @@ class ImageWithRegions extends React.Component {
             imageDimWidth: undefined,
             imageDimHeight: undefined,
             predictions: [],
-            selectedRegions: {},
+            selectedRegions: {}
         };
 
         // event handlers
@@ -40,16 +41,24 @@ class ImageWithRegions extends React.Component {
         return (
             <View style={imageContainer}>
 
-                <ImageBackground style={image}
-                    onLayout={(event) => this.handleImageLayout(event)}
-                    resizeMode={'contain'}
-                    source={{uri: imageSource}}>
+                <ReactNativeZoomableView
+                    maxZoom={2.5}
+                    minZoom={1}
+                    zoomStep={0.5}
+                    initialZoom={1}
+                    bindToBorders={true}
+                >
+                    <ImageBackground style={image}
+                        onLayout={(event) => this.handleImageLayout(event)}
+                        resizeMode={'contain'}
+                        source={{uri: imageSource}}>
 
-                    <View style={[canvasContainer, { width: this.state.imageWidth, height: this.state.imageHeight}]}>
-                        {this.getImageWithRegionsComponent()}
-                    </View>
+                        <View style={[canvasContainer, { width: this.state.imageWidth, height: this.state.imageHeight}]}>
+                            {this.getImageWithRegionsComponent()}
+                        </View>
 
-                </ImageBackground>
+                    </ImageBackground>
+                </ReactNativeZoomableView>
             </View>
         );
     }
@@ -133,9 +142,7 @@ class ImageWithRegions extends React.Component {
 
     styles = StyleSheet.create({
         imageContainer: {
-            flex: 1,
-            top: 0,
-            margin: 0,
+            flex: 1
         },
         image: {
             flex: 1,

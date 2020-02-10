@@ -86,7 +86,9 @@ export class InputScreen extends React.Component {
                             backgroundColor="transparent" 
                             underlayColor="transparent"
                             color="white"
-                            onPress={(e) => { navigate('Camera', { specData: this.state.selectedSpec }); }}/>
+                            onPress={(e) => { 
+                                navigate('Camera', { specData: this.state.selectedSpec }); 
+                            }}/>
                     </View>
                     
                     <FlatList
