@@ -4,6 +4,7 @@ import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { InputScreen, ReviewScreen, ResultScreen, CameraScreen, TestScreen } from './src/views';
 import Icon from 'react-native-vector-icons/EvilIcons';
+Icon.loadFont();
 
 const MainNavigator = createStackNavigator({
   Input: {

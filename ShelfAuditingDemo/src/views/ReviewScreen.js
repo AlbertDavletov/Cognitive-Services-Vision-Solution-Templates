@@ -4,6 +4,7 @@ import { ProductItem } from '../models';
 import { ImageWithRegions } from '../components/uikit';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CustomVisionService from '../services/customVisionServiceHelper';
+Icon.loadFont();
 
 class ReviewScreen extends React.Component {
     constructor(props) {
@@ -136,42 +137,45 @@ class ReviewScreen extends React.Component {
 
     async analyzeImageByIteration(data, imageSrc, fromCamera) {
         let result = [];
-
-        const filteredData = data.filter(function(item) {
-          return item.status == 'Completed';
-        });
-    
-        // sort by descending
-        filteredData.sort(function(a,b){
-          return new Date(b.trainedAt) - new Date(a.trainedAt);
-        })
-    
-        const latestTrainedIteraction = filteredData.length > 0 ? filteredData[0] : null;
-        if (latestTrainedIteraction == null || !latestTrainedIteraction.publishName) {
-          console.log("This project doesn't have any trained models or published iteration yet. Please train and publish it, or wait until training completes if one is in progress.");
-
-        } else {
-
-            console.log("latestTrainedIteraction: ", latestTrainedIteraction);
-    
-            if (fromCamera) {
-                await this.customVisionService.detectImageFromCameraPicture(latestTrainedIteraction.projectId, latestTrainedIteraction.publishName, imageSrc)
-                .then((responseJson) => {
-                    result = responseJson;
-                })
-                .catch((error) => {
-                    console.error('detectImage', error);
-                });
-            } else {
-                await this.customVisionService.detectImageUrl(latestTrainedIteraction.projectId, latestTrainedIteraction.publishName, imageSrc)
-                .then((responseJson) => {
-                    result = responseJson;
-                })
-                .catch((error) => {
-                    console.error('detectImage', error);
-                });
-            }
+        
+        if (data && data.length) {
+            const filteredData = data.filter(function(item) {
+                return item.status == 'Completed';
+              });
+          
+              // sort by descending
+              filteredData.sort(function(a,b){
+                return new Date(b.trainedAt) - new Date(a.trainedAt);
+              })
+          
+              const latestTrainedIteraction = filteredData.length > 0 ? filteredData[0] : null;
+              if (latestTrainedIteraction == null || !latestTrainedIteraction.publishName) {
+                console.log("This project doesn't have any trained models or published iteration yet. Please train and publish it, or wait until training completes if one is in progress.");
+      
+              } else {
+      
+                  console.log("latestTrainedIteraction: ", latestTrainedIteraction);
+          
+                  if (fromCamera) {
+                      await this.customVisionService.detectImageFromCameraPicture(latestTrainedIteraction.projectId, latestTrainedIteraction.publishName, imageSrc)
+                      .then((responseJson) => {
+                          result = responseJson;
+                      })
+                      .catch((error) => {
+                          console.error('detectImage', error);
+                      });
+                  } else {
+                      await this.customVisionService.detectImageUrl(latestTrainedIteraction.projectId, latestTrainedIteraction.publishName, imageSrc)
+                      .then((responseJson) => {
+                          result = responseJson;
+                      })
+                      .catch((error) => {
+                          console.error('detectImage', error);
+                      });
+                  }
+              }
         }
+
         return result;
     }
 

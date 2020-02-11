@@ -105,21 +105,27 @@ class ImageWithRegions extends React.Component {
 
     // event handlers
     handleImageLayout(event) {
-        console.log('handleImageLayout: ', event.nativeEvent.layout);
-
         const containerHeight = event.nativeEvent.layout.height;
         const containerWidth = event.nativeEvent.layout.width;
-        const dimWidth = this.state.imageDimWidth;
-        const dimHeight = this.state.imageDimHeight;
-
-        const newImageWidth = containerHeight * dimWidth / dimHeight <= containerWidth ? containerHeight * dimWidth / dimHeight : containerWidth;
-        const newImageHeight = containerWidth * dimHeight / dimWidth <= containerHeight ? containerWidth * dimHeight / dimWidth : containerHeight;
-
         this.setState({
-            imageWidth: newImageWidth,
-            imageHeight: newImageHeight
+            imageContainerWidth: containerWidth,
+            imageContainerHeight: containerHeight
         });
-        this.forceUpdate();
+
+        Image.getSize(this.props.imageSource, (width, height) => {
+
+            const dimWidth = width;
+            const dimHeight = height;
+    
+            const newImageWidth = containerHeight * dimWidth / dimHeight <= containerWidth ? containerHeight * dimWidth / dimHeight : containerWidth;
+            const newImageHeight = containerWidth * dimHeight / dimWidth <= containerHeight ? containerWidth * dimHeight / dimWidth : containerHeight;
+    
+            this.setState({
+                imageWidth: newImageWidth,
+                imageHeight: newImageHeight
+            });
+            this.forceUpdate();
+        });
     }
 
     onRegionSelected(region) {
@@ -154,8 +160,7 @@ class ImageWithRegions extends React.Component {
             justifyContent: 'center'
         },
         canvasContainer: {
-            alignSelf: 'center',
-            backgroundColor: 'transparent',
+            alignSelf: 'center'
         },
         h1: {
             color: 'white',

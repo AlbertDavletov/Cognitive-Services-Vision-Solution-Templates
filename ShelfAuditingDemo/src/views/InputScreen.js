@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CustomSpecsDataLoader from '../services/customSpecsDataLoader';
+Icon.loadFont();
 
 export class InputScreen extends React.Component {
     constructor(props) {
@@ -19,6 +20,7 @@ export class InputScreen extends React.Component {
         this.customSpecsDataLoader = new CustomSpecsDataLoader();
         this.state = { 
             specsData: [],
+            selectedSpecId: '',
             selectedSpec: {},
             suggestedImages: []
         };
@@ -30,7 +32,15 @@ export class InputScreen extends React.Component {
     async componentDidMount() {
         try {
             let data = this.customSpecsDataLoader.getLocalData();
-            this.setState({specsData: data});
+            let items = data[0].SampleImages.map((v, i) => {
+                return { id: i, src: v };
+            });
+
+            this.setState({
+                selectedSpec: data[0],
+                suggestedImages: items,
+                specsData: data
+            });
 
             // await this.customSpecsDataLoader.getData().then(data => {
             //     console.log('componentDidMount: get specs data: ', data);
@@ -50,32 +60,38 @@ export class InputScreen extends React.Component {
 
         let mainView = 
             <View style={container}>
-                <View style={horizontalContainer}>
+                <View style={[horizontalContainer, { marginTop: 20 }]}>
                     <Text style={h3}>Shelf type</Text>
                     
                     <Picker 
                         style={picker}
-                        selectedValue={this.state.selectedSpec}
+                        itemStyle={{ color: 'white' }}
+                        selectedValue={this.state.selectedSpecId}
                         onValueChange={(itemValue, itemIndex) => {
-                            let items = itemValue.SampleImages.map((v, i) => {
-                                return { id: i, src: v };
+                            this.setState({ selectedSpecId: itemValue });
+
+                            this.state.specsData.forEach(obj => {
+                                if (obj.Id == itemValue) {
+                                    let items = obj.SampleImages.map((v, i) => {
+                                        return { id: i, src: v };
+                                    });
+                                    this.setState({ 
+                                        selectedSpec: obj,
+                                        suggestedImages: items 
+                                    });
+                                }
                             });
-                            this.setState({
-                                selectedSpec: itemValue,
-                                suggestedImages: items
-                            });
-                            console.log('Picker: onValueChange: ', items);
                         }}
                     >
                         {this.state.specsData.map(spec => (
-                            <Picker.Item key={spec.Id} label={`${spec.Name}`} value={spec}/>
+                            <Picker.Item key={spec.Id} label={`${spec.Name}`} value={spec.Id}/>
                         ))}
                     </Picker>
                 </View>
 
                 <View style={line}/>
 
-                <View style={{flex:1, paddingTop: 20}}>
+                <View style={{flex:1, paddingTop: 50 }}>
                     <View style={centerContainer}>
                         <Text style={h2}>Choose a shelf image to audit</Text>
                     </View>
@@ -86,15 +102,16 @@ export class InputScreen extends React.Component {
                             backgroundColor="transparent" 
                             underlayColor="transparent"
                             color="white"
-                            onPress={(e) => { 
+                            onPress={(e) => {
                                 navigate('Camera', { specData: this.state.selectedSpec }); 
+                                // navigate('Test');
                             }}/>
                     </View>
                     
                     <FlatList
                         data={this.state.suggestedImages}
                         renderItem={({ item }) => (
-                            <View style={{ flex: 1, flexDirection: 'column', margin: 4 }}>
+                            <View style={{ flex: 1, flexDirection: 'column', margin: 6 }}>
                                 <TouchableHighlight onPress={(e) => { this.handleImageClick(item) }}>
                                     <Image style={imageThumbnail} source={{ uri: item.src }} />
                                 </TouchableHighlight>

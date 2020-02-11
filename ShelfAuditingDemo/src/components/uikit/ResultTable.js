@@ -9,9 +9,9 @@ const ResultTable = (params) => {
     return (
         <View style={container}>
             <View style={tableHeader}>
-                <Text style={[text, { flex: 4 }]}>Object tag</Text>
-                <Text style={[text, { flex: 1, textAlign: 'center' }]}>Expected</Text>
-                <Text style={[text, { flex: 1, textAlign: 'center' }]}>Count</Text>
+                <Text numberOfLines={1} style={[text, { flex: 4 }]}>Object tag</Text>
+                <Text numberOfLines={1} style={[text, { flex: 1, textAlign: 'center' }]}>Expected</Text>
+                <Text numberOfLines={1} style={[text, { flex: 1, textAlign: 'center' }]}>Count</Text>
             </View>
             <View style={headerLine} />
 
