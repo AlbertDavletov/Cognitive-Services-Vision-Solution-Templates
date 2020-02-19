@@ -9,6 +9,25 @@ export default class CustomVisionService {
         this.RetryDelayOnQuotaLimitError = 500;
     }
 
+    async getTagsAsync(projectId) {
+        const url = this.BaseURL + 'training/projects/' + projectId + '/tags';
+        return fetch(url,
+            {
+                method: 'GET',
+                headers: {
+                  'Training-Key': '',
+                  'Training-Key': this.ApiKey
+                }
+            })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                return responseJson;
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
     async getIterationsAsync(projectId) {
         const url = this.BaseURL + 'training/projects/' + projectId + '/iterations';
         return fetch(url,

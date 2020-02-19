@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Alert } from 'react-native';
 import { ProductItem } from '../models';
 import { ImageWithRegions } from '../components/uikit';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -14,8 +14,24 @@ class ReviewScreen extends React.Component {
         this.state = {
             loading: false,
             detectedObjects: null,
-            imageSource: null
+            imageSource: null,
+
+            editRegionButtonStyle: {
+                disabled: true,
+                color: 'gray'
+            },
+            removeRegionButtonStyle: {
+                disabled: true,
+                color: 'gray'
+            },
+            clearRegionsButtonStyle: {
+                disabled: true,
+                color: 'gray'
+            }
         };
+
+        // event handlers
+        this.onRegionSelectionChanged = this.onRegionSelectionChanged.bind(this);
     }
 
     async componentDidMount() {
@@ -27,6 +43,7 @@ class ReviewScreen extends React.Component {
         let imageSrc = imageProps.src ? imageProps.src : imageProps;
         this.setState({ imageSource: imageProps.src ? imageProps.src : imageProps.uri });
         const data = await this.analyzeImage(specData.ModelId, imageSrc, fromCamera);
+        const tags = await this.getTags(specData.ModelId);
         // const data = this.getTestDataFromJson();
 
         let detectedObjects = [];
@@ -50,6 +67,7 @@ class ReviewScreen extends React.Component {
         if (this.state.detectedObjects) {
             imageWithRegionsComponent = (
                 <ImageWithRegions ref='imageWithRegions'
+                    selectionChanged={(selectedCount) => this.onRegionSelectionChanged(selectedCount)}
                     imageSource={this.state.imageSource}
                     regions={this.state.detectedObjects}
                 />
@@ -85,22 +103,35 @@ class ReviewScreen extends React.Component {
                             onPress={() => alert('Add product!')} />
 
                         <Icon.Button name="pencil" size={20} style={{flex: 1}}
+                            ref='editRegionButton'
                             backgroundColor="transparent" 
                             underlayColor="transparent"
-                            disabled={true}
-                            color="gray"
-                            onPress={() => alert('Edit product!')} />
+                            disabled={this.state.editRegionButtonStyle.disabled}
+                            color={this.state.editRegionButtonStyle.color}
+                            onPress={() => {
+                                const { navigate } = this.props.navigation;
+                                let selectedRegions = this.refs.imageWithRegions.getSelectedRegions();
+                                let selectedIds = selectedRegions.map(item => item.id);
+                                let data = this.state.detectedObjects.filter((obj) => {
+                                    return selectedIds.indexOf(obj.id) < 0;
+                                });
+                                navigate('AddEdit', { data: data, selectedRegions: selectedRegions, imageSource: this.state.imageSource });
+                            }} />
 
                         <Icon.Button name="trash-o" size={20} style={{ flex: 1 }}
+                            ref='removeRegionButton'
                             backgroundColor="transparent" 
                             underlayColor="transparent"
-                            disabled={true}
-                            color="gray"
+                            disabled={this.state.removeRegionButtonStyle.disabled}
+                            color={this.state.removeRegionButtonStyle.color}
                             onPress={() => alert('Remove product!')} />
 
                         <Icon.Button name="refresh" size={20} style={{ flex: 1 }}
+                            ref='clearRegionsButton'
                             backgroundColor="transparent" 
                             underlayColor="transparent"
+                            disabled={this.state.clearRegionsButtonStyle.disabled}
+                            color={this.state.clearRegionsButtonStyle.color}
                             onPress={() => {
                                 this.refs.imageWithRegions.clearSelection();
                             }} />
@@ -177,6 +208,33 @@ class ReviewScreen extends React.Component {
         }
 
         return result;
+    }
+
+    async getTags(projectId) {
+        let tags = [];
+        try {
+            tags = await this.customVisionService.getTagsAsync(projectId);
+        } catch (error) {
+            console.error('CustomVisionService - analyzeImage()', error);
+        }
+        return tags;
+    }
+
+    onRegionSelectionChanged(selectedCount) {
+        this.setState({
+            editRegionButtonStyle: {
+                disabled: selectedCount <= 0,
+                color: selectedCount > 0 ? 'white' : 'gray'
+            },
+            removeRegionButtonStyle: {
+                disabled: selectedCount <= 0,
+                color: selectedCount > 0 ? 'white' : 'gray'
+            },
+            clearRegionsButtonStyle: {
+                disabled: selectedCount <= 0,
+                color: selectedCount > 0 ? 'white' : 'gray'
+            }
+        });
     }
 
     styles = StyleSheet.create({

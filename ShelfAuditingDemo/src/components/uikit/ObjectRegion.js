@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { RegionState } from '../../models';
+import { Util } from '../../../Util';
 
 const ObjectRegion = (params) => {
-    const { activeRegion, selectedRegion, selectedRegionLabelPanel, selectedRegionLabel, circle } = styles;
+    const { 
+        activeRegion, 
+        selectedRegion, selectedRegionLabelPanel, selectedRegionLabel, 
+        circle, 
+        disabledRegion, smallCircle 
+    } = styles;
+
     const { position, data } = params;
     const positionStyle = StyleSheet.create({ 
         left: position.left, 
@@ -15,16 +22,29 @@ const ObjectRegion = (params) => {
     let component;
     switch (data.state) {
         case RegionState.Selected:
-            component = <View style={[positionStyle, selectedRegion]}>
-                            <View style={selectedRegionLabelPanel}>
+            component = <View style={[positionStyle, selectedRegion, { borderColor: data.color }]}>
+                            <View style={[selectedRegionLabelPanel, { borderColor: data.color, backgroundColor: data.color }]}>
                                 <Text numberOfLines={1} style={selectedRegionLabel}>{data.title}</Text>  
                             </View>
                         </View>;
             break;
-            
+
+        case RegionState.Disabled:
+            component = <View style={[positionStyle, disabledRegion, { 
+                                      borderColor: data.color,
+                                      backgroundColor: Util.SetOpacityToColor(data.color, 0.4) 
+                            }]}>
+                            <View style={[smallCircle, { backgroundColor: data.color }]}/>
+                        </View>;
+            break;
+
         case RegionState.Active:
         default:
-            component = <View style={[positionStyle, activeRegion]}>
+            component = <View 
+                            style={[positionStyle, activeRegion, { 
+                                    borderColor: data.color, 
+                                    backgroundColor: Util.SetOpacityToColor(data.color, 0.6) 
+                            }]}>
                             <View style={circle}/>
                         </View>;
             break;
@@ -34,28 +54,26 @@ const ObjectRegion = (params) => {
 
 const styles = StyleSheet.create({
     activeRegion: {
-        // position: 'absolute',
         justifyContent: 'center',
-        borderColor: '#248FFF',
         borderWidth: 1,
-        backgroundColor: 'rgba(36, 143, 255, 0.6)',
         borderRadius: 1
     },
     selectedRegion: {
-        // position: 'absolute',
-        borderColor: '#248FFF',
         borderWidth: 2,
         backgroundColor: 'transparent',
         borderRadius: 2
     },
+    disabledRegion: {
+        justifyContent: 'center',
+        borderWidth: 0,
+        borderRadius: 1
+    },
     selectedRegionLabelPanel: {
         top: -32, 
-        borderColor: '#248FFF',
         borderWidth: 0,
         margin: -2,
         borderRadius: 1,
         minWidth: 100,
-        backgroundColor: '#248FFF'
     },
     selectedRegionLabel: {
         color: 'white',
@@ -66,6 +84,12 @@ const styles = StyleSheet.create({
         height: 12,
         borderRadius: 6,
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        alignSelf: 'center'
+    },
+    smallCircle: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
         alignSelf: 'center'
     }
 })

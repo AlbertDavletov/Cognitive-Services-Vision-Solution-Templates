@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Text, TouchableOpacity, Alert } from 'react-native';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
-import { InputScreen, ReviewScreen, ResultScreen, CameraScreen, TestScreen } from './src/views';
+import { InputScreen, ReviewScreen, ResultScreen, CameraScreen, AddEditScreen, TestScreen } from './src/views';
 import Icon from 'react-native-vector-icons/EvilIcons';
 Icon.loadFont();
 
@@ -32,6 +32,16 @@ const MainNavigator = createStackNavigator({
   Result: {
     screen: ResultScreen,
     navigationOptions: { title: 'Detection results' }
+  },
+  AddEdit: {
+    screen: AddEditScreen,
+    navigationOptions: { title: 'Add/Edit item',
+    headerRight: () => (
+      <TouchableOpacity activeOpacity={0.6} onPress={() => Alert.alert('Apply!')}
+        style={{ padding: 4, marginRight: 10 }}>
+        <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold' }}>Apply</Text>
+      </TouchableOpacity>)
+    }
   },
   Test: {
     screen: TestScreen,
