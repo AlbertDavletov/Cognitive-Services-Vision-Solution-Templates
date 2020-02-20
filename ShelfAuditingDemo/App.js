@@ -1,6 +1,4 @@
-import React, { Component } from 'react';
-import { Text, TouchableOpacity, Alert } from 'react-native';
-import { createAppContainer } from 'react-navigation';
+import { createAppContainer, getActiveChildNavigationOptions } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import { 
   InputScreen, 
@@ -15,65 +13,32 @@ import Icon from 'react-native-vector-icons/EvilIcons';
 Icon.loadFont();
 
 const MainNavigator = createStackNavigator({
-  Input: {
-    screen: InputScreen,
-    navigationOptions: { title: 'Shelf Audit',
-      headerRight: () => (
-        <Icon.Button name="gear" size={25}
-          backgroundColor="transparent" 
-          underlayColor="transparent"
-          disabled={true}
-          color="gray"
-          onPress={() => console.log('This is a settings!')} />
-    )}
-  },
-  Review: {
-    screen: ReviewScreen,
-    navigationOptions: { title: 'Review',
-    headerRight: () => (
-      <TouchableOpacity activeOpacity={0.6} onPress={() => Alert.alert('Publish!')} disabled={true}
-        style={{ padding: 4, marginRight: 10 }}>
-        <Text style={{color: 'gray', fontSize: 16, fontWeight: 'bold' }}>Publish</Text>
-      </TouchableOpacity>)
-    }
-  },
+  Input: { screen: InputScreen },
+  Review: { screen: ReviewScreen },
   Result: {
     screen: ResultScreen,
     navigationOptions: { title: 'Detection results' }
   },
-  AddEdit: {
-    screen: AddEditScreen,
-    navigationOptions: { title: 'Add/Edit item',
-    headerRight: () => (
-      <TouchableOpacity activeOpacity={0.6} onPress={() => Alert.alert('Apply!')}
-        style={{ padding: 4, marginRight: 10 }}>
-        <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold' }}>Apply</Text>
-      </TouchableOpacity>)
-    }
-  },
+  AddEdit: { screen: AddEditScreen },
   TagCollection: {
     screen: TagCollectionScreen,
     navigationOptions: { title: 'Choose new label' }
   },
-  Test: {
-    screen: TestScreen,
-    navigationOptions: { title: 'Test page' }
-  },
+  Test: { screen: TestScreen },
   Camera: {
     screen: CameraScreen,
     navigationOptions: { title: 'Camera' }
   }},
   {
     initialRouteName: 'Input',
+    navigationOptions: ({ navigation, screenProps }) => ({
+      ...getActiveChildNavigationOptions(navigation, screenProps),
+    }),
     defaultNavigationOptions: {
-      headerStyle: {
-        backgroundColor: '#1F1F1F',
-      },
+      headerStyle: { backgroundColor: '#1F1F1F' },
       headerTintColor: '#fff',
-      headerTitleStyle: {
-        fontWeight: 'bold',
-      },
-    },
+      headerTitleStyle: { fontWeight: 'bold' }
+    }
   }
 );
 

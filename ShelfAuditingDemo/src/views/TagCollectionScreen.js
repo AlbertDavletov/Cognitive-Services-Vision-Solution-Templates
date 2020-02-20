@@ -90,7 +90,7 @@ class TagCollectionScreen extends React.Component {
             let filterData = [];
             allTags.forEach(t => {
                 let tagName = t.name.toLocaleLowerCase();
-                if (tagName.includes(filter)) {
+                if (tagName.includes(filter.toLocaleLowerCase())) {
                     filterData.push(t);
                 }
             });

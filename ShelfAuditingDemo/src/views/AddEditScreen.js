@@ -1,8 +1,29 @@
 import React, { Component } from 'react';
-import { View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { 
+    View, 
+    Image, 
+    Text, 
+    TouchableOpacity, 
+    StyleSheet, 
+    Alert 
+} from 'react-native';
 import { ImageWithRegions } from '../components/uikit';
 
 class AddEditScreen extends React.Component {
+    static navigationOptions = ({ navigation }) => {
+        const { params } = navigation.state;
+        return { 
+            title: 'Add/Edit item',
+            headerRight: () => (
+                <TouchableOpacity 
+                    activeOpacity={0.6} 
+                    onPress={() => params.applyChanges()}
+                    style={{ padding: 4, marginRight: 10 }}>
+                    <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold' }}>Apply</Text>
+                </TouchableOpacity>
+            )
+        }
+    }
 
     constructor(props) {
         super(props);
@@ -21,6 +42,8 @@ class AddEditScreen extends React.Component {
 
     componentDidMount() {
         const { navigation } = this.props;
+        navigation.setParams({ applyChanges: this.applyChanges });
+
         let data = navigation.getParam('data', []);
         let selectedRegions = navigation.getParam('selectedRegions', []);
         let imageSource = navigation.getParam('imageSource', {});
@@ -138,6 +161,10 @@ class AddEditScreen extends React.Component {
             r.model.tagName = selectedTag.name
         });
         this.setState({ selectedTag: selectedTag });
+    }
+
+    applyChanges() {
+        Alert.alert('Apply!');
     }
 
     styles = StyleSheet.create({

@@ -1,9 +1,30 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, Image, Dimensions, PanResponder, Animated, StyleSheet } from 'react-native';
+import { 
+    View, 
+    Text, 
+    Image, 
+    Animated, 
+    TouchableOpacity,
+    StyleSheet, 
+    Alert 
+} from 'react-native';
 import { PinchGestureHandler, State } from 'react-native-gesture-handler'
 import { width, height } from '../../constants';
 
 class TestScreen extends React.Component {
+    static navigationOptions = ({ navigation }) => {
+        const { params } = navigation.state;
+        return { 
+            title: 'Test page',
+            headerRight: () => (
+                <TouchableOpacity activeOpacity={0.6} onPress={() => params.testApply()}
+                    style={{ padding: 4, marginRight: 10 }}>
+                    <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold' }}>Apply</Text>
+                </TouchableOpacity>
+            )
+        }
+    }
+
     constructor(props) {
         super(props);
 
@@ -14,6 +35,7 @@ class TestScreen extends React.Component {
 
     componentDidMount() {
         const { navigation } = this.props;
+        navigation.setParams({ testApply: this.testApply });
     }
 
     render() {
@@ -27,6 +49,10 @@ class TestScreen extends React.Component {
                         transform={[{ scale: this.state.scale}]}/>
             </View>
         );
+    }
+
+    testApply() {
+        Alert.alert('testApply!')
     }
 
     onZoomEvent = Animated.event(

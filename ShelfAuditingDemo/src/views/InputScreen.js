@@ -14,6 +14,21 @@ import CustomSpecsDataLoader from '../services/customSpecsDataLoader';
 Icon.loadFont();
 
 export class InputScreen extends React.Component {
+    static navigationOptions = ({ navigation }) => {
+        const { params } = navigation.state;
+        return { 
+            title: 'Shelf Audit',
+            headerRight: () => (
+                <Icon.Button name="gear" size={25}
+                    backgroundColor="transparent" 
+                    underlayColor="transparent"
+                    disabled={true}
+                    color="gray"
+                    onPress={() => params.openSettings()} />
+            )
+        }
+    }
+
     constructor(props) {
         super(props);
 
@@ -30,6 +45,9 @@ export class InputScreen extends React.Component {
     }
 
     async componentDidMount() {
+        const { navigation } = this.props;
+        navigation.setParams({ openSettings: this.openSettings });
+
         try {
             let data = this.customSpecsDataLoader.getLocalData();
             let items = data[0].SampleImages.map((v, i) => {
@@ -130,6 +148,10 @@ export class InputScreen extends React.Component {
     handleImageClick(image) {
         const { navigate } = this.props.navigation;
         navigate('Review', {image: image, selectedSpec: this.state.selectedSpec});
+    }
+
+    openSettings() {
+        Alert.alert('This is a settings!')
     }
 
     styles = StyleSheet.create({

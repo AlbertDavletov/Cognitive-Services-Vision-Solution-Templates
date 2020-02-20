@@ -1,5 +1,12 @@
 import React, { Component } from 'react';
-import { View, ActivityIndicator, StyleSheet, Alert } from 'react-native';
+import { 
+    View, 
+    ActivityIndicator, 
+    Text, 
+    TouchableOpacity, 
+    StyleSheet, 
+    Alert 
+} from 'react-native';
 import { ProductItem } from '../models';
 import { ImageWithRegions } from '../components/uikit';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -7,6 +14,22 @@ import CustomVisionService from '../services/customVisionServiceHelper';
 Icon.loadFont();
 
 class ReviewScreen extends React.Component {
+    static navigationOptions = ({ navigation }) => {
+        const { params } = navigation.state;
+        return { 
+            title: 'Review',
+            headerRight: () => (
+                <TouchableOpacity 
+                    activeOpacity={0.6} 
+                    disabled={true}
+                    onPress={() => params.publishResults()} 
+                    style={{ padding: 4, marginRight: 10 }}>
+                    <Text style={{color: 'gray', fontSize: 16, fontWeight: 'bold' }}>Publish</Text>
+                </TouchableOpacity>
+            )
+        }
+    }
+
     constructor(props) {
         super(props);
         this.customVisionService = new CustomVisionService();
@@ -36,6 +59,8 @@ class ReviewScreen extends React.Component {
 
     async componentDidMount() {
         const { navigation } = this.props;
+        navigation.setParams({ publishResults: this.publishResults });
+
         let imageProps = navigation.getParam('image', 'unknown');
         let specData = navigation.getParam('selectedSpec', 'unknown');
         let fromCamera = navigation.getParam('fromCamera', false);
@@ -241,6 +266,10 @@ class ReviewScreen extends React.Component {
                 color: selectedCount > 0 ? 'white' : 'gray'
             }
         });
+    }
+
+    publishResults() {
+        Alert.alert("Publish!");
     }
 
     styles = StyleSheet.create({
