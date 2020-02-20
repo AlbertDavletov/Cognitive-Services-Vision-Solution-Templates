@@ -6,15 +6,30 @@ class AddEditScreen extends React.Component {
 
     constructor(props) {
         super(props);
+        const { navigation } = props;
+        const tags = navigation.getParam('tags', []);
+        const tagCollection = this.getTagCollection(tags);
+
+        this.state = {
+            data: [],
+            imageSource: null,
+            tags: tagCollection,
+            selectedTag: null,
+            selectedRegions: []
+        }
     }
 
-    render() {
+    componentDidMount() {
         const { navigation } = this.props;
-        const { mainContainer, labelContainer, imageThumbnail, button, buttonLabel,
-            tagContainer, tagLabel, line } = this.styles;
         let data = navigation.getParam('data', []);
         let selectedRegions = navigation.getParam('selectedRegions', []);
         let imageSource = navigation.getParam('imageSource', {});
+
+        this.setState({
+            data: data,
+            imageSource: imageSource,
+            selectedRegions: selectedRegions
+        });
 
         let selectedTag;
         if (selectedRegions.length > 0) {
@@ -24,19 +39,62 @@ class AddEditScreen extends React.Component {
                 name: model.tagName,
                 imageUrl: 'https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/Mars/Products/' + model.tagName.toLocaleLowerCase() + '.jpg'
             };
+
+            this.setState({
+                selectedTag: selectedTag
+            });
         }
-        console.log('selectedTag: ', selectedTag);
+    }
+
+    render() {
+        const { 
+            mainContainer, 
+            labelContainer, 
+            imageThumbnail, 
+            button, 
+            buttonLabel,
+            tagContainer, 
+            tagLabel, 
+            line 
+        } = this.styles;
 
         let imageWithRegionsComponent;
-        if (data) {
+        if (this.state.imageSource && this.state.data) {
             imageWithRegionsComponent = (
                 <ImageWithRegions ref='imageWithRegions'
                     mode='edit'
-                    imageSource={imageSource}
-                    regions={data}
-                    editableRegions={selectedRegions}
+                    imageSource={this.state.imageSource}
+                    regions={this.state.data}
+                    editableRegions={this.state.selectedRegions}
                 />
             );
+        }
+
+        let selectedTagComponent;
+        if (this.state.selectedTag) {
+            let tag = this.state.selectedTag;
+            selectedTagComponent = 
+                <View style={{ flexDirection: 'row'}}>
+                    <View style={{ padding: 10 }}>
+                        { tag.name.toLocaleLowerCase() != 'product' && tag.name.toLocaleLowerCase() != 'gap' &&
+                            <Image style={imageThumbnail} source={{ uri: tag.imageUrl }} />
+                        }
+                        { tag.name.toLocaleLowerCase() == 'product' &&
+                            <Image style={imageThumbnail} source={require('../assets/product.jpg')} />
+                        }
+                        { tag.name.toLocaleLowerCase() == 'gap' &&
+                            <Image style={imageThumbnail} source={require('../assets/gap.jpg')} />
+                        }
+                    </View>
+                    
+                    <View style={{ flex: 1 }}>
+                        <View style={tagContainer}>
+                            <Text numberOfLines={1} style={tagLabel}>{tag.name}</Text>
+                        </View>
+                        
+                        <View style={line}/>
+                    </View>
+                </View>
         }
 
         return (
@@ -49,36 +107,37 @@ class AddEditScreen extends React.Component {
                         <Text style={buttonLabel}>Choose new label</Text>
                     </TouchableOpacity>
 
-                    <View style={{ flexDirection: 'row'}}>
-                        <View style={{ padding: 10 }}>
-                            { selectedTag.name.toLocaleLowerCase() != 'product' && selectedTag.name.toLocaleLowerCase() != 'gap' &&
-                                <Image style={imageThumbnail} source={{ uri: selectedTag.imageUrl }} />
-                            }
-                            { selectedTag.name.toLocaleLowerCase() == 'product' &&
-                                <Image style={imageThumbnail} source={require('../assets/product.jpg')} />
-                            }
-                            { selectedTag.name.toLocaleLowerCase() == 'gap' &&
-                                <Image style={imageThumbnail} source={require('../assets/gap.jpg')} />
-                            }
-                        </View>
-                        
-                        <View style={{ flex: 1 }}>
-                            <View style={tagContainer}>
-                                <Text numberOfLines={1} style={tagLabel}>{selectedTag.name}</Text>
-                            </View>
-                            
-                            <View style={line}/>
-                        </View>
-                        
-                    </View>
+                    { selectedTagComponent }
                 </View>
             </View>
         );
     }
 
+    getTagCollection(tags) {
+        let tagCollection = [];
+        tags.forEach(t => {
+            tagCollection.push({
+                id: t.id,
+                name: t.name,
+                imageUrl: 'https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/Mars/Products/' + t.name.toLocaleLowerCase() + '.jpg'
+            });
+        });
+
+        return tagCollection;
+    }
+
     onChooseLabel() {
-        const { navigation } = this.props;
-        console.log('Choose new label');
+        const { navigate } = this.props.navigation;
+        navigate('TagCollection', { tags: this.state.tags, returnData: this.returnData.bind(this) });
+    }
+
+    returnData(selectedTag) {
+        this.state.selectedRegions.forEach(r => {
+            r.displayName = selectedTag.name,
+            r.model.tagId = selectedTag.id,
+            r.model.tagName = selectedTag.name
+        });
+        this.setState({ selectedTag: selectedTag });
     }
 
     styles = StyleSheet.create({

@@ -56,7 +56,8 @@ class ReviewScreen extends React.Component {
         
         this.setState({ 
             detectedObjects: detectedObjects,
-            specData: specData
+            specData: specData,
+            tags: tags
         });
     }
 
@@ -115,7 +116,12 @@ class ReviewScreen extends React.Component {
                                 let data = this.state.detectedObjects.filter((obj) => {
                                     return selectedIds.indexOf(obj.id) < 0;
                                 });
-                                navigate('AddEdit', { data: data, selectedRegions: selectedRegions, imageSource: this.state.imageSource });
+                                navigate('AddEdit', { 
+                                    data: data, 
+                                    selectedRegions: selectedRegions, 
+                                    tags: this.state.tags,
+                                    imageSource: this.state.imageSource 
+                                });
                             }} />
 
                         <Icon.Button name="trash-o" size={20} style={{ flex: 1 }}

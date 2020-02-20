@@ -2,7 +2,15 @@ import React, { Component } from 'react';
 import { Text, TouchableOpacity, Alert } from 'react-native';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
-import { InputScreen, ReviewScreen, ResultScreen, CameraScreen, AddEditScreen, TestScreen } from './src/views';
+import { 
+  InputScreen, 
+  ReviewScreen, 
+  ResultScreen, 
+  CameraScreen, 
+  AddEditScreen, 
+  TagCollectionScreen, 
+  TestScreen 
+} from './src/views';
 import Icon from 'react-native-vector-icons/EvilIcons';
 Icon.loadFont();
 
@@ -42,6 +50,10 @@ const MainNavigator = createStackNavigator({
         <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold' }}>Apply</Text>
       </TouchableOpacity>)
     }
+  },
+  TagCollection: {
+    screen: TagCollectionScreen,
+    navigationOptions: { title: 'Choose new label' }
   },
   Test: {
     screen: TestScreen,
