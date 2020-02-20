@@ -116,7 +116,13 @@ class EditableRegion extends React.Component {
 
     _handlePandResponderGrant = (event, gestureState, pointPosition) => {
         if (this.props.positionChange) {
-            this.props.positionChange(true);
+            const position = {
+                left: this.state.left,
+                top: this.state.top,
+                width: this.state.width,
+                height: this.state.height,
+            }
+            this.props.positionChange(true, position);
         }
 
         switch (pointPosition) {
@@ -143,7 +149,13 @@ class EditableRegion extends React.Component {
         let ySign = 1;
 
         if (this.props.positionChange) {
-            this.props.positionChange(false);
+            const position = {
+                left: this.state.left,
+                top: this.state.top,
+                width: this.state.width,
+                height: this.state.height,
+            }
+            this.props.positionChange(false, position);
         }
 
         switch (pointPosition) {

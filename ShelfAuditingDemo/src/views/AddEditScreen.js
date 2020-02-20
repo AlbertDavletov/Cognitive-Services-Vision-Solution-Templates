@@ -4,8 +4,7 @@ import {
     Image, 
     Text, 
     TouchableOpacity, 
-    StyleSheet, 
-    Alert 
+    StyleSheet,
 } from 'react-native';
 import { ImageWithRegions } from '../components/uikit';
 
@@ -17,7 +16,7 @@ class AddEditScreen extends React.Component {
             headerRight: () => (
                 <TouchableOpacity 
                     activeOpacity={0.6} 
-                    onPress={() => params.applyChanges()}
+                    onPress={() => params.applyChanges(navigation)}
                     style={{ padding: 4, marginRight: 10 }}>
                     <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold' }}>Apply</Text>
                 </TouchableOpacity>
@@ -84,7 +83,7 @@ class AddEditScreen extends React.Component {
         let imageWithRegionsComponent;
         if (this.state.imageSource && this.state.data) {
             imageWithRegionsComponent = (
-                <ImageWithRegions ref='imageWithRegions'
+                <ImageWithRegions ref='editableImageWithRegions'
                     mode='edit'
                     imageSource={this.state.imageSource}
                     regions={this.state.data}
@@ -163,8 +162,10 @@ class AddEditScreen extends React.Component {
         this.setState({ selectedTag: selectedTag });
     }
 
-    applyChanges() {
-        Alert.alert('Apply!');
+    applyChanges(navigation) {
+        const { params } = navigation.state;
+        navigation.state.params.addEditModeCallback(params.selectedRegions);
+        navigation.goBack();
     }
 
     styles = StyleSheet.create({

@@ -115,10 +115,7 @@ class ReviewScreen extends React.Component {
                         <Icon.Button name="bar-chart" size={20} style={{flex: 1}}
                             backgroundColor="transparent"
                             underlayColor="transparent"
-                            onPress={() => {
-                                const { navigate } = this.props.navigation;
-                                navigate('Result', { data: this.state.detectedObjects, specData: this.state.specData });
-                            }} 
+                            onPress={() => this.openResultView()} 
                         />
 
                         <Icon.Button name="plus" size={20} style={{flex: 1}}
@@ -126,7 +123,7 @@ class ReviewScreen extends React.Component {
                             underlayColor="transparent"
                             disabled={true}
                             color="gray"
-                            onPress={() => alert('Add product!')} />
+                            onPress={() => this.openAddEditMode('add')} />
 
                         <Icon.Button name="pencil" size={20} style={{flex: 1}}
                             ref='editRegionButton'
@@ -134,20 +131,7 @@ class ReviewScreen extends React.Component {
                             underlayColor="transparent"
                             disabled={this.state.editRegionButtonStyle.disabled}
                             color={this.state.editRegionButtonStyle.color}
-                            onPress={() => {
-                                const { navigate } = this.props.navigation;
-                                let selectedRegions = this.refs.imageWithRegions.getSelectedRegions();
-                                let selectedIds = selectedRegions.map(item => item.id);
-                                let data = this.state.detectedObjects.filter((obj) => {
-                                    return selectedIds.indexOf(obj.id) < 0;
-                                });
-                                navigate('AddEdit', { 
-                                    data: data, 
-                                    selectedRegions: selectedRegions, 
-                                    tags: this.state.tags,
-                                    imageSource: this.state.imageSource 
-                                });
-                            }} />
+                            onPress={() => this.openAddEditMode('edit')} />
 
                         <Icon.Button name="trash-o" size={20} style={{ flex: 1 }}
                             ref='removeRegionButton'
@@ -163,9 +147,7 @@ class ReviewScreen extends React.Component {
                             underlayColor="transparent"
                             disabled={this.state.clearRegionsButtonStyle.disabled}
                             color={this.state.clearRegionsButtonStyle.color}
-                            onPress={() => {
-                                this.refs.imageWithRegions.clearSelection();
-                            }} />
+                            onPress={() => this.refs.imageWithRegions.clearSelection()} />
                     </View>
                 }
 
@@ -270,6 +252,42 @@ class ReviewScreen extends React.Component {
 
     publishResults() {
         Alert.alert("Publish!");
+    }
+
+    openResultView() {
+        const { navigate } = this.props.navigation;
+        navigate('Result', { data: this.state.detectedObjects, specData: this.state.specData });
+    }
+
+    openAddEditMode(mode) {
+        const { navigate } = this.props.navigation;
+        let selectedRegions = this.refs.imageWithRegions.getSelectedRegions();
+        let selectedIds = selectedRegions.map(item => item.id);
+        let data = [];
+        this.state.detectedObjects.forEach((obj) => {
+            if (selectedIds.indexOf(obj.id) < 0) {
+                let copy = JSON.parse(JSON.stringify(obj));
+                data.push(copy);
+            }
+        });
+        navigate('AddEdit', { 
+            data: data, 
+            selectedRegions: selectedRegions, 
+            tags: this.state.tags,
+            imageSource: this.state.imageSource,
+            addEditModeCallback: this.addEditModeCallback.bind(this)
+        });
+    }
+
+    addEditModeCallback(updatedRegions) {
+        updatedRegions.forEach((region, ind) => {
+            this.state.detectedObjects.forEach((obj, ind) => {
+                if (obj.id == region.id) {
+                    this.state.detectedObjects[ind] = region;
+                }
+            });
+        });
+        this.refs.imageWithRegions.forceUpdate();
     }
 
     styles = StyleSheet.create({

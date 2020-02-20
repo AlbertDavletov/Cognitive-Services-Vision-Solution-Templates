@@ -91,7 +91,7 @@ class ImageWithRegions extends React.Component {
         let enable = this.state.regions && this.state.imageWidth && this.state.imageHeight;
 
         if (enable) {
-
+            
             component = this.state.regions.map((obj, ind) => {
                 const model = obj.model;
                 const imageWidth = this.state.imageWidth;
@@ -115,7 +115,7 @@ class ImageWithRegions extends React.Component {
                                 <ObjectRegion 
                                     position={{ width: w, height: h }} 
                                     data={{
-                                        color: Util.GetObjectRegionColor(obj.model),
+                                        color: Util.GetObjectRegionColor(model),
                                         state: state, 
                                         title: obj.displayName,
                                         product: obj,
@@ -151,7 +151,13 @@ class ImageWithRegions extends React.Component {
                                     title: obj.displayName,
                                     product: obj,
                                 }}
-                                positionChange={(change) => {
+                                positionChange={(change, position) => {
+                                    obj.model.boundingBox = {
+                                        left: position.left / imageWidth,
+                                        top: position.top / imageHeight,
+                                        width: position.width / imageWidth,
+                                        height: position.height / imageHeight
+                                    }
                                     this.setState({ enableZoom: !change });
                                 }}
                             />;
@@ -227,8 +233,12 @@ class ImageWithRegions extends React.Component {
 
     getSelectedRegions() {
         let selectedRegions = this.state.selectedRegions;
-        const selected = this.state.regions.filter(function(region) {
-            return selectedRegions[region.id] == RegionState.Selected;
+        let selected = [];
+        this.state.regions.forEach((region) => {
+            if (selectedRegions[region.id] == RegionState.Selected) {
+                let copy = JSON.parse(JSON.stringify(region));
+                selected.push(copy);
+            }
         });
         return selected;
     }
