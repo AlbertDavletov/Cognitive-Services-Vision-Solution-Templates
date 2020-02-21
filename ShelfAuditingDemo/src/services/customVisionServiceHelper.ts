@@ -1,21 +1,15 @@
 import RNFetchBlob from 'rn-fetch-blob';
 
 export default class CustomVisionService {
-    constructor() {
-        this.BaseURL = '<ENDPOINT>';
-        this.ApiKey = '<KEY>';
-        this.MaxRegionsInBatch = 64;
-        this.RetryCountOnQuotaLimitError = 6;
-        this.RetryDelayOnQuotaLimitError = 500;
-    }
+    private readonly BaseURL = '<ENPOINT>';
+    private readonly ApiKey = '<KEY>';
 
-    async getTagsAsync(projectId) {
+    async getTagsAsync(projectId: string) {
         const url = this.BaseURL + 'training/projects/' + projectId + '/tags';
         return fetch(url,
             {
                 method: 'GET',
                 headers: {
-                  'Training-Key': '',
                   'Training-Key': this.ApiKey
                 }
             })
@@ -28,13 +22,12 @@ export default class CustomVisionService {
             });
     }
 
-    async getIterationsAsync(projectId) {
+    async getIterationsAsync(projectId: string) {
         const url = this.BaseURL + 'training/projects/' + projectId + '/iterations';
         return fetch(url,
             {
                 method: 'GET',
                 headers: {
-                  'Training-Key': '',
                   'Training-Key': this.ApiKey
                 }
             })
@@ -47,12 +40,7 @@ export default class CustomVisionService {
             });
     }
 
-    async analyzeImageAsync(projectId) {
-        const iteractions = await getIterationsAsync(projectId);
-
-    }
-
-    async detectImageFromFile(projectId, publishedName, file) {
+    async detectImageFromFile(projectId: string, publishedName: string, file: File) {
         const url = this.BaseURL + 'prediction/' + projectId + '/detect/iterations/' + publishedName + '/image';
 
         return RNFetchBlob.fetch('POST', url, {
@@ -66,11 +54,11 @@ export default class CustomVisionService {
             return responseJson;
         })
         .catch((err) => {
-            console.error(error);
+            console.error(err);
         });
     }
 
-    async detectImageFromCameraPicture(projectId, publishedName, picture) {
+    async detectImageFromCameraPicture(projectId: string, publishedName: string, picture: any) {
         const url = this.BaseURL + 'prediction/' + projectId + '/detect/iterations/' + publishedName + '/image';
         let file = RNFetchBlob.wrap(picture.uri.split('//')[1]);
 
@@ -85,13 +73,11 @@ export default class CustomVisionService {
             return responseJson;
         })
         .catch((err) => {
-            console.error(error);
+            console.error(err);
         });
     }
 
-    async detectImageUrl(projectId, publishedName, imageUrl){
-        // let data = new FormData();
-        // data.append('', file, 'image.jpg');
+    async detectImageUrl(projectId: string, publishedName: string, imageUrl: string) {
         const url = this.BaseURL + 'prediction/' + projectId + '/detect/iterations/' + publishedName + '/url';
         return fetch(url, {
             method: 'POST',

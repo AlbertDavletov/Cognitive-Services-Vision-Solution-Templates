@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react'
+import { Component } from 'react'
 import { View, Image, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { SearchBar } from 'react-native-elements';
 

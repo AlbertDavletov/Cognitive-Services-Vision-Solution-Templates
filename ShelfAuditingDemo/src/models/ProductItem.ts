@@ -1,7 +1,11 @@
-import uuid from 'uuid';
+import uuid from 'uuid'
 
-class ProductItem {
-    constructor(detectedObj) {
+export class ProductItem {
+    id: string;
+    displayName: string;
+    model: any;
+
+    constructor(detectedObj: any) {
         let newGuid = uuid.v4();
         
         this.id = newGuid;
@@ -9,5 +13,3 @@ class ProductItem {
         this.model = detectedObj;
     }
 }
-
-export { ProductItem };

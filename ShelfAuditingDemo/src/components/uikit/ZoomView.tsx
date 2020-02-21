@@ -1,13 +1,22 @@
-import React, { Component } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { PinchGestureHandler, State } from 'react-native-gesture-handler';
+import React from 'react'
+import { View, StyleSheet } from 'react-native'
+import { 
+    PinchGestureHandler, 
+    State, 
+    PinchGestureHandlerGestureEvent, 
+    PinchGestureHandlerStateChangeEvent 
+} from 'react-native-gesture-handler'
 import { width, height } from '../../../constants'
 
-class ZoomView extends React.Component {
-    constructor(props) {
+interface ZoomViewProps {
+    onPinchEnd: Function;
+    onPinchStart: Function;
+    onPinchProgress: Function;
+}
+
+export class ZoomView extends React.Component<ZoomViewProps, {}> {
+    constructor(props: ZoomViewProps) {
         super(props);
-        this.state = {
-        };
     }
 
     render() {
@@ -24,11 +33,11 @@ class ZoomView extends React.Component {
         );
     }
 
-    onGesturePinch = ({ nativeEvent }) => {
-        this.props.onPinchProgress(nativeEvent.scale)
+    onGesturePinch = (event: PinchGestureHandlerGestureEvent ) => {
+        this.props.onPinchProgress(event.nativeEvent.scale)
     }
 
-    onPinchHandlerStateChange = (event) => {
+    onPinchHandlerStateChange = (event: PinchGestureHandlerStateChangeEvent) => {
         const pinch_end = event.nativeEvent.state === State.END
         const pinch_begin = event.nativeEvent.oldState === State.BEGAN
         const pinch_active = event.nativeEvent.state === State.ACTIVE
@@ -47,5 +56,3 @@ class ZoomView extends React.Component {
         },
     })
 }
-
-export { ZoomView };

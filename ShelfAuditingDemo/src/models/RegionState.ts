@@ -1,4 +1,4 @@
-const RegionState = {
+export const RegionState = {
     Active: 'active',
     Edit: 'edit',
     Disabled: 'disabled',
@@ -6,5 +6,3 @@ const RegionState = {
     SelectedWithNotification: 'selectedWithNotification',
     LowConfidence: 'lowConfidence',
 }
-
-export { RegionState };

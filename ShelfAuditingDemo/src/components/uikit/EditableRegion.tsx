@@ -1,17 +1,51 @@
-import React, { Component } from 'react';
-import { View, Text, PanResponder, StyleSheet } from 'react-native';
+import React from 'react'
+import { 
+    View, 
+    Text, 
+    PanResponder, 
+    StyleSheet, 
+    PanResponderInstance, 
+    GestureResponderEvent, 
+    PanResponderGestureState 
+} from 'react-native'
 
 const CircleSize = 24;
 
-const PointPosition = {
-    TopLeft: 'top-left',
-    TopRight: 'top-right',
-    BottomRight: 'bottom-right',
-    BottomLeft: 'bottom-left'
+enum PointPosition {
+    TopLeft,
+    TopRight,
+    BottomRight,
+    BottomLeft
 }
 
-class EditableRegion extends React.Component {
-    constructor(props) {
+interface RegionProps {
+    position: any;
+    data: any;
+    positionChange: Function;
+}
+
+interface RegionState {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    topLeftPressed: boolean;
+    topRightPressed: boolean;
+    bottomRightPressed: boolean;
+    bottomLeftPressed: boolean;
+}
+
+export class EditableRegion extends React.Component<RegionProps, RegionState> {
+    private _originalLeft: number;
+    private _originalTop: number;
+    private _originalWidth: number;
+    private _originalHeight: number;
+    private topLeftPanResponder: PanResponderInstance;
+    private topRightPanResponder: PanResponderInstance;
+    private bottomRightPanResponder: PanResponderInstance;
+    private bottomLeftPanResponder: PanResponderInstance;
+
+    constructor(props: RegionProps) {
         super(props);
         const { position } = props;
 
@@ -64,7 +98,7 @@ class EditableRegion extends React.Component {
         return component;
     }
 
-    _handlePanResponderMove = (event, gestureState, pointPosition) => {
+    _handlePanResponderMove = (event: GestureResponderEvent, gestureState: PanResponderGestureState, pointPosition: PointPosition) => {
         let xSign, ySign;
 
         switch (pointPosition) {
@@ -114,7 +148,7 @@ class EditableRegion extends React.Component {
         }
     };
 
-    _handlePandResponderGrant = (event, gestureState, pointPosition) => {
+    _handlePandResponderGrant = (event: GestureResponderEvent, gestureState: PanResponderGestureState, pointPosition: PointPosition) => {
         if (this.props.positionChange) {
             const position = {
                 left: this.state.left,
@@ -144,7 +178,7 @@ class EditableRegion extends React.Component {
         }
     }
 
-    _handlePanResponderEnd = (event, gestureState, pointPosition) => {
+    _handlePanResponderEnd = (event: GestureResponderEvent, gestureState: PanResponderGestureState, pointPosition: PointPosition) => {
         let xSign = 1;
         let ySign = 1;
 
@@ -195,7 +229,7 @@ class EditableRegion extends React.Component {
         this._originalHeight += ySign * gestureState.dy;
     };
 
-    getPanResponder(pointPosition) {
+    getPanResponder(pointPosition: PointPosition) {
         return PanResponder.create({
             onStartShouldSetPanResponder: (event, gestureState) => { return true; },
             onMoveShouldSetPanResponder: (event, gestureState) => { return true; },
@@ -216,7 +250,6 @@ const styles = StyleSheet.create({
         borderRadius: CircleSize / 2,
       },
     selectedRegion: {
-        //position: 'absolute',
         flex: 1,
         borderWidth: 2,
         backgroundColor: 'transparent',
@@ -237,5 +270,3 @@ const styles = StyleSheet.create({
         padding: 4
     },
 })
-
-export { EditableRegion };

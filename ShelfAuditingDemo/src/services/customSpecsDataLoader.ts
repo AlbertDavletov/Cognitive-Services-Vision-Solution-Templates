@@ -1,6 +1,9 @@
 import localdata from '../assets/specsData.json';
 
 export default class CustomSpecsDataLoader {
+    private specsDataFileName: string;
+    private specsDataUrl: string;
+    
     constructor() {
         this.specsDataFileName = "../assets/specsData.json";
         this.specsDataUrl = "https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/specsData.json";

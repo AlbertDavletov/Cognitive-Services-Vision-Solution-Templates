@@ -1,8 +1,12 @@
-import React, { Component } from 'react';
-import { Text, View, Image, FlatList, TouchableHighlight, StyleSheet } from 'react-native';
+import React from 'react'
+import { Text, View, Image, FlatList, TouchableHighlight, StyleSheet } from 'react-native'
+import { TableData } from '../../models'
 
+interface TableProps {
+    data: Array<TableData>;
+}
 
-const ResultTable = (params) => {
+const ResultTable = (params: TableProps) => {
     const { container, tableHeader, text, headerLine, rowLine, imageThumbnail } = styles;
     let tableData = params.data ?? [];
   

@@ -1,24 +1,43 @@
-import React, { Component } from 'react';
-import { View, Text, Image, ImageBackground, TouchableOpacity, Animated, StyleSheet, Alert } from 'react-native';
+import React from 'react'
+import { Component } from 'react'
+import { View, Text, Image, ImageBackground, TouchableOpacity, Animated, StyleSheet, Alert, LayoutChangeEvent } from 'react-native';
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import { Util } from '../../../Util';
 import { RegionState } from '../../models';
 import { ObjectRegion, EditableRegion } from './';
 
-class ImageWithRegions extends React.Component {
-    constructor(props) {
+interface ImageProps {
+    imageSource: any;
+    mode: string;
+    regions: Array<any>;
+    editableRegions: Array<any>;
+    selectionChanged: Function;
+}
+  
+interface ImageState {
+    imageDimWidth: number,
+    imageDimHeight: number,
+    imageWidth: number,
+    imageHeight: number,
+    predictions: [],
+    editableRegions: [],
+    selectedRegions: Array<any>,
+    zoomLevel: number,
+    enableZoom: boolean,
+}
+
+export class ImageWithRegions extends React.Component<ImageProps, ImageState>  {
+    constructor(props: ImageProps) {
         super(props);
         this.state = {
-            imageDimWidth: undefined,
-            imageDimHeight: undefined,
+            imageDimWidth: 0,
+            imageDimHeight: 0,
+            imageWidth: 0,
+            imageHeight: 0,
             predictions: [],
             editableRegions: [],
-            selectedRegions: {},
+            selectedRegions: Array<any>(),
             zoomLevel: 1,
-            zoomOffsetX: 0,
-            zoomOffsetY: 0,
-            distanceLeft: 0,
-            distanceTop: 0,
             enableZoom: true,
         };
 
@@ -27,25 +46,18 @@ class ImageWithRegions extends React.Component {
     }
 
     componentDidMount() {
-        const { imageSource, regions, editableRegions } = this.props;
-        Image.getSize(imageSource, (width, height) => {
+        const { imageSource} = this.props;
+        Image.getSize(imageSource, (width: number, height: number) => {
             this.setState({
                 imageDimWidth: width,
                 imageDimHeight: height
             });
-        });
-
-        if (regions) {
-            this.setState({ 
-                regions: regions,
-                editableRegions: editableRegions
-            });
-        }
+        }, (error) => { console.log('Image getSize() error: ', error) });
     }
 
     render() {
-        const { imageContainer, canvasContainer, h1, image } = this.styles;
-        const { imageSource, mode } = this.props;
+        const { imageContainer, canvasContainer, image } = this.styles;
+        const { imageSource, mode, regions, editableRegions } = this.props;
 
         return (
             <View style={imageContainer}>
@@ -65,16 +77,16 @@ class ImageWithRegions extends React.Component {
                                 { translateY: 0 }
                             ] 
                         }]}
-                        onLayout={(event) => this.handleImageLayout(event)}
+                        onLayout={(event: LayoutChangeEvent) => this.handleImageLayout(event)}
                         resizeMode={'contain'}
                         source={{uri: imageSource}}>
 
                         <View style={[canvasContainer, { width: this.state.imageWidth, height: this.state.imageHeight}]}>
-                            {this.getImageWithRegionsComponent(mode)}
+                            {this.getImageWithRegionsComponent(mode, regions)}
 
                             {mode == 'edit' && 
                                 <View style={{ width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.7)', overflow: 'hidden', zIndex: 20 }}>                                     
-                                    {this.getImageWithEditableRegionsComponent()}
+                                    {this.getImageWithEditableRegionsComponent(editableRegions)}
                                 </View>
                             }
                             
@@ -86,13 +98,13 @@ class ImageWithRegions extends React.Component {
         );
     }
 
-    getImageWithRegionsComponent(mode) {
+    getImageWithRegionsComponent(mode: string, regions: Array<any>) {
         let component; 
-        let enable = this.state.regions && this.state.imageWidth && this.state.imageHeight;
+        let enable = regions && this.state.imageWidth && this.state.imageHeight;
 
         if (enable) {
             
-            component = this.state.regions.map((obj, ind) => {
+            component = regions.map((obj, ind) => {
                 const model = obj.model;
                 const imageWidth = this.state.imageWidth;
                 const imageHeight = this.state.imageHeight;
@@ -129,12 +141,12 @@ class ImageWithRegions extends React.Component {
         return component;
     }
 
-    getImageWithEditableRegionsComponent() {
+    getImageWithEditableRegionsComponent(regions: Array<any>) {
         let component; 
-        let enable = this.state.regions && this.state.imageWidth && this.state.imageHeight;
+        let enable = regions && this.state.imageWidth && this.state.imageHeight;
 
         if (enable) {
-            component = this.state.editableRegions.map((obj, ind) => {
+            component = regions.map((obj, ind) => {
                 const model = obj.model;
                 const imageWidth = this.state.imageWidth;
                 const imageHeight = this.state.imageHeight;
@@ -151,7 +163,7 @@ class ImageWithRegions extends React.Component {
                                     title: obj.displayName,
                                     product: obj,
                                 }}
-                                positionChange={(change, position) => {
+                                positionChange={(change: boolean, position: any) => {
                                     obj.model.boundingBox = {
                                         left: position.left / imageWidth,
                                         top: position.top / imageHeight,
@@ -169,15 +181,11 @@ class ImageWithRegions extends React.Component {
     }
 
     // event handlers
-    handleImageLayout(event) {
+    handleImageLayout(event: LayoutChangeEvent) {
         const containerHeight = event.nativeEvent.layout.height;
         const containerWidth = event.nativeEvent.layout.width;
-        this.setState({
-            imageContainerWidth: containerWidth,
-            imageContainerHeight: containerHeight
-        });
 
-        Image.getSize(this.props.imageSource, (width, height) => {
+        Image.getSize(this.props.imageSource, (width: number, height: number) => {
 
             const dimWidth = width;
             const dimHeight = height;
@@ -190,14 +198,14 @@ class ImageWithRegions extends React.Component {
                 imageHeight: newImageHeight
             });
             this.forceUpdate();
-        });
+        }, (error) => { console.log('Image getSize() error: ', error) });
     }
 
-    onRegionSelected(region) {
+    onRegionSelected(region: any) {
         let state = this.state.selectedRegions[region.id];
 
         if (state != RegionState.Disabled) {
-            this.setState(prevState => ({
+            this.setState((prevState: any) => ({
                 selectedRegions : {
                     ...prevState.selectedRegions,
                     [region.id]: state == RegionState.Selected ? RegionState.Active : RegionState.Selected
@@ -225,7 +233,7 @@ class ImageWithRegions extends React.Component {
         this.onSelectionChanged(0);
     }
 
-    onSelectionChanged(selectedCount) {
+    onSelectionChanged(selectedCount: number) {
         if (this.props.selectionChanged) {
             this.props.selectionChanged(selectedCount);
         }
@@ -233,8 +241,8 @@ class ImageWithRegions extends React.Component {
 
     getSelectedRegions() {
         let selectedRegions = this.state.selectedRegions;
-        let selected = [];
-        this.state.regions.forEach((region) => {
+        let selected = Array<any>();
+        this.props.regions.forEach((region) => {
             if (selectedRegions[region.id] == RegionState.Selected) {
                 let copy = JSON.parse(JSON.stringify(region));
                 selected.push(copy);
@@ -259,11 +267,5 @@ class ImageWithRegions extends React.Component {
         canvasContainer: {
             alignSelf: 'center'
         },
-        h1: {
-            color: 'white',
-            fontSize: 15,
-        },
     })
-}
-
-export { ImageWithRegions };
+};

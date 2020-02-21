@@ -1,20 +1,36 @@
-import React, { Component } from 'react';
-import { View, Platform, TouchableOpacity, StyleSheet } from 'react-native';
-import { RNCamera } from 'react-native-camera';
-import CustomVisionService from '../services/customVisionServiceHelper';
-import { ZoomView } from '../components/uikit';
+import React from 'react'
+import { View, Platform, TouchableOpacity, StyleSheet } from 'react-native'
+import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
+import { RNCamera } from 'react-native-camera'
+import { ZoomView } from '../components/uikit'
 
 const MAX_ZOOM = 7; // iOS only
 const ZOOM_F = Platform.OS === 'ios' ? 0.007 : 0.08;
 
-class CameraScreen extends React.Component {
-    constructor(props) {
+interface CameraProps {
+    navigation: NavigationScreenProp<NavigationState, NavigationParams>;
+}
+
+interface CameraState {
+    zoom: number;
+    isCameraVisible: boolean;
+    specData: any;
+}
+
+export class CameraScreen extends React.Component<CameraProps, CameraState> {
+    private camera: any;
+    private _prevPinch: number;
+
+
+    constructor(props: CameraProps) {
         super(props);
-        this.customVisionService = new CustomVisionService();
         this.state = {
             zoom: 0.0,
-            isCameraVisible: false
+            isCameraVisible: false,
+            specData: {}
         }
+
+        this._prevPinch = 1;
     }
 
     componentDidMount() {
@@ -89,7 +105,6 @@ class CameraScreen extends React.Component {
                         {verticalLines}
 
                         {cameraControls}
-
                     </ZoomView>
 
                 </RNCamera>
@@ -97,7 +112,7 @@ class CameraScreen extends React.Component {
         );
     }
 
-    takePicture = async() => {
+    async takePicture() {
         if (this.camera) {
             const { navigate } = this.props.navigation;
             
@@ -115,11 +130,11 @@ class CameraScreen extends React.Component {
         this._prevPinch = 1;
     }
     
-     onPinchEnd = () => {
+    onPinchEnd = () => {
         this._prevPinch = 1;
-     }
+    }
     
-    onPinchProgress = (p) => {
+    onPinchProgress = (p: number) => {
         let p2 = p - this._prevPinch;
         if (p2 > 0 && p2 > ZOOM_F) {
           this._prevPinch = p;
@@ -188,5 +203,3 @@ class CameraScreen extends React.Component {
         }
     })
 }
-
-export { CameraScreen };

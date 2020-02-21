@@ -1,12 +1,13 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, } from 'react-native';
-import { CoverageChart, ResultTable } from '../components/uikit';
+import React from 'react'
+import { View, Text, StyleSheet, } from 'react-native'
+import { CoverageChart, ResultTable } from '../components/uikit'
+import { TableData } from '../models'
 
 class ResultScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            tableData: [],
+            tableData: Array<TableData>(),
             chartData: {
                 totalItems: 0,
                 taggedProductArea: 0,
@@ -90,7 +91,7 @@ class ResultScreen extends React.Component {
         const groupByName = this.groupBy('displayName');
         let tagsByName = groupByName(data);
 
-        let tableData = [];
+        let tableData = Array<TableData>();
         for (let name in tagsByName) {
             let products = tagsByName[name];
             let totalCount = products.length;

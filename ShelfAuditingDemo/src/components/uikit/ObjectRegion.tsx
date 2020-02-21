@@ -1,9 +1,14 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { RegionState } from '../../models';
-import { Util } from '../../../Util';
+import React from 'react'
+import { View, Text, StyleSheet } from 'react-native'
+import { RegionState } from '../../models'
+import { Util } from '../../../Util'
 
-const ObjectRegion = (params) => {
+interface RegionProps {
+    position: any;
+    data: any;
+}
+
+export const ObjectRegion = (params: RegionProps) => {
     const { 
         activeRegion, 
         selectedRegion, selectedRegionLabelPanel, selectedRegionLabel, 
@@ -93,5 +98,3 @@ const styles = StyleSheet.create({
         alignSelf: 'center'
     }
 })
-
-export { ObjectRegion };

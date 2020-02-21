@@ -1,14 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react'
 import { 
     View, 
-    Text, 
-    Image, 
-    Animated, 
+    Text,
     TouchableOpacity,
     StyleSheet, 
     Alert 
 } from 'react-native';
-import { PinchGestureHandler, State } from 'react-native-gesture-handler'
 import { width, height } from '../../constants';
 
 class TestScreen extends React.Component {
@@ -42,37 +39,14 @@ class TestScreen extends React.Component {
         const { mainContainer } = this.styles;
 
         return (
-            <View style={{ flex: 1 }}>
-                    <Image style={{ flex: 1, width: null, height: '100%' }}
-                        source={{ uri: 'https://miro.medium.com/max/1080/1*7SYuZvH2pZnM0H79V4ttPg.jpeg' }}
-                        resizeMode="contain" 
-                        transform={[{ scale: this.state.scale}]}/>
+            <View style={mainContainer}>
+                <Text>Test page</Text>
             </View>
         );
     }
 
     testApply() {
-        Alert.alert('testApply!')
-    }
-
-    onZoomEvent = Animated.event(
-        [
-            {
-                nativeEvent: { scale: this.scale }
-            }
-        ],
-        {
-            useNativeDriver: true
-        }
-    )
-
-    onZoomStateChange = event => {
-        if (event.nativeEvent.oldState === State.ACTIVE) {
-            Animated.spring(this.scale, {
-                toValue: 1,
-                useNativeDriver: true
-            }).start()
-        }
+        Alert.alert('Apply - test!')
     }
 
     styles = StyleSheet.create({
