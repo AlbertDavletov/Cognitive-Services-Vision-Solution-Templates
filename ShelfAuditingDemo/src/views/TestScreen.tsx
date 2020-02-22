@@ -5,16 +5,25 @@ import {
     TouchableOpacity,
     StyleSheet, 
     Alert 
-} from 'react-native';
-import { width, height } from '../../constants';
+} from 'react-native'
+import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
+import { width, height } from '../../constants'
 
-class TestScreen extends React.Component {
-    static navigationOptions = ({ navigation }) => {
+interface TestScreenProps {
+    navigation: NavigationScreenProp<NavigationState, NavigationParams>;
+}
+
+export class TestScreen extends React.Component<TestScreenProps, {}> {
+    static navigationOptions = ({ navigation } : { navigation : NavigationScreenProp<NavigationState,NavigationParams> }) => {
         const { params } = navigation.state;
         return { 
             title: 'Test page',
             headerRight: () => (
-                <TouchableOpacity activeOpacity={0.6} onPress={() => params.testApply()}
+                <TouchableOpacity activeOpacity={0.6} onPress={() => {
+                    if (params?.testApply) {
+                        params.testApply();
+                    }
+                }}
                     style={{ padding: 4, marginRight: 10 }}>
                     <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold' }}>Apply</Text>
                 </TouchableOpacity>
@@ -22,12 +31,8 @@ class TestScreen extends React.Component {
         }
     }
 
-    constructor(props) {
+    constructor(props: TestScreenProps) {
         super(props);
-
-        this.state = {
-            scale: 1
-        };
     }
 
     componentDidMount() {
@@ -55,5 +60,3 @@ class TestScreen extends React.Component {
         },
     })
 }
-
-export { TestScreen };

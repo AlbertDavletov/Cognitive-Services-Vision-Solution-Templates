@@ -1,17 +1,16 @@
 import React from 'react'
-import { Component } from 'react'
-import { View, Text, Image, ImageBackground, TouchableOpacity, Animated, StyleSheet, Alert, LayoutChangeEvent } from 'react-native';
-import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
-import { Util } from '../../../Util';
-import { RegionState } from '../../models';
-import { ObjectRegion, EditableRegion } from './';
+import { View, Image, ImageBackground, TouchableOpacity, StyleSheet, LayoutChangeEvent } from 'react-native'
+import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView'
+import { ObjectRegion, EditableRegion } from './'
+import { RegionState } from '../../models'
+import { Util } from '../../../Util'
 
 interface ImageProps {
     imageSource: any;
     mode: string;
     regions: Array<any>;
-    editableRegions: Array<any>;
-    selectionChanged: Function;
+    editableRegions?: Array<any>;
+    selectionChanged?: Function;
 }
   
 interface ImageState {
@@ -141,11 +140,11 @@ export class ImageWithRegions extends React.Component<ImageProps, ImageState>  {
         return component;
     }
 
-    getImageWithEditableRegionsComponent(regions: Array<any>) {
+    getImageWithEditableRegionsComponent(regions?: Array<any>) {
         let component; 
         let enable = regions && this.state.imageWidth && this.state.imageHeight;
 
-        if (enable) {
+        if (enable && regions) {
             component = regions.map((obj, ind) => {
                 const model = obj.model;
                 const imageWidth = this.state.imageWidth;

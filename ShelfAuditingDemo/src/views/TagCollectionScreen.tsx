@@ -1,11 +1,20 @@
 import React from 'react'
-import { Component } from 'react'
-import { View, Image, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
-import { SearchBar } from 'react-native-elements';
+import { View, Image, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native'
+import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
+import { SearchBar } from 'react-native-elements'
 
-class TagCollectionScreen extends React.Component {
+interface TagCollectionScreenProps {
+    navigation: NavigationScreenProp<NavigationState, NavigationParams>;
+}
 
-    constructor(props) {
+interface TagCollectionScreenState {
+    filter: string;
+    allTags: Array<any>;
+    filterTags: Array<any>;
+}
+
+export class TagCollectionScreen extends React.Component<TagCollectionScreenProps, TagCollectionScreenState> {
+    constructor(props: TagCollectionScreenProps) {
         super(props);
         this.state = {
             filter: '',
@@ -76,19 +85,21 @@ class TagCollectionScreen extends React.Component {
         );
     }
 
-    selectTag(tag) {
-        const { navigation } = this.props;        
-        navigation.state.params.returnData(tag);
-        navigation.goBack();
+    selectTag(tag: any) {
+        const { navigation } = this.props;
+        if (navigation.state?.params?.returnData) {
+            navigation.state.params.returnData(tag);
+            navigation.goBack();
+        }
     }
 
-    updateSearchFilter = (filter) => {
+    updateSearchFilter = (filter: string) => {
         let allTags = this.state.allTags;
         
         if (!filter) {
             this.setState({ filterTags: allTags });
         } else {
-            let filterData = [];
+            let filterData = Array<any>();
             allTags.forEach(t => {
                 let tagName = t.name.toLocaleLowerCase();
                 if (tagName.includes(filter.toLocaleLowerCase())) {
@@ -144,5 +155,3 @@ class TagCollectionScreen extends React.Component {
         }
     })
 }
-
-export { TagCollectionScreen };

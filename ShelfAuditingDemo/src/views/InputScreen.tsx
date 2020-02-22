@@ -1,5 +1,4 @@
 import React from 'react'
-import { Component } from 'react'
 import { 
     View, 
     Text, 
@@ -10,12 +9,25 @@ import {
     StyleSheet, 
     Alert 
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import CustomSpecsDataLoader from '../services/customSpecsDataLoader';
-Icon.loadFont();
+import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import { SpecData } from '../models';
+import CustomSpecsDataLoader from '../services/customSpecsDataLoader'
+Icon.loadFont()
 
-export class InputScreen extends React.Component {
-    static navigationOptions = ({ navigation }) => {
+interface InputScreenProps {
+    navigation: NavigationScreenProp<NavigationState, NavigationParams>;
+}
+
+interface InputScreenState {
+    specsData: Array<SpecData>;
+    selectedSpecId: string;
+    selectedSpec?: SpecData;
+    suggestedImages: Array<any>;
+}
+
+export class InputScreen extends React.Component<InputScreenProps, InputScreenState> {
+    static navigationOptions = ({ navigation } : { navigation : NavigationScreenProp<NavigationState,NavigationParams> }) => {
         const { params } = navigation.state;
         return { 
             title: 'Shelf Audit',
@@ -25,19 +37,26 @@ export class InputScreen extends React.Component {
                     underlayColor="transparent"
                     disabled={true}
                     color="gray"
-                    onPress={() => params.openSettings()} />
+                    onPress={() => { 
+                        if (params?.openSettings) {
+                            params.openSettings();
+                        }
+                    }} 
+                />
             )
         }
     }
 
-    constructor(props) {
+    customSpecsDataLoader: CustomSpecsDataLoader;
+
+    constructor(props: InputScreenProps) {
         super(props);
 
         this.customSpecsDataLoader = new CustomSpecsDataLoader();
         this.state = { 
-            specsData: [],
+            specsData: Array<SpecData>(),
             selectedSpecId: '',
-            selectedSpec: {},
+            selectedSpec: undefined,
             suggestedImages: []
         };
 
@@ -91,7 +110,7 @@ export class InputScreen extends React.Component {
 
                             this.state.specsData.forEach(obj => {
                                 if (obj.Id == itemValue) {
-                                    let items = obj.SampleImages.map((v, i) => {
+                                    let items = obj.SampleImages.map((v: any, i: number) => {
                                         return { id: i, src: v };
                                     });
                                     this.setState({ 
@@ -138,7 +157,7 @@ export class InputScreen extends React.Component {
                         )}
                         //Setting the number of column
                         numColumns={2}
-                        keyExtractor={(item, index) => index}
+                        keyExtractor={(item, index) => index.toString()}
                     />
                 </View>
             </View>
@@ -146,7 +165,7 @@ export class InputScreen extends React.Component {
         return mainView;
     }
 
-    handleImageClick(image) {
+    handleImageClick(image: any) {
         const { navigate } = this.props.navigation;
         navigate('Review', {image: image, selectedSpec: this.state.selectedSpec});
     }

@@ -1,34 +1,48 @@
 import React from 'react'
 import { View, Text, StyleSheet, } from 'react-native'
+import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
 import { CoverageChart, ResultTable } from '../components/uikit'
-import { TableData } from '../models'
+import { TableData, ProductItem, SpecData, SpecItem } from '../models'
 
-class ResultScreen extends React.Component {
-    constructor(props) {
+interface ResultScreenProps {
+    navigation: NavigationScreenProp<NavigationState, NavigationParams>;
+}
+
+interface ResultScreenState {
+    tableData: Array<TableData>;
+    chartData: {
+        totalItems: string,
+        taggedProductArea: string,
+        unknownProductArea: string,
+        shelfGapArea: string
+    }
+}
+
+export class ResultScreen extends React.Component<ResultScreenProps, ResultScreenState> {
+    constructor(props: ResultScreenProps) {
         super(props);
         this.state = {
             tableData: Array<TableData>(),
             chartData: {
-                totalItems: 0,
-                taggedProductArea: 0,
-                unknownProductArea: 0,
-                shelfGapArea: 0
+                totalItems: '0',
+                taggedProductArea: '0',
+                unknownProductArea: '0',
+                shelfGapArea: '0'
             }
         }
     }
 
     async componentDidMount() {
         const { navigation } = this.props;
-        let data = navigation.getParam('data', []);
-        let specData = navigation.getParam('specData', []);
+        let data = navigation.getParam('data', Array<ProductItem>());
+        let specData = navigation.getParam('specData', {});
 
         this.updateChart(data);
         this.updateResultTable(data, specData);
     }
 
     render() {
-        const { navigation } = this.props;
-        const { mainContainer, h1, } = this.styles;
+        const { mainContainer } = this.styles;
         let chartSubtitle = this.state.chartData.totalItems + ' total items';
 
         return (
@@ -45,24 +59,19 @@ class ResultScreen extends React.Component {
 
                 <View style={{ flex: 1, marginTop: 10,  }}>
                     <ResultTable data={this.state.tableData}/>
-                </View>
-
-                {/* <View style={{ backgroundColor: 'gray' }}>
-                    <Text>Test</Text>
-                </View> */}
-                
+                </View>                
             </View>
         );
     }
 
-    updateChart(data) {
+    updateChart(data: Array<ProductItem>) {
 
         let totalArea = 0;
         let unknownProductArea = 0;
         let shelfGapArea = 0;
         let taggedProductArea = 0;
 
-        data.forEach(p => {
+        data.forEach((p: ProductItem) => {
             let pArea = p.model.boundingBox.width * p.model.boundingBox.height;
             totalArea += pArea;
             if (p.displayName.toLocaleLowerCase() == 'product') {
@@ -79,7 +88,7 @@ class ResultScreen extends React.Component {
 
         this.setState({
             chartData: {
-                totalItems: data.length,
+                totalItems: data.length.toString(),
                 taggedProductArea : taggedProductAreaPerc,
                 unknownProductArea: unknownProductAreaPerc,
                 shelfGapArea: shelfGapAreaPerc
@@ -87,7 +96,7 @@ class ResultScreen extends React.Component {
         })
     }
 
-    updateResultTable(data, specData) {
+    updateResultTable(data: Array<ProductItem>, specData: SpecData) {
         const groupByName = this.groupBy('displayName');
         let tagsByName = groupByName(data);
 
@@ -98,7 +107,7 @@ class ResultScreen extends React.Component {
             if (totalCount > 0) {
                 let model = products[0].model;
                 let tagId = model.tagId;
-                let specItem = specData.Items.find(item => {
+                let specItem = specData.Items.find((item: SpecItem) => {
                     return item.TagId == tagId;
                 });
 
@@ -118,7 +127,7 @@ class ResultScreen extends React.Component {
         });
     }
 
-    groupBy = key => array =>
+    groupBy = (key: any) => (array: Array<any>) =>
         array.reduce((objectsByKeyValue, obj) => {
             const value = obj[key];
             objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
@@ -131,14 +140,6 @@ class ResultScreen extends React.Component {
             flex: 1,
             backgroundColor: 'black',
             padding: 16
-        },
-        h1: {
-            color: 'white',
-            fontSize: 17,
-            padding: 20
-        },
-        
+        },        
     })
 }
-
-export { ResultScreen };

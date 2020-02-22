@@ -1,23 +1,39 @@
 import React from 'react'
-import { Component } from 'react'
 import { 
     View, 
     Image, 
     Text, 
     TouchableOpacity, 
     StyleSheet,
-} from 'react-native';
-import { ImageWithRegions } from '../components/uikit';
+} from 'react-native'
+import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
+import { ImageWithRegions } from '../components/uikit'
 
-class AddEditScreen extends React.Component {
-    static navigationOptions = ({ navigation }) => {
+interface AddEditScreenProps {
+    navigation: NavigationScreenProp<NavigationState, NavigationParams>;
+}
+
+interface AddEditScreenState {
+    data: Array<any>,
+    imageSource: any,
+    tags: Array<any>;
+    selectedTag: any;
+    selectedRegions: Array<any>;
+}
+
+export class AddEditScreen extends React.Component<AddEditScreenProps, AddEditScreenState> {
+    static navigationOptions = ( { navigation } : { navigation : NavigationScreenProp<NavigationState,NavigationParams> }) => {
         const { params } = navigation.state;
         return { 
             title: 'Add/Edit item',
             headerRight: () => (
                 <TouchableOpacity 
                     activeOpacity={0.6} 
-                    onPress={() => params.applyChanges(navigation)}
+                    onPress={() => { 
+                        if (params?.applyChanges) {
+                            params.applyChanges(navigation);
+                        }
+                    }}
                     style={{ padding: 4, marginRight: 10 }}>
                     <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold' }}>Apply</Text>
                 </TouchableOpacity>
@@ -25,7 +41,7 @@ class AddEditScreen extends React.Component {
         }
     }
 
-    constructor(props) {
+    constructor(props: AddEditScreenProps) {
         super(props);
         const { navigation } = props;
         const tags = navigation.getParam('tags', []);
@@ -136,8 +152,8 @@ class AddEditScreen extends React.Component {
         );
     }
 
-    getTagCollection(tags) {
-        let tagCollection = [];
+    getTagCollection(tags: Array<any>) {
+        let tagCollection = Array<any>();
         tags.forEach(t => {
             tagCollection.push({
                 id: t.id,
@@ -154,7 +170,7 @@ class AddEditScreen extends React.Component {
         navigate('TagCollection', { tags: this.state.tags, returnData: this.returnData.bind(this) });
     }
 
-    returnData(selectedTag) {
+    returnData(selectedTag: any) {
         this.state.selectedRegions.forEach(r => {
             r.displayName = selectedTag.name,
             r.model.tagId = selectedTag.id,
@@ -163,9 +179,11 @@ class AddEditScreen extends React.Component {
         this.setState({ selectedTag: selectedTag });
     }
 
-    applyChanges(navigation) {
+    applyChanges(navigation: NavigationScreenProp<NavigationState, NavigationParams>) {
         const { params } = navigation.state;
-        navigation.state.params.addEditModeCallback(params.selectedRegions);
+        if (params?.addEditModeCallback) {
+            params.addEditModeCallback(params.selectedRegions);
+        }
         navigation.goBack();
     }
 
@@ -211,5 +229,3 @@ class AddEditScreen extends React.Component {
         }
     })
 }
-
-export { AddEditScreen };

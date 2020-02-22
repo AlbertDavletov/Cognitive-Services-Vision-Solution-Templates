@@ -21,7 +21,6 @@ export class CameraScreen extends React.Component<CameraProps, CameraState> {
     private camera: any;
     private _prevPinch: number;
 
-
     constructor(props: CameraProps) {
         super(props);
         this.state = {
