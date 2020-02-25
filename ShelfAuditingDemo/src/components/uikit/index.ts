@@ -1,6 +1,0 @@
-export * from './ImageWithRegions'
-export * from './ObjectRegion'
-export * from './EditableRegion'
-export * from './CoverageChart'
-export * from './ResultTable'
-export * from './ZoomView'

@@ -1,9 +1,10 @@
 import React from 'react'
-import { View, Image, ImageBackground, TouchableOpacity, StyleSheet, LayoutChangeEvent } from 'react-native'
+import { View, Image, ImageBackground, TouchableOpacity, LayoutChangeEvent } from 'react-native'
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView'
-import { ObjectRegion, EditableRegion } from './'
+import { ObjectRegion, EditableRegion } from '..'
 import { RegionState } from '../../models'
 import { Util } from '../../../Util'
+import { styles } from './ImageWithRegions.style'
 
 interface ImageProps {
     imageSource: any;
@@ -45,21 +46,23 @@ export class ImageWithRegions extends React.Component<ImageProps, ImageState>  {
     }
 
     componentDidMount() {
-        const { imageSource} = this.props;
-        Image.getSize(imageSource, (width: number, height: number) => {
-            this.setState({
-                imageDimWidth: width,
-                imageDimHeight: height
-            });
-        }, (error) => { console.log('Image getSize() error: ', error) });
+        const { imageSource } = this.props;
+
+        if (imageSource) {
+            Image.getSize(imageSource, (width: number, height: number) => {
+                this.setState({
+                    imageDimWidth: width,
+                    imageDimHeight: height
+                });
+            }, (error) => { console.log('Image getSize() error: ', error) });
+        }
     }
 
     render() {
-        const { imageContainer, canvasContainer, image } = this.styles;
         const { imageSource, mode, regions, editableRegions } = this.props;
 
         return (
-            <View style={imageContainer}>
+            <View style={styles.imageContainer}>
 
                 <ReactNativeZoomableView
                     maxZoom={2.5}
@@ -70,7 +73,7 @@ export class ImageWithRegions extends React.Component<ImageProps, ImageState>  {
                     zoomEnabled={this.state.enableZoom}
                 >                  
                     <ImageBackground
-                        style={[image, { 
+                        style={[styles.image, { 
                             transform: [ 
                                 { translateX: 0 }, 
                                 { translateY: 0 }
@@ -80,7 +83,7 @@ export class ImageWithRegions extends React.Component<ImageProps, ImageState>  {
                         resizeMode={'contain'}
                         source={{uri: imageSource}}>
 
-                        <View style={[canvasContainer, { width: this.state.imageWidth, height: this.state.imageHeight}]}>
+                        <View style={[styles.canvasContainer, { width: this.state.imageWidth, height: this.state.imageHeight}]}>
                             {this.getImageWithRegionsComponent(mode, regions)}
 
                             {mode == 'edit' && 
@@ -118,7 +121,7 @@ export class ImageWithRegions extends React.Component<ImageProps, ImageState>  {
                     let state = mode == 'edit' ? RegionState.Disabled : this.state.selectedRegions[obj.id];
 
                     return <TouchableOpacity key={obj.id} onPress={() => this.onRegionSelected(obj)} activeOpacity={0.6}
-                                style={[ this.styles.touchableContainer, 
+                                style={[ styles.touchableContainer, 
                                     { left: l, top: t, width: w, height: h, 
                                     zIndex: state == RegionState.Selected ? 10 : 5
                                 }]}>
@@ -249,22 +252,4 @@ export class ImageWithRegions extends React.Component<ImageProps, ImageState>  {
         });
         return selected;
     }
-
-    styles = StyleSheet.create({
-        imageContainer: {
-            flex: 1
-        },
-        image: {
-            flex: 1,
-            justifyContent: 'center',
-            transform: [{ scale: 1 }]
-        },
-        touchableContainer: {
-            position: 'absolute',
-            justifyContent: 'center'
-        },
-        canvasContainer: {
-            alignSelf: 'center'
-        },
-    })
 };

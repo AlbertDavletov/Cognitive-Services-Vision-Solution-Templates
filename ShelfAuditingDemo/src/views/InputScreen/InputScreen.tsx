@@ -1,18 +1,10 @@
 import React from 'react'
-import { 
-    View, 
-    Text, 
-    Image,
-    Picker, 
-    FlatList,
-    TouchableHighlight,
-    StyleSheet, 
-    Alert 
-} from 'react-native';
+import { View, Text, Image, Picker, FlatList, TouchableHighlight, Alert } from 'react-native';
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
 import Icon from 'react-native-vector-icons/FontAwesome'
-import { SpecData } from '../models';
-import CustomSpecsDataLoader from '../services/customSpecsDataLoader'
+import { SpecData } from '../../models';
+import CustomSpecsDataLoader from '../../services/customSpecsDataLoader'
+import { styles } from './InputScreen.style'
 Icon.loadFont()
 
 interface InputScreenProps {
@@ -92,17 +84,14 @@ export class InputScreen extends React.Component<InputScreenProps, InputScreenSt
 
     render() {
         const { navigate } = this.props.navigation;
-        const { container, h1, h2, h3, 
-                centerContainer, horizontalContainer,
-                picker, line, imageThumbnail } = this.styles;
 
         let mainView = 
-            <View style={container}>
-                <View style={[horizontalContainer, { marginTop: 20 }]}>
-                    <Text style={h3}>Shelf type</Text>
+            <View style={styles.container}>
+                <View style={[styles.horizontalContainer, { marginTop: 20 }]}>
+                    <Text style={styles.h3}>Shelf type</Text>
                     
                     <Picker 
-                        style={picker}
+                        style={styles.picker}
                         itemStyle={{ color: 'white' }}
                         selectedValue={this.state.selectedSpecId}
                         onValueChange={(itemValue, itemIndex) => {
@@ -127,11 +116,11 @@ export class InputScreen extends React.Component<InputScreenProps, InputScreenSt
                     </Picker>
                 </View>
 
-                <View style={line}/>
+                <View style={styles.line}/>
 
                 <View style={{flex:1, paddingTop: 50 }}>
-                    <View style={centerContainer}>
-                        <Text style={h2}>Choose a shelf image to audit</Text>
+                    <View style={styles.centerContainer}>
+                        <Text style={styles.h2}>Choose a shelf image to audit</Text>
                     </View>
 
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 10, paddingRight: 10 }}>
@@ -151,7 +140,7 @@ export class InputScreen extends React.Component<InputScreenProps, InputScreenSt
                         renderItem={({ item }) => (
                             <View style={{ flex: 1, flexDirection: 'column', margin: 6 }}>
                                 <TouchableHighlight onPress={(e) => { this.handleImageClick(item) }}>
-                                    <Image style={imageThumbnail} source={{ uri: item.src }} />
+                                    <Image style={styles.imageThumbnail} source={{ uri: item.src }} />
                                 </TouchableHighlight>
                             </View>
                         )}
@@ -173,54 +162,4 @@ export class InputScreen extends React.Component<InputScreenProps, InputScreenSt
     openSettings() {
         Alert.alert('This is a settings!')
     }
-
-    styles = StyleSheet.create({
-        container: {
-            flex: 1, 
-            alignItems: 'stretch',
-            backgroundColor: 'black'
-        },
-        centerContainer: {
-            alignItems: 'center'           
-        },
-        horizontalContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: 14,
-            height: 54
-        },
-        h1: {
-            color: 'white',
-            fontSize: 17,
-            padding: 20
-        },
-        h2: {
-            color: 'white',
-            fontSize: 15,
-            padding: 10
-        },
-        h3: {
-            color: '#0A84FF',
-            fontSize: 13,
-            fontWeight: 'bold'
-        },
-        picker: {
-            flex: 1,
-            alignItems: 'stretch',
-            color: 'white',
-            marginLeft: 10, 
-            marginRight: 10
-        },
-        line: {
-            borderBottomColor: 'white',
-            opacity: 0.2,
-            borderBottomWidth: 1,
-        },
-        imageThumbnail: {
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: 200
-        }
-    })
 }

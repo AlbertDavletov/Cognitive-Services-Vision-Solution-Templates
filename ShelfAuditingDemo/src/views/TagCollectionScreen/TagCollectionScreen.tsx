@@ -1,7 +1,8 @@
 import React from 'react'
-import { View, Image, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native'
+import { View, Image, Text, TouchableOpacity, FlatList } from 'react-native'
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
 import { SearchBar } from 'react-native-elements'
+import { styles } from './TagCollectionScreen.style'
 
 interface TagCollectionScreenProps {
     navigation: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -34,21 +35,12 @@ export class TagCollectionScreen extends React.Component<TagCollectionScreenProp
 
     render() {
         const { filter } = this.state;
-        const { 
-            mainContainer,
-            searchContainerStyle,
-            searchInputContainerStyle,
-            TagBlockStyle, 
-            imageThumbnail,
-            tagContainer,
-            tagLabel
-        } = this.styles;
         
         return (
-            <View style={mainContainer}>
+            <View style={styles.mainContainer}>
                 <SearchBar
-                    inputContainerStyle={searchInputContainerStyle}
-                    containerStyle={searchContainerStyle}
+                    inputContainerStyle={styles.searchInputContainerStyle}
+                    containerStyle={styles.searchContainerStyle}
                     placeholder="Search"
                     onChangeText={this.updateSearchFilter}
                     value={filter}
@@ -58,23 +50,23 @@ export class TagCollectionScreen extends React.Component<TagCollectionScreenProp
                     numColumns={4}
                     data={ this.state.filterTags } 
                     renderItem={({item}) =>
-                        <TouchableOpacity activeOpacity={0.6} style={TagBlockStyle} 
+                        <TouchableOpacity activeOpacity={0.6} style={styles.tagBlockStyle} 
                             onPress={() => this.selectTag(item)}>
                             <View>
                                 <View style={{ alignSelf: 'center', height: '60%', padding: 6 }}>
                                     { item.name.toLocaleLowerCase() != 'product' && item.name.toLocaleLowerCase() != 'gap' &&
-                                        <Image style={imageThumbnail} source={{ uri: item.imageUrl }} />
+                                        <Image style={styles.imageThumbnail} source={{ uri: item.imageUrl }} />
                                     }
                                     { item.name.toLocaleLowerCase() == 'product' &&
-                                        <Image style={imageThumbnail} source={require('../assets/product.jpg')} />
+                                        <Image style={styles.imageThumbnail} source={require('../../assets/product.jpg')} />
                                     }
                                     { item.name.toLocaleLowerCase() == 'gap' &&
-                                        <Image style={imageThumbnail} source={require('../assets/gap.jpg')} />
+                                        <Image style={styles.imageThumbnail} source={require('../../assets/gap.jpg')} />
                                     }
                                 </View>
                                 
-                                <View style={[tagContainer, { height: '40%' }]}>
-                                    <Text numberOfLines={3} style={tagLabel}>{item.name}</Text>
+                                <View style={[styles.tagContainer, { height: '40%' }]}>
+                                    <Text numberOfLines={3} style={styles.tagLabel}>{item.name}</Text>
                                 </View>
                             </View>
                         </TouchableOpacity>
@@ -110,48 +102,4 @@ export class TagCollectionScreen extends React.Component<TagCollectionScreenProp
         }
         this.setState({ filter });
     }
-    
-    styles = StyleSheet.create({
-        mainContainer: {
-            flex: 1,
-            padding: 12,
-            backgroundColor: 'black'
-        },
-        TagBlockStyle: {
-            justifyContent: 'center',
-            flex: 1,
-            alignItems: 'center',
-            height: 150,
-            maxWidth: 100,
-            marginRight: 8,
-            marginBottom: 8,
-            backgroundColor: '#2B2B2B'
-        },
-        imageThumbnail: {
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            width: 65
-        },
-        tagLabel: {
-            color: 'white', 
-            opacity: 0.8,
-            textAlign: 'left',
-            fontSize: 12
-        },
-        tagContainer: {
-            flex: 1, 
-            justifyContent: 'center',
-            padding: 6
-        },
-        searchInputContainerStyle: {
-            backgroundColor: 'rgba(255, 255, 255, 0.2)', 
-            borderRadius: 10
-        },
-        searchContainerStyle: {
-            backgroundColor: 'transparent', 
-            padding: 0, 
-            marginBottom: 12
-        }
-    })
 }

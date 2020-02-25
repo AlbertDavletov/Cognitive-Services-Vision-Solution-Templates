@@ -1,13 +1,6 @@
 import React from 'react'
-import { 
-    View, 
-    Text, 
-    PanResponder, 
-    StyleSheet, 
-    PanResponderInstance, 
-    GestureResponderEvent, 
-    PanResponderGestureState 
-} from 'react-native'
+import { View, Text, PanResponder, PanResponderInstance, GestureResponderEvent, PanResponderGestureState } from 'react-native'
+import { styles } from './EditableRegion.style'
 
 const CircleSize = 24;
 
@@ -73,7 +66,6 @@ export class EditableRegion extends React.Component<RegionProps, RegionState> {
 
     render() {
         const { data } = this.props;
-        const { selectedRegion, selectedRegionLabelPanel, selectedRegionLabel, circleStyle } = styles;
     
         let component = 
             <View style={{
@@ -84,16 +76,16 @@ export class EditableRegion extends React.Component<RegionProps, RegionState> {
                 height: this.state.height + CircleSize,
                 padding: CircleSize / 2,
             }}>   
-                <View style={selectedRegion}>
-                    <View style={selectedRegionLabelPanel}>
-                        <Text numberOfLines={1} style={selectedRegionLabel}>{data.title}</Text>  
+                <View style={styles.selectedRegion}>
+                    <View style={styles.selectedRegionLabelPanel}>
+                        <Text numberOfLines={1} style={styles.selectedRegionLabel}>{data.title}</Text>  
                     </View>
                 </View>
 
-                <View style={[circleStyle, { left: 0,  top: 0, backgroundColor:    this.state.topLeftPressed     ? 'gray' : 'white' }]} {...this.topLeftPanResponder.panHandlers}/>
-                <View style={[circleStyle, { right: 0, top: 0, backgroundColor:    this.state.topRightPressed    ? 'gray' : 'white' }]} {...this.topRightPanResponder.panHandlers}/>
-                <View style={[circleStyle, { right: 0, bottom: 0, backgroundColor: this.state.bottomRightPressed ? 'gray' : 'white' }]} {...this.bottomRightPanResponder.panHandlers}/>
-                <View style={[circleStyle, { left: 0,  bottom: 0, backgroundColor: this.state.bottomLeftPressed  ? 'gray' : 'white' }]} {...this.bottomLeftPanResponder.panHandlers}/>
+                <View style={[styles.circleStyle, { left: 0,  top: 0, backgroundColor:    this.state.topLeftPressed     ? 'gray' : 'white' }]} {...this.topLeftPanResponder.panHandlers}/>
+                <View style={[styles.circleStyle, { right: 0, top: 0, backgroundColor:    this.state.topRightPressed    ? 'gray' : 'white' }]} {...this.topRightPanResponder.panHandlers}/>
+                <View style={[styles.circleStyle, { right: 0, bottom: 0, backgroundColor: this.state.bottomRightPressed ? 'gray' : 'white' }]} {...this.bottomRightPanResponder.panHandlers}/>
+                <View style={[styles.circleStyle, { left: 0,  bottom: 0, backgroundColor: this.state.bottomLeftPressed  ? 'gray' : 'white' }]} {...this.bottomLeftPanResponder.panHandlers}/>
             </View>;
         return component;
     }
@@ -240,33 +232,3 @@ export class EditableRegion extends React.Component<RegionProps, RegionState> {
         });
     }
 }
-
-const styles = StyleSheet.create({
-    circleStyle: {
-        position: 'absolute',
-        width: CircleSize,
-        height: CircleSize,
-        backgroundColor: 'green',
-        borderRadius: CircleSize / 2,
-      },
-    selectedRegion: {
-        flex: 1,
-        borderWidth: 2,
-        backgroundColor: 'transparent',
-        borderRadius: 2,
-        borderColor: 'white',
-        borderStyle: 'dashed'
-    },
-    selectedRegionLabelPanel: {
-        top: -42, 
-        borderWidth: 0,
-        margin: -2,
-        borderRadius: 1,
-        minWidth: 100,
-        backgroundColor: 'white'
-    },
-    selectedRegionLabel: {
-        color: 'black',
-        padding: 4
-    },
-})

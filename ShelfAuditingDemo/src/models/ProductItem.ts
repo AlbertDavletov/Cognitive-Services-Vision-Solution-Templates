@@ -22,16 +22,16 @@ export interface PredictionModel {
 }
 
 export class BoundingBox {
-    Left: number;
-    Top: number;
-    Height: number;
-    Width: number;
+    left: number;
+    top: number;
+    height: number;
+    width: number;
 
     constructor(left: number, top: number, width: number, height: number) {
-        this.Left = left;
-        this.Top = top;
-        this.Width = width;
-        this.Height = height;
+        this.left = left;
+        this.top = top;
+        this.width = width;
+        this.height = height;
     }
 }
 

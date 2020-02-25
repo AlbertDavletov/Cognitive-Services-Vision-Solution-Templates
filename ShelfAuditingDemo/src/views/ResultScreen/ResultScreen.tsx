@@ -1,8 +1,9 @@
 import React from 'react'
-import { View, Text, StyleSheet, } from 'react-native'
+import { View, Text } from 'react-native'
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
-import { CoverageChart, ResultTable } from '../components/uikit'
-import { TableData, ProductItem, SpecData, SpecItem } from '../models'
+import { CoverageChart, ResultTable } from '../../components'
+import { TableData, ProductItem, SpecData, SpecItem } from '../../models'
+import { styles } from './ResultScreen.style'
 
 interface ResultScreenProps {
     navigation: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -42,11 +43,10 @@ export class ResultScreen extends React.Component<ResultScreenProps, ResultScree
     }
 
     render() {
-        const { mainContainer } = this.styles;
         let chartSubtitle = this.state.chartData.totalItems + ' total items';
 
         return (
-            <View style={mainContainer}>
+            <View style={styles.mainContainer}>
                 <CoverageChart 
                     title='Share of Shelf by area' 
                     subTitle={chartSubtitle}
@@ -133,13 +133,5 @@ export class ResultScreen extends React.Component<ResultScreenProps, ResultScree
             objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
             return objectsByKeyValue;
         }, 
-    {}); 
-
-    styles = StyleSheet.create({
-        mainContainer: {
-            flex: 1,
-            backgroundColor: 'black',
-            padding: 16
-        },        
-    })
+    {});
 }

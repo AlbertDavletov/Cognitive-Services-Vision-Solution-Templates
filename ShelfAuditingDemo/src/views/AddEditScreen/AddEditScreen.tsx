@@ -1,13 +1,8 @@
 import React from 'react'
-import { 
-    View, 
-    Image, 
-    Text, 
-    TouchableOpacity, 
-    StyleSheet,
-} from 'react-native'
+import { View, Image, Text, TouchableOpacity } from 'react-native'
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
-import { ImageWithRegions } from '../components/uikit'
+import { ImageWithRegions } from '../../components'
+import { styles } from './AddEditScreen.style'
 
 interface AddEditScreenProps {
     navigation: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -86,17 +81,6 @@ export class AddEditScreen extends React.Component<AddEditScreenProps, AddEditSc
     }
 
     render() {
-        const { 
-            mainContainer, 
-            labelContainer, 
-            imageThumbnail, 
-            button, 
-            buttonLabel,
-            tagContainer, 
-            tagLabel, 
-            line 
-        } = this.styles;
-
         let imageWithRegionsComponent;
         if (this.state.imageSource && this.state.data) {
             imageWithRegionsComponent = (
@@ -116,34 +100,34 @@ export class AddEditScreen extends React.Component<AddEditScreenProps, AddEditSc
                 <View style={{ flexDirection: 'row'}}>
                     <View style={{ padding: 10 }}>
                         { tag.name.toLocaleLowerCase() != 'product' && tag.name.toLocaleLowerCase() != 'gap' &&
-                            <Image style={imageThumbnail} source={{ uri: tag.imageUrl }} />
+                            <Image style={styles.imageThumbnail} source={{ uri: tag.imageUrl }} />
                         }
                         { tag.name.toLocaleLowerCase() == 'product' &&
-                            <Image style={imageThumbnail} source={require('../assets/product.jpg')} />
+                            <Image style={styles.imageThumbnail} source={require('../../assets/product.jpg')} />
                         }
                         { tag.name.toLocaleLowerCase() == 'gap' &&
-                            <Image style={imageThumbnail} source={require('../assets/gap.jpg')} />
+                            <Image style={styles.imageThumbnail} source={require('../../assets/gap.jpg')} />
                         }
                     </View>
                     
                     <View style={{ flex: 1 }}>
-                        <View style={tagContainer}>
-                            <Text numberOfLines={1} style={tagLabel}>{tag.name}</Text>
+                        <View style={styles.tagContainer}>
+                            <Text numberOfLines={1} style={styles.tagLabel}>{tag.name}</Text>
                         </View>
                         
-                        <View style={line}/>
+                        <View style={styles.line}/>
                     </View>
                 </View>
         }
 
         return (
-            <View style={mainContainer}>
+            <View style={styles.mainContainer}>
 
                 { imageWithRegionsComponent }
                 
-                <View style={labelContainer}>
-                    <TouchableOpacity activeOpacity={0.6} onPress={() => this.onChooseLabel()} style={button}>
-                        <Text style={buttonLabel}>Choose new label</Text>
+                <View style={styles.labelContainer}>
+                    <TouchableOpacity activeOpacity={0.6} onPress={() => this.onChooseLabel()} style={styles.button}>
+                        <Text style={styles.buttonLabel}>Choose new label</Text>
                     </TouchableOpacity>
 
                     { selectedTagComponent }
@@ -186,46 +170,4 @@ export class AddEditScreen extends React.Component<AddEditScreenProps, AddEditSc
         }
         navigation.goBack();
     }
-
-    styles = StyleSheet.create({
-        mainContainer: {
-            flex: 1,
-            backgroundColor: 'black',
-            padding: 0
-        },
-        labelContainer: {
-            height: '25%',
-            padding: 16
-        },
-        imageThumbnail: {
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: 40,
-            width: 40
-        },
-        button: {
-            padding: 6, 
-            marginBottom: 10
-        },
-        buttonLabel: {
-            color: '#0078D4', 
-            fontSize: 16, 
-            fontWeight: 'bold', 
-            textAlign: 'center' 
-        },
-        tagContainer: {
-            flex: 1, 
-            justifyContent: 'center'
-        },
-        tagLabel: {
-            color: 'white', 
-            textAlign: 'left', 
-            padding: 5
-        },
-        line: {
-            height: 1, 
-            backgroundColor: 'white', 
-            opacity: 0.2
-        }
-    })
 }

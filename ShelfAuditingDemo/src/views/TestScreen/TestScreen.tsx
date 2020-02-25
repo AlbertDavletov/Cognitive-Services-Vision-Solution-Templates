@@ -1,13 +1,8 @@
 import React from 'react'
-import { 
-    View, 
-    Text,
-    TouchableOpacity,
-    StyleSheet, 
-    Alert 
-} from 'react-native'
+import { View, Text, TouchableOpacity, Alert } from 'react-native'
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
-import { width, height } from '../../constants'
+import { width, height } from '../../../constants'
+import { styles } from './TestScreen.style'
 
 interface TestScreenProps {
     navigation: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -41,10 +36,8 @@ export class TestScreen extends React.Component<TestScreenProps, {}> {
     }
 
     render() {
-        const { mainContainer } = this.styles;
-
         return (
-            <View style={mainContainer}>
+            <View style={styles.mainContainer}>
                 <Text>Test page</Text>
             </View>
         );
@@ -53,10 +46,4 @@ export class TestScreen extends React.Component<TestScreenProps, {}> {
     testApply() {
         Alert.alert('Apply - test!')
     }
-
-    styles = StyleSheet.create({
-        mainContainer: {
-            flex: 1,
-        },
-    })
 }

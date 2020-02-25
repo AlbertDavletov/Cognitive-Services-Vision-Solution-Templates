@@ -1,17 +1,12 @@
 import React from 'react'
-import { 
-    View, 
-    ActivityIndicator, 
-    Text, 
-    TouchableOpacity, 
-    StyleSheet, 
-    Alert 
-} from 'react-native'
+import { RefObject, createRef } from 'react'
+import { View, Text, ActivityIndicator, TouchableOpacity, Alert } from 'react-native'
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
-import { ProductItem, ClassifyImageResponse, PredictionModel, SpecData } from '../models'
-import { ImageWithRegions } from '../components/uikit'
+import { ProductItem, ClassifyImageResponse, PredictionModel, SpecData } from '../../models'
+import { ImageWithRegions } from '../../components'
 import Icon from 'react-native-vector-icons/FontAwesome'
-import CustomVisionService from '../services/customVisionServiceHelper'
+import CustomVisionService from '../../services/customVisionServiceHelper'
+import { styles } from './ReviewScreen.style'
 Icon.loadFont()
 
 interface ReviewScreenProps {
@@ -34,7 +29,7 @@ interface ButtonStyle {
     color: string;
 }
 
-class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScreenState> {
+export class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScreenState> {
     static navigationOptions = ({ navigation } : { navigation : NavigationScreenProp<NavigationState,NavigationParams> }) => {
         const { params } = navigation.state;
         return { 
@@ -55,11 +50,13 @@ class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScreenState>
         }
     }
 
-    customVisionService: CustomVisionService;
+    private customVisionService: CustomVisionService;
+    private imageWithRegionsRef: RefObject<ImageWithRegions>;
 
     constructor(props: ReviewScreenProps) {
         super(props);
         this.customVisionService = new CustomVisionService();
+        this.imageWithRegionsRef = createRef<ImageWithRegions>();
 
         this.state = {
             loading: false,
@@ -115,12 +112,10 @@ class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScreenState>
     }
 
     render() {
-        const { mainContainer, h1, loading } = this.styles;
-
         let imageWithRegionsComponent;
         if (this.state.detectedObjects) {
             imageWithRegionsComponent = (
-                <ImageWithRegions ref='imageWithRegions'
+                <ImageWithRegions ref={this.imageWithRegionsRef}
                     selectionChanged={(selectedCount: number) => this.onRegionSelectionChanged(selectedCount)}
                     imageSource={this.state.imageSource}
                     regions={this.state.detectedObjects}
@@ -130,7 +125,7 @@ class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScreenState>
         }
 
         return (
-            <View style={mainContainer}>
+            <View style={styles.mainContainer}>
 
                 { imageWithRegionsComponent }
 
@@ -177,15 +172,16 @@ class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScreenState>
                             disabled={this.state.clearRegionsButtonStyle.disabled}
                             color={this.state.clearRegionsButtonStyle.color}
                             onPress={() => {
-                                if (this.refs?.imageWithRegions?.clearSelection) {
-                                    this.refs.imageWithRegions.clearSelection();
+                                const component = this.imageWithRegionsRef.current;
+                                if (component?.clearSelection) {
+                                    component.clearSelection();
                                 }
                             }} />
                     </View>
                 }
 
                 {this.state.loading &&
-                    <View style={loading}>
+                    <View style={styles.loading}>
                         <ActivityIndicator size='large' color='blue' />
                     </View>
                 }
@@ -204,7 +200,6 @@ class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScreenState>
             
             const iterations = await this.customVisionService.getIterationsAsync(projectId);
             result = await this.analyzeImageByIteration(iterations, imageSrc, fromCamera);
-            console.log('Predictions: ', result);
         } catch (error) {
             console.error('CustomVisionService - analyzeImage()', error);
         } finally {
@@ -293,7 +288,8 @@ class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScreenState>
 
     openAddEditMode(mode: string) {
         const { navigate } = this.props.navigation;
-        let selectedRegions = this.refs.imageWithRegions.getSelectedRegions();
+        const imageComponent = this.imageWithRegionsRef.current;
+        let selectedRegions = imageComponent?.getSelectedRegions() ?? new Array<any>();
         let selectedIds = selectedRegions.map(item => item.id);
         let data = Array<any>();
         this.state.detectedObjects.forEach((obj) => {
@@ -312,6 +308,8 @@ class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScreenState>
     }
 
     addEditModeCallback(updatedRegions: Array<any>) {
+        const imageComponent = this.imageWithRegionsRef.current;
+
         updatedRegions.forEach((region, ind) => {
             this.state.detectedObjects.forEach((obj, ind) => {
                 if (obj.id == region.id) {
@@ -319,31 +317,7 @@ class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScreenState>
                 }
             });
         });
-        this.refs.imageWithRegions.forceUpdate();
+
+        imageComponent?.forceUpdate();
     }
-
-    styles = StyleSheet.create({
-        mainContainer: {
-            flex: 1,
-            backgroundColor: 'black'
-        },
-        h1: {
-            color: 'white',
-            fontSize: 17,
-            padding: 20
-        },
-        loading: {
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'black',
-            opacity: 0.7
-        },
-    })
 }
-
-export { ReviewScreen };

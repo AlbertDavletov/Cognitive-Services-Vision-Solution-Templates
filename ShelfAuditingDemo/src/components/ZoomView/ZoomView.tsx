@@ -1,12 +1,7 @@
 import React from 'react'
-import { View, StyleSheet } from 'react-native'
-import { 
-    PinchGestureHandler, 
-    State, 
-    PinchGestureHandlerGestureEvent, 
-    PinchGestureHandlerStateChangeEvent 
-} from 'react-native-gesture-handler'
-import { width, height } from '../../../constants'
+import { View } from 'react-native'
+import { State, PinchGestureHandler, PinchGestureHandlerGestureEvent, PinchGestureHandlerStateChangeEvent } from 'react-native-gesture-handler'
+import { styles } from './ZoomView.style'
 
 interface ZoomViewProps {
     onPinchEnd: Function;
@@ -20,13 +15,11 @@ export class ZoomView extends React.Component<ZoomViewProps, {}> {
     }
 
     render() {
-        const { preview } = this.styles;
-
         return (
             <PinchGestureHandler
                 onGestureEvent={this.onGesturePinch}
                 onHandlerStateChange={this.onPinchHandlerStateChange}>
-                <View style={preview}>
+                <View style={styles.preview}>
                     {this.props.children}
                 </View>
             </PinchGestureHandler>
@@ -48,11 +41,4 @@ export class ZoomView extends React.Component<ZoomViewProps, {}> {
           this.props.onPinchStart()
         }
     }    
-
-    styles = StyleSheet.create({
-        preview: {
-            height: height,
-            width: "100%",
-        },
-    })
 }
