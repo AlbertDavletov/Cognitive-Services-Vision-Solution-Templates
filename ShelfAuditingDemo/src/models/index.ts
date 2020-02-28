@@ -1,4 +1,6 @@
 export * from './ProductItem'
+export * from './TagItem'
 export * from './RegionState'
 export * from './TableData'
 export * from './SpecData'
+export * from './ActionType'

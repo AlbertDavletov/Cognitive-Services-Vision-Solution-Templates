@@ -16,4 +16,11 @@ export const styles = StyleSheet.create({
     canvasContainer: {
         alignSelf: 'center'
     },
+    editCanvasContainer: {
+        width: '100%', 
+        height: '100%', 
+        backgroundColor: 'rgba(0, 0, 0, 0.0)', 
+        overflow: 'hidden', 
+        zIndex: 20
+    }
 })

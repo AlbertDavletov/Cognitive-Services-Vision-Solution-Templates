@@ -2,11 +2,11 @@ import React from 'react'
 import { RefObject, createRef } from 'react'
 import { View, Text, ActivityIndicator, TouchableOpacity, Alert } from 'react-native'
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
-import { ProductItem, ClassifyImageResponse, PredictionModel, SpecData } from '../../models'
+import { ProductItem, ClassifyImageResponse, PredictionModel, SpecData, ActionType } from '../../models'
 import { ImageWithRegions } from '../../components'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import CustomVisionService from '../../services/customVisionServiceHelper'
-import { styles } from './ReviewScreen.style'
+import { styles, ButtonActiveColor, ButtonDisabledColor } from './ReviewScreen.style'
 Icon.loadFont()
 
 interface ReviewScreenProps {
@@ -52,11 +52,17 @@ export class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScree
 
     private customVisionService: CustomVisionService;
     private imageWithRegionsRef: RefObject<ImageWithRegions>;
+    private addedProductItems: Array<ProductItem>;
+    private editedProductItems: Array<ProductItem>;
+    private deletedProductItems: Array<ProductItem>;
 
     constructor(props: ReviewScreenProps) {
         super(props);
         this.customVisionService = new CustomVisionService();
         this.imageWithRegionsRef = createRef<ImageWithRegions>();
+        this.addedProductItems = new Array<ProductItem>();
+        this.editedProductItems = new Array<ProductItem>();
+        this.deletedProductItems = new Array<ProductItem>();
 
         this.state = {
             loading: false,
@@ -64,18 +70,9 @@ export class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScree
             tags: Array<any>(),
             imageSource: null,
 
-            editRegionButtonStyle: {
-                disabled: true,
-                color: 'gray'
-            },
-            removeRegionButtonStyle: {
-                disabled: true,
-                color: 'gray'
-            },
-            clearRegionsButtonStyle: {
-                disabled: true,
-                color: 'gray'
-            }
+            editRegionButtonStyle: { disabled: true, color: ButtonDisabledColor },
+            removeRegionButtonStyle: { disabled: true, color: ButtonDisabledColor },
+            clearRegionsButtonStyle: { disabled: true, color: ButtonDisabledColor }
         };
 
         // event handlers
@@ -98,8 +95,8 @@ export class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScree
 
         let detectedObjects = Array<ProductItem>();
         if (data?.predictions) {
-            data.predictions.map((val: any, ind: number) => {
-                let productItem = new ProductItem(val);
+            data.predictions.map((model: PredictionModel) => {
+                let productItem = new ProductItem(model);
                 detectedObjects.push(productItem);
             });    
         }
@@ -119,7 +116,7 @@ export class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScree
                     selectionChanged={(selectedCount: number) => this.onRegionSelectionChanged(selectedCount)}
                     imageSource={this.state.imageSource}
                     regions={this.state.detectedObjects}
-                    mode=''
+                    mode={ActionType.Explorer}
                 />
             );
         }
@@ -130,53 +127,27 @@ export class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScree
                 { imageWithRegionsComponent }
 
                 { !this.state.loading && 
-                    <View style={{
-                            backgroundColor: '#1F1F1F',
-                            height: 49, 
-                            justifyContent: 'space-around',
-                            flexDirection: 'row',            
-                        }}>
-                        <Icon.Button name="bar-chart" size={20} style={{flex: 1}}
-                            backgroundColor="transparent"
-                            underlayColor="transparent"
-                            onPress={() => this.openResultView()} 
-                        />
+                    <View style={styles.actionBar}>
+                        <Icon.Button name="bar-chart" size={20} style={styles.iconButton} backgroundColor="transparent" underlayColor="transparent"
+                            onPress={() => this.openResultView()} />
 
-                        <Icon.Button name="plus" size={20} style={{flex: 1}}
-                            backgroundColor="transparent" 
-                            underlayColor="transparent"
-                            disabled={true}
-                            color="gray"
-                            onPress={() => this.openAddEditMode('add')} />
+                        <Icon.Button name="plus" size={20} style={styles.iconButton} backgroundColor="transparent" underlayColor="transparent"
+                            onPress={() => this.openAddEditMode(ActionType.Add)} />
 
-                        <Icon.Button name="pencil" size={20} style={{flex: 1}}
-                            ref='editRegionButton'
-                            backgroundColor="transparent" 
-                            underlayColor="transparent"
+                        <Icon.Button name="pencil" size={20} style={styles.iconButton} backgroundColor="transparent" underlayColor="transparent"
                             disabled={this.state.editRegionButtonStyle.disabled}
                             color={this.state.editRegionButtonStyle.color}
-                            onPress={() => this.openAddEditMode('edit')} />
+                            onPress={() => this.openAddEditMode(ActionType.Edit)} />
 
-                        <Icon.Button name="trash-o" size={20} style={{ flex: 1 }}
-                            ref='removeRegionButton'
-                            backgroundColor="transparent" 
-                            underlayColor="transparent"
+                        <Icon.Button name="trash-o" size={20} style={styles.iconButton} backgroundColor="transparent" underlayColor="transparent"
                             disabled={this.state.removeRegionButtonStyle.disabled}
                             color={this.state.removeRegionButtonStyle.color}
-                            onPress={() => Alert.alert('Remove product!')} />
+                            onPress={() => this.removeProduct()} />
 
-                        <Icon.Button name="refresh" size={20} style={{ flex: 1 }}
-                            ref='clearRegionsButton'
-                            backgroundColor="transparent" 
-                            underlayColor="transparent"
+                        <Icon.Button name="refresh" size={20} style={styles.iconButton} backgroundColor="transparent" underlayColor="transparent"
                             disabled={this.state.clearRegionsButtonStyle.disabled}
                             color={this.state.clearRegionsButtonStyle.color}
-                            onPress={() => {
-                                const component = this.imageWithRegionsRef.current;
-                                if (component?.clearSelection) {
-                                    component.clearSelection();
-                                }
-                            }} />
+                            onPress={() => this.clearSelection()} />
                     </View>
                 }
 
@@ -200,6 +171,7 @@ export class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScree
             
             const iterations = await this.customVisionService.getIterationsAsync(projectId);
             result = await this.analyzeImageByIteration(iterations, imageSrc, fromCamera);
+
         } catch (error) {
             console.error('CustomVisionService - analyzeImage()', error);
         } finally {
@@ -213,7 +185,7 @@ export class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScree
         
         if (data && data.length) {
             const filteredData = data.filter((item: any) => {
-                return item.status == 'Completed';
+                return item.status === 'Completed';
               });
           
               // sort by descending
@@ -222,7 +194,7 @@ export class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScree
               })
           
               const latestTrainedIteraction = filteredData.length > 0 ? filteredData[0] : null;
-              if (latestTrainedIteraction == null || !latestTrainedIteraction.publishName) {
+              if (latestTrainedIteraction === null || !latestTrainedIteraction.publishName) {
                 console.log("This project doesn't have any trained models or published iteration yet. Please train and publish it, or wait until training completes if one is in progress.");
       
               } else {
@@ -264,15 +236,15 @@ export class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScree
         this.setState({
             editRegionButtonStyle: {
                 disabled: selectedCount <= 0,
-                color: selectedCount > 0 ? 'white' : 'gray'
+                color: selectedCount > 0 ? ButtonActiveColor : ButtonDisabledColor
             },
             removeRegionButtonStyle: {
                 disabled: selectedCount <= 0,
-                color: selectedCount > 0 ? 'white' : 'gray'
+                color: selectedCount > 0 ? ButtonActiveColor : ButtonDisabledColor
             },
             clearRegionsButtonStyle: {
                 disabled: selectedCount <= 0,
-                color: selectedCount > 0 ? 'white' : 'gray'
+                color: selectedCount > 0 ? ButtonActiveColor : ButtonDisabledColor
             }
         });
     }
@@ -286,38 +258,119 @@ export class ReviewScreen extends React.Component<ReviewScreenProps, ReviewScree
         navigate('Result', { data: this.state.detectedObjects, specData: this.state.specData });
     }
 
-    openAddEditMode(mode: string) {
+    openAddEditMode(mode: ActionType) {
         const { navigate } = this.props.navigation;
-        const imageComponent = this.imageWithRegionsRef.current;
-        let selectedRegions = imageComponent?.getSelectedRegions() ?? new Array<any>();
-        let selectedIds = selectedRegions.map(item => item.id);
-        let data = Array<any>();
+
+        let selectedIds = new Array<string>();
+        let selectedRegions = new Array<ProductItem>();
+        if (mode === ActionType.Edit) {
+            const imageComponent = this.imageWithRegionsRef.current;
+            selectedRegions = imageComponent?.getSelectedRegions() ?? new Array<ProductItem>();
+            selectedIds = selectedRegions.map(item => item.id);
+        }
+
+        let data = Array<ProductItem>();
         this.state.detectedObjects.forEach((obj) => {
             if (selectedIds.indexOf(obj.id) < 0) {
                 let copy = JSON.parse(JSON.stringify(obj));
                 data.push(copy);
             }
         });
+
         navigate('AddEdit', { 
+            mode: mode,
             data: data, 
+            specData: this.state.specData,
             selectedRegions: selectedRegions, 
             tags: this.state.tags,
             imageSource: this.state.imageSource,
-            addEditModeCallback: this.addEditModeCallback.bind(this)
+            editCallback: this.editCallback.bind(this),
+            addCallback: this.addCallback.bind(this)
         });
     }
 
-    addEditModeCallback(updatedRegions: Array<any>) {
-        const imageComponent = this.imageWithRegionsRef.current;
+    addCallback(newRegion: ProductItem) {
+        if (newRegion) {
+            const imageComponent = this.imageWithRegionsRef.current;
+            this.state.detectedObjects.push(newRegion);
 
-        updatedRegions.forEach((region, ind) => {
-            this.state.detectedObjects.forEach((obj, ind) => {
-                if (obj.id == region.id) {
-                    this.state.detectedObjects[ind] = region;
+            // update correction result
+            this.addedProductItems.push(newRegion);
+            imageComponent?.forceUpdate();
+        }
+    }
+
+    editCallback(updatedRegions: Array<ProductItem>) {
+        if (updatedRegions && updatedRegions.length > 0) {
+            const imageComponent = this.imageWithRegionsRef.current;
+            const addedProductIds = this.addedProductItems.map(val => val.id);
+            const editedProductIds = this.editedProductItems.map(val => val.id);
+    
+            updatedRegions.forEach((region: ProductItem) => {
+                this.state.detectedObjects.forEach((obj: ProductItem, ind: number) => {
+                    if (obj.id === region.id) {
+                        this.state.detectedObjects[ind] = region;
+    
+                        // update correction result
+                        if (addedProductIds.indexOf(region.id) < 0 && editedProductIds.indexOf(region.id) < 0) {
+                            this.editedProductItems.push(region);
+                        }
+                    }
+                });
+            });
+    
+            imageComponent?.forceUpdate();
+        }
+    }
+
+    clearSelection() {
+        const component = this.imageWithRegionsRef.current;
+        if (component?.clearSelection) {
+            component.clearSelection();
+        }
+    }
+
+    removeProduct() {
+        const imageComponent = this.imageWithRegionsRef.current;
+        const selectedRegions = imageComponent?.getSelectedRegions() ?? new Array<ProductItem>();
+
+        if (selectedRegions.length > 0) {
+            const selectedRegionIds = selectedRegions.map(val => val.id);
+            const updatedDetectedObjects = this.state.detectedObjects.filter(value => {
+                return selectedRegionIds.indexOf(value.id) < 0;
+            });
+
+            // update correction result
+            const addedProductIds = this.addedProductItems.map(val => val.id);
+            const editedProductIds = this.editedProductItems.map(val => val.id);
+
+            selectedRegions.forEach(region => {
+                this.deletedProductItems.push(region);
+
+                // update added product list
+                const addedProductIndex = addedProductIds.indexOf(region.id);
+                if (addedProductIndex > -1) {
+                    this.addedProductItems.splice(addedProductIndex, 1);
+                }
+
+                // update edited product list
+                const editedProductIndex = editedProductIds.indexOf(region.id);
+                if (editedProductIndex > -1) {
+                    this.editedProductItems.splice(editedProductIndex, 1);
                 }
             });
-        });
 
-        imageComponent?.forceUpdate();
+            // disable selection actions
+            this.setState({
+                editRegionButtonStyle: { disabled: true, color: ButtonDisabledColor },
+                removeRegionButtonStyle: { disabled: true, color: ButtonDisabledColor },
+                clearRegionsButtonStyle: { disabled: true, color: ButtonDisabledColor }
+            });
+
+            // update state and image component
+            this.setState({ detectedObjects: updatedDetectedObjects });
+            imageComponent?.clearSelection();
+            imageComponent?.forceUpdate();
+        }
     }
 }

@@ -4,6 +4,7 @@ import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-n
 import { CoverageChart, ResultTable } from '../../components'
 import { TableData, ProductItem, SpecData, SpecItem } from '../../models'
 import { styles } from './ResultScreen.style'
+import { UnknownProduct, ShelfGap } from '../../../constants'
 
 interface ResultScreenProps {
     navigation: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -57,7 +58,7 @@ export class ResultScreen extends React.Component<ResultScreenProps, ResultScree
                     <Text style={{ color: 'white', opacity: 0.8 }}>Shelf audit detail</Text>
                 </View>
 
-                <View style={{ flex: 1, marginTop: 10,  }}>
+                <View style={{ flex: 1, marginTop: 10 }}>
                     <ResultTable data={this.state.tableData}/>
                 </View>                
             </View>
@@ -74,17 +75,20 @@ export class ResultScreen extends React.Component<ResultScreenProps, ResultScree
         data.forEach((p: ProductItem) => {
             let pArea = p.model.boundingBox.width * p.model.boundingBox.height;
             totalArea += pArea;
-            if (p.displayName.toLocaleLowerCase() == 'product') {
+
+            const isUnknownProduct = p.displayName.toLocaleLowerCase() === UnknownProduct.toLocaleLowerCase();
+            const isShelfGap = p.displayName.toLocaleLowerCase() === ShelfGap.toLocaleLowerCase();
+            if (isUnknownProduct) {
                 unknownProductArea += pArea;
-            } else if (p.displayName.toLocaleLowerCase() == 'gap') {
+            } else if (isShelfGap) {
                 shelfGapArea += pArea;
             }
         });
         taggedProductArea = totalArea - unknownProductArea - shelfGapArea;
 
-        let taggedProductAreaPerc = (totalArea > 0 ? 100 * taggedProductArea / totalArea : 0).toFixed(2);
-        let unknownProductAreaPerc = (totalArea > 0 ? 100 * unknownProductArea / totalArea : 0).toFixed(2);
-        let shelfGapAreaPerc = (totalArea > 0 ? 100 * shelfGapArea / totalArea : 0).toFixed(2);
+        const taggedProductAreaPerc = (totalArea > 0 ? 100 * taggedProductArea / totalArea : 0).toFixed(2);
+        const unknownProductAreaPerc = (totalArea > 0 ? 100 * unknownProductArea / totalArea : 0).toFixed(2);
+        const shelfGapAreaPerc = (totalArea > 0 ? 100 * shelfGapArea / totalArea : 0).toFixed(2);
 
         this.setState({
             chartData: {
@@ -98,26 +102,27 @@ export class ResultScreen extends React.Component<ResultScreenProps, ResultScree
 
     updateResultTable(data: Array<ProductItem>, specData: SpecData) {
         const groupByName = this.groupBy('displayName');
-        let tagsByName = groupByName(data);
+        const imageBaseUrl = specData.CanonicalImages;
+        const tagsByName = groupByName(data);
 
         let tableData = Array<TableData>();
         for (let name in tagsByName) {
-            let products = tagsByName[name];
-            let totalCount = products.length;
+            const products = tagsByName[name];
+            const totalCount = products.length;
+
             if (totalCount > 0) {
-                let model = products[0].model;
-                let tagId = model.tagId;
-                let specItem = specData.Items.find((item: SpecItem) => {
-                    return item.TagId == tagId;
+                const model = products[0].model;
+                const tagId = model.tagId;
+                const specItem = specData.Items.find((item: SpecItem) => {
+                    return item.TagId === tagId;
                 });
 
-                let expectedCount = specItem != null ? specItem.ExpectedCount : 0;
-
+                const expectedCount = specItem != null ? specItem.ExpectedCount : 0;
                 tableData.push({
                     Name: name,
                     TotalCount: totalCount,
                     ExpectedCount: expectedCount,
-                    ImageUrl: 'https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/Mars/Products/' + name.toLocaleLowerCase() + '.jpg'
+                    ImageUrl: imageBaseUrl + name.toLocaleLowerCase() + '.jpg'
                 });
             }
         }

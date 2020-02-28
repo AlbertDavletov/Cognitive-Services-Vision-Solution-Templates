@@ -2,25 +2,31 @@ import React from 'react'
 import { View, Image, Text, TouchableOpacity } from 'react-native'
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
 import { ImageWithRegions } from '../../components'
+import { ActionType, ProductItem, TagItem, SpecData, PredictionModel, BoundingBox } from '../../models'
 import { styles } from './AddEditScreen.style'
+import { UnknownProduct, ShelfGap } from '../../../constants'
 
 interface AddEditScreenProps {
     navigation: NavigationScreenProp<NavigationState, NavigationParams>;
 }
 
 interface AddEditScreenState {
-    data: Array<any>,
-    imageSource: any,
-    tags: Array<any>;
-    selectedTag: any;
-    selectedRegions: Array<any>;
+    data: Array<ProductItem>,
+    selectedRegions: Array<ProductItem>;
+    selectedTag?: TagItem;
+    newProductItem?: ProductItem;
 }
 
 export class AddEditScreen extends React.Component<AddEditScreenProps, AddEditScreenState> {
     static navigationOptions = ( { navigation } : { navigation : NavigationScreenProp<NavigationState,NavigationParams> }) => {
         const { params } = navigation.state;
+        let title = "Add/Edit item";
+        if (params?.mode) {
+            title = params.mode === ActionType.Add ? "Add item" : "Edit item";
+        }
+
         return { 
-            title: 'Add/Edit item',
+            title: title,
             headerRight: () => (
                 <TouchableOpacity 
                     activeOpacity={0.6} 
@@ -36,76 +42,88 @@ export class AddEditScreen extends React.Component<AddEditScreenProps, AddEditSc
         }
     }
 
+    private mode: ActionType;
+    private defaultTag?: TagItem;
+    private specData: SpecData;
+    private imageSource: any;
+    private tagCollection: Array<TagItem>;
+
     constructor(props: AddEditScreenProps) {
-        super(props);
-        const { navigation } = props;
-        const tags = navigation.getParam('tags', []);
-        const tagCollection = this.getTagCollection(tags);
-
-        this.state = {
-            data: [],
-            imageSource: null,
-            tags: tagCollection,
-            selectedTag: null,
-            selectedRegions: []
-        }
-    }
-
-    componentDidMount() {
+        super(props);  
         const { navigation } = this.props;
         navigation.setParams({ applyChanges: this.applyChanges });
 
-        let data = navigation.getParam('data', []);
-        let selectedRegions = navigation.getParam('selectedRegions', []);
-        let imageSource = navigation.getParam('imageSource', {});
+        this.mode = navigation.getParam('mode', ActionType.Edit);
+        this.specData = navigation.getParam('specData', {});
+        this.imageSource = navigation.getParam('imageSource', {});
 
-        this.setState({
+        const data = navigation.getParam('data', Array<ProductItem>());
+        const selectedRegions = navigation.getParam('selectedRegions', Array<ProductItem>());
+
+        const tags = navigation.getParam('tags', []);
+        this.tagCollection = this.getTagCollection(tags, this.specData.CanonicalImages);
+        this.defaultTag = this.getDefaultTag(this.tagCollection, UnknownProduct);
+        
+        this.state = {
             data: data,
-            imageSource: imageSource,
             selectedRegions: selectedRegions
-        });
+        };
+    }
 
-        let selectedTag;
-        if (selectedRegions.length > 0) {
-            let model = selectedRegions[0].model;
-            selectedTag = {
-                id: model.tagId,
-                name: model.tagName,
-                imageUrl: 'https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/Mars/Products/' + model.tagName.toLocaleLowerCase() + '.jpg'
-            };
+    componentDidMount() {
+        switch (this.mode) {
+            case ActionType.Add:
+                if (this.defaultTag) {
+                    const bbox = new BoundingBox(0, 0, 10, 10);
+                    const model = new PredictionModel(this.defaultTag.id, this.defaultTag.name, bbox, 1.0);
+                    this.setState({ 
+                        selectedTag: this.defaultTag,
+                        newProductItem: new ProductItem(model) 
+                    });
+                }
+                break;
 
-            this.setState({
-                selectedTag: selectedTag
-            });
+            case ActionType.Edit:
+                if (this.state.selectedRegions.length > 0) {
+                    const model = this.state.selectedRegions[0].model;
+                    const tagImageUrl = this.specData.CanonicalImages + model.tagName.toLocaleLowerCase() + '.jpg';        
+                    this.setState({ selectedTag: new TagItem(model.tagId, model.tagName, tagImageUrl) });
+                }
+                break;
         }
     }
 
     render() {
         let imageWithRegionsComponent;
-        if (this.state.imageSource && this.state.data) {
+        if (this.imageSource && this.state.data) {
             imageWithRegionsComponent = (
                 <ImageWithRegions ref='editableImageWithRegions'
-                    mode='edit'
-                    imageSource={this.state.imageSource}
+                    mode={this.mode}
+                    imageSource={this.imageSource}
                     regions={this.state.data}
                     editableRegions={this.state.selectedRegions}
+                    newTagItem={this.state.selectedTag}
+                    newRegionChanged={(bBox: BoundingBox) => this.onNewRegionChanged(bBox)}
                 />
             );
         }
 
         let selectedTagComponent;
         if (this.state.selectedTag) {
-            let tag = this.state.selectedTag;
+            const tag = this.state.selectedTag;
+            const isUnknownProduct = tag.name.toLocaleLowerCase() === UnknownProduct.toLocaleLowerCase();
+            const isShelfGap = tag.name.toLocaleLowerCase() === ShelfGap.toLocaleLowerCase();
+
             selectedTagComponent = 
                 <View style={{ flexDirection: 'row'}}>
                     <View style={{ padding: 10 }}>
-                        { tag.name.toLocaleLowerCase() != 'product' && tag.name.toLocaleLowerCase() != 'gap' &&
+                        { !isUnknownProduct && !isShelfGap &&
                             <Image style={styles.imageThumbnail} source={{ uri: tag.imageUrl }} />
                         }
-                        { tag.name.toLocaleLowerCase() == 'product' &&
+                        { isUnknownProduct &&
                             <Image style={styles.imageThumbnail} source={require('../../assets/product.jpg')} />
                         }
-                        { tag.name.toLocaleLowerCase() == 'gap' &&
+                        { isShelfGap &&
                             <Image style={styles.imageThumbnail} source={require('../../assets/gap.jpg')} />
                         }
                     </View>
@@ -117,6 +135,11 @@ export class AddEditScreen extends React.Component<AddEditScreenProps, AddEditSc
                         
                         <View style={styles.line}/>
                     </View>
+                </View>
+        } else {
+            selectedTagComponent = 
+                <View>
+                    <Text style={[styles.tagLabel, { textAlign: 'center' }]}>Tap image to create new item</Text>
                 </View>
         }
 
@@ -136,38 +159,87 @@ export class AddEditScreen extends React.Component<AddEditScreenProps, AddEditSc
         );
     }
 
-    getTagCollection(tags: Array<any>) {
-        let tagCollection = Array<any>();
+    getTagCollection(tags: Array<any>, canonicalImageBaseUrl: string) {
+        let tagCollection = Array<TagItem>();
         tags.forEach(t => {
-            tagCollection.push({
-                id: t.id,
-                name: t.name,
-                imageUrl: 'https://intelligentkioskstore.blob.core.windows.net/shelf-auditing/Mars/Products/' + t.name.toLocaleLowerCase() + '.jpg'
-            });
+            const tagImageUrl = canonicalImageBaseUrl + t.name.toLocaleLowerCase() + '.jpg';
+            tagCollection.push(new TagItem(t.id, t.name, tagImageUrl));
         });
 
         return tagCollection;
     }
 
+    getDefaultTag(tagCollection: Array<TagItem>, defaultTag: string) {
+        if (tagCollection && tagCollection.length > 0) {
+            const tag = tagCollection.filter((val) => {
+                if (val.name.toLocaleLowerCase() === defaultTag.toLocaleLowerCase()) {
+                    return val;
+                }
+            });
+    
+            return tag && tag.length > 0 ? tag[0] : tagCollection[0];
+        }
+    }
+
     onChooseLabel() {
         const { navigate } = this.props.navigation;
-        navigate('TagCollection', { tags: this.state.tags, returnData: this.returnData.bind(this) });
+        navigate('TagCollection', { tags: this.tagCollection, returnData: this.returnData.bind(this) });
+    }
+
+    onNewRegionChanged(bBox: BoundingBox) {
+        const { navigation } = this.props;
+        const tag = this.state.selectedTag;
+
+        if (bBox && tag && this.state.newProductItem) {
+            const model = new PredictionModel(tag.id, tag.name, bBox, 1.0);
+            const productItem = new ProductItem(model);
+
+            this.setState({ newProductItem: productItem });
+            navigation.setParams({ newProductItem: productItem });
+        }
     }
 
     returnData(selectedTag: any) {
+        const { navigation } = this.props;
+
         this.state.selectedRegions.forEach(r => {
             r.displayName = selectedTag.name,
             r.model.tagId = selectedTag.id,
             r.model.tagName = selectedTag.name
         });
-        this.setState({ selectedTag: selectedTag });
+
+        let productItem;
+        if (this.state.newProductItem) {
+            const box = this.state.newProductItem.model.boundingBox;
+            const model = new PredictionModel(selectedTag.id, selectedTag.name, box, 1.0);
+            productItem = new ProductItem(model);
+            navigation.setParams({ newProductItem: productItem });
+        }
+
+        this.setState({ 
+            selectedTag: selectedTag, 
+            newProductItem: productItem
+        });
     }
 
     applyChanges(navigation: NavigationScreenProp<NavigationState, NavigationParams>) {
         const { params } = navigation.state;
-        if (params?.addEditModeCallback) {
-            params.addEditModeCallback(params.selectedRegions);
+        if (params) {
+            switch (params.mode) {
+                case ActionType.Add:
+                    if (params.addCallback) {
+                        params.addCallback(params.newProductItem);
+                    }
+                    break;
+
+                case ActionType.Edit:
+                    if (params.editCallback) {
+                        params.editCallback(params.selectedRegions);
+                    }
+                    break;
+            }
         }
+        
         navigation.goBack();
     }
 }

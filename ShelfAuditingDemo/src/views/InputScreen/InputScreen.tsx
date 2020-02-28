@@ -61,8 +61,8 @@ export class InputScreen extends React.Component<InputScreenProps, InputScreenSt
         navigation.setParams({ openSettings: this.openSettings });
 
         try {
-            let data = this.customSpecsDataLoader.getLocalData();
-            let items = data[0].SampleImages.map((v, i) => {
+            const data = this.customSpecsDataLoader.getLocalData();
+            const items = data[0].SampleImages.map((v, i) => {
                 return { id: i, src: v };
             });
 
@@ -98,8 +98,8 @@ export class InputScreen extends React.Component<InputScreenProps, InputScreenSt
                             this.setState({ selectedSpecId: itemValue });
 
                             this.state.specsData.forEach(obj => {
-                                if (obj.Id == itemValue) {
-                                    let items = obj.SampleImages.map((v: any, i: number) => {
+                                if (obj.Id === itemValue) {
+                                    const items = obj.SampleImages.map((v: any, i: number) => {
                                         return { id: i, src: v };
                                     });
                                     this.setState({ 

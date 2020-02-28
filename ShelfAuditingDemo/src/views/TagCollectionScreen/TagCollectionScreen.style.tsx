@@ -41,5 +41,9 @@ export const styles = StyleSheet.create({
         backgroundColor: 'transparent', 
         padding: 0, 
         marginBottom: 12
+    },
+    imageContainer: {
+        alignSelf: 'center', 
+        padding: 6
     }
 })

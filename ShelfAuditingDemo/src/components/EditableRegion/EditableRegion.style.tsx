@@ -1,15 +1,25 @@
 import { StyleSheet } from 'react-native'
 
-const CircleSize = 24;
+export const TouchableCircleSize = 42;
+export const VisibleCircleSize = 24;
+export const CircleButtonActiveColor = 'white';
+export const CircleButtonPressedColor = 'gray';
 
 export const styles = StyleSheet.create({
-    circleStyle: {
+    touchableCircleStyle: {
         position: 'absolute',
-        width: CircleSize,
-        height: CircleSize,
-        backgroundColor: 'green',
-        borderRadius: CircleSize / 2,
-      },
+        backgroundColor: 'transparent',
+        width: TouchableCircleSize,
+        height: TouchableCircleSize,
+        borderRadius: TouchableCircleSize / 2,
+        alignItems: 'center', 
+        justifyContent: 'center'
+    },
+    visibleCircleStyle: {
+        width: VisibleCircleSize,
+        height: VisibleCircleSize,
+        borderRadius: VisibleCircleSize / 2, 
+    },
     selectedRegion: {
         flex: 1,
         borderWidth: 2,

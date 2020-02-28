@@ -1,8 +1,7 @@
 import React from 'react'
 import { View, Text, PanResponder, PanResponderInstance, GestureResponderEvent, PanResponderGestureState } from 'react-native'
-import { styles } from './EditableRegion.style'
-
-const CircleSize = 24;
+import { styles, TouchableCircleSize, CircleButtonActiveColor, CircleButtonPressedColor } from './EditableRegion.style'
+import { BoundingBox } from '../../models/ProductItem';
 
 enum PointPosition {
     TopLeft,
@@ -12,7 +11,7 @@ enum PointPosition {
 }
 
 interface RegionProps {
-    position: any;
+    position: BoundingBox;
     data: any;
     positionChange: Function;
 }
@@ -70,11 +69,11 @@ export class EditableRegion extends React.Component<RegionProps, RegionState> {
         let component = 
             <View style={{
                 position: 'absolute',
-                left: this.state.left - CircleSize / 2, 
-                top: this.state.top - CircleSize / 2,
-                width: this.state.width + CircleSize,
-                height: this.state.height + CircleSize,
-                padding: CircleSize / 2,
+                left: this.state.left - TouchableCircleSize / 2, 
+                top: this.state.top - TouchableCircleSize / 2,
+                width: this.state.width + TouchableCircleSize,
+                height: this.state.height + TouchableCircleSize,
+                padding: TouchableCircleSize / 2,
             }}>   
                 <View style={styles.selectedRegion}>
                     <View style={styles.selectedRegionLabelPanel}>
@@ -82,10 +81,18 @@ export class EditableRegion extends React.Component<RegionProps, RegionState> {
                     </View>
                 </View>
 
-                <View style={[styles.circleStyle, { left: 0,  top: 0, backgroundColor:    this.state.topLeftPressed     ? 'gray' : 'white' }]} {...this.topLeftPanResponder.panHandlers}/>
-                <View style={[styles.circleStyle, { right: 0, top: 0, backgroundColor:    this.state.topRightPressed    ? 'gray' : 'white' }]} {...this.topRightPanResponder.panHandlers}/>
-                <View style={[styles.circleStyle, { right: 0, bottom: 0, backgroundColor: this.state.bottomRightPressed ? 'gray' : 'white' }]} {...this.bottomRightPanResponder.panHandlers}/>
-                <View style={[styles.circleStyle, { left: 0,  bottom: 0, backgroundColor: this.state.bottomLeftPressed  ? 'gray' : 'white' }]} {...this.bottomLeftPanResponder.panHandlers}/>
+                <View style={[styles.touchableCircleStyle, { left: 0, top: 0 }]} {...this.topLeftPanResponder.panHandlers}>
+                    <View style={[styles.visibleCircleStyle, { backgroundColor: this.state.topLeftPressed ? CircleButtonPressedColor : CircleButtonActiveColor }]}/>
+                </View>
+                <View style={[styles.touchableCircleStyle, { right: 0, top: 0 }]} {...this.topRightPanResponder.panHandlers}>
+                    <View style={[styles.visibleCircleStyle, { backgroundColor: this.state.topRightPressed ? CircleButtonPressedColor : CircleButtonActiveColor }]}/>
+                </View>
+                <View style={[styles.touchableCircleStyle, { right: 0, bottom: 0 }]} {...this.bottomRightPanResponder.panHandlers}>
+                    <View style={[styles.visibleCircleStyle, { backgroundColor: this.state.bottomRightPressed ? CircleButtonPressedColor : CircleButtonActiveColor }]}/>
+                </View>
+                <View style={[styles.touchableCircleStyle, { left: 0, bottom: 0 }]} {...this.bottomLeftPanResponder.panHandlers}>
+                    <View style={[styles.visibleCircleStyle, { backgroundColor: this.state.bottomLeftPressed ? CircleButtonPressedColor : CircleButtonActiveColor }]}/>
+                </View>
             </View>;
         return component;
     }

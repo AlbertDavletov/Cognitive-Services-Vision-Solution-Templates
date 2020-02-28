@@ -115,9 +115,7 @@ export class CameraScreen extends React.Component<CameraProps, CameraState> {
             const options = { quality: 0.5, base64: true };
             const data = await this.camera.takePictureAsync(options);
 
-            console.log(data.uri);
             this.setState({ isCameraVisible: false });
-
             navigate('Review', {image: data, selectedSpec: this.state.specData, fromCamera: true });
         }
     }

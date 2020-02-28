@@ -14,11 +14,18 @@ export class ProductItem {
     }
 }
 
-export interface PredictionModel {
+export class PredictionModel {
     tagId: string;
     tagName: string;
     boundingBox: BoundingBox;
     probability: number;
+
+    constructor(tagId: string, tagName: string, bbox: BoundingBox, probability: number) {
+        this.tagId = tagId;
+        this.tagName = tagName;
+        this.boundingBox = bbox;
+        this.probability = probability;
+    }
 }
 
 export class BoundingBox {

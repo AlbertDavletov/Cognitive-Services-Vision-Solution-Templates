@@ -27,13 +27,14 @@ export class ZoomView extends React.Component<ZoomViewProps, {}> {
     }
 
     onGesturePinch = (event: PinchGestureHandlerGestureEvent ) => {
-        this.props.onPinchProgress(event.nativeEvent.scale)
+        this.props.onPinchProgress(event.nativeEvent.scale);
     }
 
     onPinchHandlerStateChange = (event: PinchGestureHandlerStateChangeEvent) => {
-        const pinch_end = event.nativeEvent.state === State.END
-        const pinch_begin = event.nativeEvent.oldState === State.BEGAN
-        const pinch_active = event.nativeEvent.state === State.ACTIVE
+        const pinch_end = event.nativeEvent.state === State.END;
+        const pinch_begin = event.nativeEvent.oldState === State.BEGAN;
+        const pinch_active = event.nativeEvent.state === State.ACTIVE;
+
         if (pinch_end) {
           this.props.onPinchEnd()
         }

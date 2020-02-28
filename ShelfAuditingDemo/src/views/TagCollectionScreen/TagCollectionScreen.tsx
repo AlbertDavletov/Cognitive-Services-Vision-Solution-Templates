@@ -3,6 +3,8 @@ import { View, Image, Text, TouchableOpacity, FlatList } from 'react-native'
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
 import { SearchBar } from 'react-native-elements'
 import { styles } from './TagCollectionScreen.style'
+import { UnknownProduct, ShelfGap } from '../../../constants'
+import { TagItem } from '../../models'
 
 interface TagCollectionScreenProps {
     navigation: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -10,8 +12,8 @@ interface TagCollectionScreenProps {
 
 interface TagCollectionScreenState {
     filter: string;
-    allTags: Array<any>;
-    filterTags: Array<any>;
+    allTags: Array<TagItem>;
+    filterTags: Array<TagItem>;
 }
 
 export class TagCollectionScreen extends React.Component<TagCollectionScreenProps, TagCollectionScreenState> {
@@ -19,14 +21,14 @@ export class TagCollectionScreen extends React.Component<TagCollectionScreenProp
         super(props);
         this.state = {
             filter: '',
-            allTags: [],
-            filterTags: []
+            allTags: Array<TagItem>(),
+            filterTags: Array<TagItem>()
         };
     }
 
     componentDidMount() {
         const { navigation, } = this.props;
-        let tags = navigation.getParam('tags', []);
+        let tags = navigation.getParam('tags', Array<TagItem>());
         this.setState({
             allTags: tags, 
             filterTags: tags 
@@ -49,35 +51,39 @@ export class TagCollectionScreen extends React.Component<TagCollectionScreenProp
                 <FlatList 
                     numColumns={4}
                     data={ this.state.filterTags } 
-                    renderItem={({item}) =>
-                        <TouchableOpacity activeOpacity={0.6} style={styles.tagBlockStyle} 
-                            onPress={() => this.selectTag(item)}>
-                            <View>
-                                <View style={{ alignSelf: 'center', height: '60%', padding: 6 }}>
-                                    { item.name.toLocaleLowerCase() != 'product' && item.name.toLocaleLowerCase() != 'gap' &&
-                                        <Image style={styles.imageThumbnail} source={{ uri: item.imageUrl }} />
-                                    }
-                                    { item.name.toLocaleLowerCase() == 'product' &&
-                                        <Image style={styles.imageThumbnail} source={require('../../assets/product.jpg')} />
-                                    }
-                                    { item.name.toLocaleLowerCase() == 'gap' &&
-                                        <Image style={styles.imageThumbnail} source={require('../../assets/gap.jpg')} />
-                                    }
-                                </View>
-                                
-                                <View style={[styles.tagContainer, { height: '40%' }]}>
-                                    <Text numberOfLines={3} style={styles.tagLabel}>{item.name}</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                    }
+                    renderItem={({item}) => {
+
+                        const isUnknownProduct = item.name.toLocaleLowerCase() === UnknownProduct.toLocaleLowerCase();
+                        const isShelfGap = item.name.toLocaleLowerCase() === ShelfGap.toLocaleLowerCase();
+
+                        return <TouchableOpacity activeOpacity={0.6} style={styles.tagBlockStyle} 
+                                    onPress={() => this.selectTag(item)}>
+                                    <View>
+                                        <View style={[styles.imageContainer, { height: '60%' }]}>
+                                            { !isUnknownProduct && !isShelfGap &&
+                                                <Image style={styles.imageThumbnail} source={{ uri: item.imageUrl }} />
+                                            }
+                                            { isUnknownProduct &&
+                                                <Image style={styles.imageThumbnail} source={require('../../assets/product.jpg')} />
+                                            }
+                                            { isShelfGap &&
+                                                <Image style={styles.imageThumbnail} source={require('../../assets/gap.jpg')} />
+                                            }
+                                        </View>
+                                        
+                                        <View style={[styles.tagContainer, { height: '40%' }]}>
+                                            <Text numberOfLines={3} style={styles.tagLabel}>{item.name}</Text>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                    }}
                 />
 
             </View>
         );
     }
 
-    selectTag(tag: any) {
+    selectTag(tag: TagItem) {
         const { navigation } = this.props;
         if (navigation.state?.params?.returnData) {
             navigation.state.params.returnData(tag);
@@ -91,7 +97,7 @@ export class TagCollectionScreen extends React.Component<TagCollectionScreenProp
         if (!filter) {
             this.setState({ filterTags: allTags });
         } else {
-            let filterData = Array<any>();
+            let filterData = Array<TagItem>();
             allTags.forEach(t => {
                 let tagName = t.name.toLocaleLowerCase();
                 if (tagName.includes(filter.toLocaleLowerCase())) {

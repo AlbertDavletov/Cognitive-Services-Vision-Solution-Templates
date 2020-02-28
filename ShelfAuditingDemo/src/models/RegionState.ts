@@ -1,8 +1,8 @@
-export const RegionState = {
-    Active: 'active',
-    Edit: 'edit',
-    Disabled: 'disabled',
-    Selected: 'selected',
-    SelectedWithNotification: 'selectedWithNotification',
-    LowConfidence: 'lowConfidence',
+export enum RegionState {
+    Active,
+    Edit,
+    Disabled,
+    Selected,
+    SelectedWithNotification,
+    LowConfidence
 }
