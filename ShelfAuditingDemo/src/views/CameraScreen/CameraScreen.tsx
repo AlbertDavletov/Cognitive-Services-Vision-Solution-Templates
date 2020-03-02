@@ -4,6 +4,7 @@ import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-n
 import { RNCamera } from 'react-native-camera'
 import { ZoomView } from '../../components'
 import { styles } from './CameraScreen.style'
+import { ImagePickerType } from '../../models/ImagePickerType'
 
 const MAX_ZOOM = 7; // iOS only
 const ZOOM_F = Platform.OS === 'ios' ? 0.007 : 0.08;
@@ -116,7 +117,7 @@ export class CameraScreen extends React.Component<CameraProps, CameraState> {
             const data = await this.camera.takePictureAsync(options);
 
             this.setState({ isCameraVisible: false });
-            navigate('Review', {image: data, selectedSpec: this.state.specData, fromCamera: true });
+            navigate('Review', {image: data, selectedSpec: this.state.specData, imagePickerType: ImagePickerType.FromCamera });
         }
     }
 

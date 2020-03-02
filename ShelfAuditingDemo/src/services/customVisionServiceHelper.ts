@@ -46,7 +46,7 @@ export default class CustomVisionService {
         return RNFetchBlob.fetch('POST', url, {
             'Content-Type': 'multipart/form-data',
             'Prediction-Key': this.ApiKey
-        }, file)
+        }, [ file ])
         .then((response) => {
             return response.json();
         })
@@ -58,9 +58,9 @@ export default class CustomVisionService {
         });
     }
 
-    async detectImageFromCameraPicture(projectId: string, publishedName: string, picture: any) {
+    async detectImageFromCameraPicture(projectId: string, publishedName: string, picture: string) {
         const url = this.BaseURL + 'prediction/' + projectId + '/detect/iterations/' + publishedName + '/image';
-        let file = RNFetchBlob.wrap(picture.uri.split('//')[1]);
+        let file = RNFetchBlob.wrap(picture.split('//')[1]);
 
         return RNFetchBlob.fetch('POST', url, {
             'Content-Type': 'multipart/form-data',

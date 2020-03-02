@@ -1,10 +1,13 @@
 import React from 'react'
 import { View, Text, Image, Picker, FlatList, TouchableHighlight, Alert } from 'react-native';
 import { NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation'
+import ImagePicker, { ImagePickerOptions } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome'
-import { SpecData } from '../../models';
+import { SpecData, ImagePickerType } from '../../models';
 import CustomSpecsDataLoader from '../../services/customSpecsDataLoader'
 import { styles } from './InputScreen.style'
+import CustomVisionService from '../../services/customVisionServiceHelper';
+import RNFetchBlob from 'rn-fetch-blob';
 Icon.loadFont()
 
 interface InputScreenProps {
@@ -39,7 +42,8 @@ export class InputScreen extends React.Component<InputScreenProps, InputScreenSt
         }
     }
 
-    customSpecsDataLoader: CustomSpecsDataLoader;
+    private customSpecsDataLoader: CustomSpecsDataLoader;
+    private imagePickerOptions: ImagePickerOptions;
 
     constructor(props: InputScreenProps) {
         super(props);
@@ -50,6 +54,18 @@ export class InputScreen extends React.Component<InputScreenProps, InputScreenSt
             selectedSpecId: '',
             selectedSpec: undefined,
             suggestedImages: []
+        };
+
+        /*
+         * Image Picker Options:
+         * https://github.com/react-native-community/react-native-image-picker/blob/master/docs/Reference.md#options
+         */ 
+        this.imagePickerOptions = {
+            title: 'Select a photo',
+            storageOptions: {
+                skipBackup: true,
+                path: 'images',
+            }
         };
 
         // event handlers
@@ -125,6 +141,11 @@ export class InputScreen extends React.Component<InputScreenProps, InputScreenSt
 
                     <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: 10, paddingRight: 10 }}>
                         <Text style={{ flex: 1, color: 'white', fontSize: 15 }}>Examples</Text>    
+                        <Icon.Button name="image" size={30} style={{ alignContent: 'flex-end', justifyContent: 'flex-end' }}
+                            backgroundColor="transparent" 
+                            underlayColor="transparent"
+                            color="white"
+                            onPress={(e) => this.openImageGallery()}/>
                         <Icon.Button name="camera" size={30} style={{ alignContent: 'flex-end', justifyContent: 'flex-end' }}
                             backgroundColor="transparent" 
                             underlayColor="transparent"
@@ -139,7 +160,7 @@ export class InputScreen extends React.Component<InputScreenProps, InputScreenSt
                         data={this.state.suggestedImages}
                         renderItem={({ item }) => (
                             <View style={{ flex: 1, flexDirection: 'column', margin: 6 }}>
-                                <TouchableHighlight onPress={(e) => { this.handleImageClick(item) }}>
+                                <TouchableHighlight onPress={(e) => { this.handleImageClick(item.src, ImagePickerType.FromWeb) }}>
                                     <Image style={styles.imageThumbnail} source={{ uri: item.src }} />
                                 </TouchableHighlight>
                             </View>
@@ -154,9 +175,23 @@ export class InputScreen extends React.Component<InputScreenProps, InputScreenSt
         return mainView;
     }
 
-    handleImageClick(image: any) {
+    openImageGallery() {
+        ImagePicker.launchImageLibrary(this.imagePickerOptions, async (response) => {
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            } else if (response.customButton) {
+                console.log('User tapped custom button: ', response.customButton);
+            } else {
+                this.handleImageClick(response, ImagePickerType.FromImageGallery);
+            }
+        });
+    }
+
+    handleImageClick(image: any, imagePickerType: ImagePickerType) {
         const { navigate } = this.props.navigation;
-        navigate('Review', {image: image, selectedSpec: this.state.selectedSpec});
+        navigate('Review', {image: image, selectedSpec: this.state.selectedSpec, imagePickerType: imagePickerType});
     }
 
     openSettings() {
