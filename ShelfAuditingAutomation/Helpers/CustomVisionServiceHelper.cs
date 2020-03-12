@@ -26,7 +26,7 @@ namespace ShelfAuditingAutomation.Helpers
             try
             {
                 var iteractions = await trainingApi.GetIterationsAsync(projectId);
-                var latestTrainedIteraction = iteractions.Where(i => i.Status == "Completed").OrderByDescending(i => i.TrainedAt.Value).FirstOrDefault();
+                var latestTrainedIteraction = iteractions.Where(i => i.Status == "Completed" && !string.IsNullOrEmpty(i.PublishName)).OrderByDescending(i => i.TrainedAt.Value).FirstOrDefault();
                 if (latestTrainedIteraction == null || string.IsNullOrEmpty(latestTrainedIteraction?.PublishName))
                 {
                     throw new Exception("This project doesn't have any trained models or published iteration yet. Please train and publish it, or wait until training completes if one is in progress.");
